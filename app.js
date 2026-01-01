@@ -735,93 +735,50 @@
     }
   }
 
-  // ---------- tabs (ONLY ONE system) ----------
-  function initTabs() {
-    const btns = Array.from(document.querySelectorAll(".tab-btn"));
-    const panels = Array.from(document.querySelectorAll(".tab-panel"));
-
-    if (!btns.length || !panels.length) return;
-
-    const activate = (name) => {
-      btns.forEach(b => b.classList.toggle("active", b.dataset.tab === name));
-      panels.forEach(p => p.classList.toggle("active", p.dataset.panel === name));
-    };
-
-    activate(btns[0].dataset.tab);
-
-    btns.forEach(b => {
-      b.addEventListener("click", (e) => {
-        e.preventDefault();
-        activate(b.dataset.tab);
-      });
-    });
-  }
-
   // ---------- binding ----------
-  function bindRunButton() {
-    const candidates = [
-      $("btnRun"),
-      $("runBtn"),
-      document.querySelector('[data-action="run"]'),
-    ].filter(Boolean);
+  function initTabs(){
+  const tabs = Array.from(document.querySelectorAll(".tabs .tab"));
+  const panes = Array.from(document.querySelectorAll(".pane"));
 
-    // 兜底：按文字匹配
-    if (!candidates.length) {
-      const all = Array.from(document.querySelectorAll("button,a,input[type='button'],input[type='submit']"));
-      all.forEach(el => {
-        const text = (el.textContent || el.value || "").trim();
-        if (text.includes("生成即时预测")) candidates.push(el);
-      });
-    }
+  if(!tabs.length || !panes.length) return;
 
-    if (!candidates.length) {
-      console.warn("[AuroraCapture] RUN button not found");
-      setStatusText("未找到“生成即时预测”按钮（请检查按钮 id）。");
+  const activate = (id) => {
+    tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === id));
+    panes.forEach(p => p.classList.toggle("active", p.id === id));
+  };
+
+  // 默认：用 HTML 里带 active 的 tab，没有就第一个
+  const defaultTab = tabs.find(t => t.classList.contains("active")) || tabs[0];
+  activate(defaultTab.dataset.tab);
+
+  tabs.forEach(t => t.addEventListener("click", () => activate(t.dataset.tab)));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initTabs();
+
+  // default values
+  const latEl = document.getElementById("lat");
+  const lonEl = document.getElementById("lon");
+  if(latEl && !latEl.value) latEl.value = "53.47";
+  if(lonEl && !lonEl.value) lonEl.value = "122.35";
+
+  // bind buttons
+  const btnRun = document.getElementById("btnRun");
+  if(btnRun) btnRun.addEventListener("click", run);
+
+  const btnMag = document.getElementById("btnMag");
+  if(btnMag) btnMag.addEventListener("click", () => {
+    const lat = Number(latEl?.value);
+    const lon = Number(lonEl?.value);
+    if(!isFinite(lat) || !isFinite(lon)){
+      setStatusText("请先输入有效经纬度。");
       return;
     }
-
-    candidates.forEach(el => {
-      el.addEventListener("click", (e) => {
-        e.preventDefault();
-        run();
-      });
-    });
-  }
-
-  function bindMagButton() {
-    const candidates = [
-      $("btnMag"),
-      $("magBtn"),
-      document.querySelector('[data-action="mag"]'),
-    ].filter(Boolean);
-
-    if (!candidates.length) {
-      const all = Array.from(document.querySelectorAll("button,a,input[type='button']"));
-      all.forEach(el => {
-        const text = (el.textContent || el.value || "").trim();
-        if (text.includes("转换磁纬度")) candidates.push(el);
-      });
-    }
-
-    if (!candidates.length) {
-      console.warn("[AuroraCapture] MAG button not found");
-      return;
-    }
-
-    candidates.forEach(el => {
-      el.addEventListener("click", (e) => {
-        e.preventDefault();
-        const lat = Number($("lat")?.value);
-        const lon = Number($("lon")?.value);
-        if (!isFinite(lat) || !isFinite(lon)) {
-          setStatusText("请先输入有效经纬度。");
-          return;
-        }
-        const m = approxMagLat(lat, lon);
-        alert(`磁纬约 ${round1(m)}°`);
-      });
-    });
-  }
+    const m = approxMagLat(lat, lon);
+    alert(`磁纬约 ${round1(m)}°`);
+  });
+});
 
   function bootstrap() {
     console.log("[AuroraCapture] v2.4.2 bootstrap");
