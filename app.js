@@ -1,3 +1,20 @@
+function cacheSet(key, obj){
+  try { localStorage.setItem(key, JSON.stringify(obj)); } catch {}
+}
+function cacheGet(key){
+  try {
+    const t = localStorage.getItem(key);
+    return t ? JSON.parse(t) : null;
+  } catch { return null; }
+}
+
+function fmtAge(ms){
+  const m = Math.round(ms/60000);
+  if (m < 60) return `${m} 分钟前`;
+  const h = m/60;
+  return `${h.toFixed(h < 10 ? 1 : 0)} 小时前`;
+}
+
 function deg2rad(d){ return d * Math.PI / 180; }
 function rad2deg(r){ return r * 180 / Math.PI; }
 
@@ -74,11 +91,41 @@ function addHours(d, h){ return new Date(d.getTime() + h*3600*1000); }
 async function fetchSWPC2h(){
   const magUrl = 'https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json';
   const plasmaUrl = 'https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json';
+let mag, plasma;
+const notes = [];
 
-  const [mag, plasma] = await Promise.all([
-    fetch(magUrl, { cache: 'no-store' }).then(r=>r.json()),
-    fetch(plasmaUrl, { cache: 'no-store' }).then(r=>r.json())
-  ]);
+try {
+  const resMag = await fetch(magUrl, { cache: 'no-store' });
+  const resPlasma = await fetch(plasmaUrl, { cache: 'no-store' });
+
+  const textMag = await resMag.text();
+  const textPlasma = await resPlasma.text();
+
+  if (!textMag || !textPlasma) throw new Error('empty');
+
+  mag = JSON.parse(textMag);
+  plasma = JSON.parse(textPlasma);
+
+  cacheSet('cache_noaa_mag', mag);
+  cacheSet('cache_noaa_plasma', plasma);
+
+  notes.push('✅ NOAA 实时数据已更新');
+} catch (e) {
+  const cMag = cacheGet('cache_noaa_mag');
+  const cPlasma = cacheGet('cache_noaa_plasma');
+
+  if (cMag && cPlasma) {
+    mag = cMag;
+    plasma = cPlasma;
+
+    const age = fmtAge(Date.now() - (cMag.ts || Date.now()));
+    notes.push(`⚠️ NOAA 接口暂时无法拉取目前数据，将使用此前最新数据做解析（${age}）`);
+  } else {
+    notes.push('❌ NOAA 接口暂时无法拉取，目前无可用历史数据');
+    return null; // 直接返回，后面逻辑要能接住 null
+  }
+}
+    if (notes.length) setStatus(notes.join('｜'));
 
   const magHeader = mag[0];
   const plasmaHeader = plasma[0];
