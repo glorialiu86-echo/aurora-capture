@@ -1,3 +1,39 @@
+// ====== 工具：DOM ======
+const $ = (id) => document.getElementById(id);
+function setStatus(msg){ $('status').textContent = msg || ''; }
+function setDataNote(msg){ $('dataNote').textContent = msg || ''; }
+
+// ====== 工具：时间/时区 ======
+function parseUTCOffset(tzStr){
+  const m = tzStr.match(/^UTC([+-])(\d{1,2})$/);
+  if (!m) return 0;
+  const sign = m[1] === '+' ? 1 : -1;
+  return sign * Number(m[2]) * 60; // minutes
+}
+function parseLocalTimeToUTC(localStr, tzStr){
+  const m = localStr.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/);
+  if (!m) throw new Error('时间格式应为 YYYY-MM-DD HH:mm');
+  const [_, Y, Mo, D, H, Mi] = m;
+  const offsetMin = parseUTCOffset(tzStr);
+  const utcMs = Date.UTC(+Y, +Mo-1, +D, +H, +Mi) - offsetMin*60*1000;
+  return new Date(utcMs);
+}
+function addHours(d, h){ return new Date(d.getTime() + h*3600*1000); }
+function fmtLocalHour(dUTC, tzStr){
+  const offsetMin = parseUTCOffset(tzStr);
+  const ms = dUTC.getTime() + offsetMin*60*1000;
+  const d = new Date(ms);
+  const pad = (n)=>String(n).padStart(2,'0');
+  return `${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:00`;
+}
+function fmtAge(ms){
+  const m = Math.round(ms/60000);
+  if (m < 60) return `${m} 分钟前`;
+  const h = m/60;
+  return `${h.toFixed(h < 10 ? 1 : 0)} 小时前`;
+}
+
+// ====== 工具：缓存（localStorage） ======
 function cacheSet(key, obj){
   try { localStorage.setItem(key, JSON.stringify(obj)); } catch {}
 }
@@ -8,124 +44,87 @@ function cacheGet(key){
   } catch { return null; }
 }
 
-function fmtAge(ms){
-  const m = Math.round(ms/60000);
-  if (m < 60) return `${m} 分钟前`;
-  const h = m/60;
-  return `${h.toFixed(h < 10 ? 1 : 0)} 小时前`;
-}
+// 拉取JSON：成功写缓存；失败用缓存；都没有返回 null。不会弹窗。
+async function fetchJSONWithFallback(url, label, cacheKey, notes){
+  const now = Date.now();
+  try{
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(String(res.status));
+    const text = await res.text();
+    if (!text) throw new Error('empty');
+    const data = JSON.parse(text);
 
-function deg2rad(d){ return d * Math.PI / 180; }
-function rad2deg(r){ return r * 180 / Math.PI; }
-
-// 粗略磁纬计算（用于决策下限，不追求高精度）
-function approxMagLat(lat, lon){
-  // 近似磁北极位置（够用）
-  const poleLat = 80.6;
-  const poleLon = -72.7;
-
-  const latR = deg2rad(lat), lonR = deg2rad(lon);
-  const pLatR = deg2rad(poleLat), pLonR = deg2rad(poleLon);
-
-  const r = [
-    Math.cos(latR) * Math.cos(lonR),
-    Math.cos(latR) * Math.sin(lonR),
-    Math.sin(latR)
-  ];
-  const m = [
-    Math.cos(pLatR) * Math.cos(pLonR),
-    Math.cos(pLatR) * Math.sin(pLonR),
-    Math.sin(pLatR)
-  ];
-
-  const dot = r[0]*m[0] + r[1]*m[1] + r[2]*m[2];
-  return rad2deg(Math.asin(Math.max(-1, Math.min(1, dot))));
-}
-const LEVELS = ['强烈推荐','可以拍','观望','不建议','放弃'];
-const COLOR = {
-  '强烈推荐': '#1f8f4a',
-  '可以拍':   '#45b36b',
-  '观望':     '#f3c969',
-  '不建议':   '#8a8f99',
-  '放弃':     '#5b5f66'
-};
-
-const $ = (id) => document.getElementById(id);
-
-function setStatus(msg){ $('status').textContent = msg || ''; }
-
-function parseUTCOffset(tzStr){
-  // tzStr like "UTC+8" / "UTC-5" / "UTC+0"
-  const m = tzStr.match(/^UTC([+-])(\d{1,2})$/);
-  if (!m) return 0;
-  const sign = m[1] === '+' ? 1 : -1;
-  const h = Number(m[2]);
-  return sign * h * 60; // minutes
-}
-
-function parseLocalTimeToUTC(localStr, tzStr){
-  // localStr: "YYYY-MM-DD HH:mm"
-  const m = localStr.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/);
-  if (!m) throw new Error('时间格式应为 YYYY-MM-DD HH:mm');
-  const [_, Y, Mo, D, H, Mi] = m;
-  const offsetMin = parseUTCOffset(tzStr);
-  // UTC = local - offset
-  const utcMs = Date.UTC(+Y, +Mo-1, +D, +H, +Mi) - offsetMin*60*1000;
-  return new Date(utcMs);
-}
-
-function fmtLocalHour(dUTC, tzStr){
-  const offsetMin = parseUTCOffset(tzStr);
-  const ms = dUTC.getTime() + offsetMin*60*1000;
-  const d = new Date(ms);
-  const pad = (n)=>String(n).padStart(2,'0');
-  return `${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:00`;
-}
-
-function addHours(d, h){ return new Date(d.getTime() + h*3600*1000); }
-
-/**
- * NOAA SWPC solar-wind JSON
- * 2-hour products are arrays with header row at index 0.
- */
-async function fetchSWPC2h(){
-  const magUrl = 'https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json';
-  const plasmaUrl = 'https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json';
-let mag, plasma;
-const notes = [];
-
-try {
-  const resMag = await fetch(magUrl, { cache: 'no-store' });
-  const resPlasma = await fetch(plasmaUrl, { cache: 'no-store' });
-
-  const textMag = await resMag.text();
-  const textPlasma = await resPlasma.text();
-
-  if (!textMag || !textPlasma) throw new Error('empty');
-
-  mag = JSON.parse(textMag);
-  plasma = JSON.parse(textPlasma);
-
-  cacheSet('cache_noaa_mag', mag);
-  cacheSet('cache_noaa_plasma', plasma);
-
-  notes.push('✅ NOAA 实时数据已更新');
-} catch (e) {
-  const cMag = cacheGet('cache_noaa_mag');
-  const cPlasma = cacheGet('cache_noaa_plasma');
-
-  if (cMag && cPlasma) {
-    mag = cMag;
-    plasma = cPlasma;
-
-    const age = fmtAge(Date.now() - (cMag.ts || Date.now()));
-    notes.push(`⚠️ NOAA 接口暂时无法拉取目前数据，将使用此前最新数据做解析（${age}）`);
-  } else {
-    notes.push('❌ NOAA 接口暂时无法拉取，目前无可用历史数据');
-    return null; // 直接返回，后面逻辑要能接住 null
+    cacheSet(cacheKey, { ts: now, data });
+    notes.push(`✅ ${label} 已更新`);
+    return { data, ts: now, stale: false };
+  }catch(e){
+    const cached = cacheGet(cacheKey);
+    if (cached?.data){
+      const age = fmtAge(now - cached.ts);
+      notes.push(`⚠️ ${label}接口暂时无法拉取目前数据，将使用此前最新数据做解析（${age}）`);
+      return { data: cached.data, ts: cached.ts, stale: true };
+    }
+    notes.push(`❌ ${label}接口暂时无法拉取目前数据，且本地暂无可用历史数据`);
+    return { data: null, ts: null, stale: true };
   }
 }
-    if (notes.length) setStatus(notes.join('｜'));
+
+// ====== 评分配色（0-10） ======
+function scoreColor(s){
+  // 0..10 -> red -> yellow -> green
+  // 手写一条“自然渐变”（不依赖库）
+  if (s <= 0) return '#2a2f3a';
+  if (s <= 2) return '#5b3b3b';
+  if (s <= 4) return '#7b4e42';
+  if (s <= 6) return '#8b7a44';
+  if (s <= 7) return '#7aa04e';
+  if (s <= 8) return '#4ea56a';
+  if (s <= 9) return '#2f9a64';
+  return '#1f8f4a';
+}
+function scoreLabel(s){
+  // 普通人行动建议（不再出现“观望”）
+  if (s >= 10) return '强烈推荐：立刻出门/架机';
+  if (s >= 9) return '很值得拍：赶紧到位';
+  if (s >= 8) return '可以拍：已解锁可见';
+  if (s >= 7) return '建议准备：到位等待触发';
+  if (s >= 6) return '可以蹲点：不建议远行';
+  if (s >= 5) return '看窗口：顺路可试';
+  if (s >= 4) return '低概率：别专程';
+  if (s >= 3) return '基本没戏：不出门';
+  if (s >= 1) return '不建议：不出门';
+  return '0分否决：放弃';
+}
+
+// ====== 纬度分段（你现在采用地理纬度经验法） ======
+function latBand(absLat){
+  if (absLat >= 67) return '极高纬';
+  if (absLat >= 62) return '中高纬';
+  if (absLat >= 55) return '边缘纬';
+  if (absLat >= 50) return '极端边缘';
+  return '低纬';
+}
+function cloudThresholds(band){
+  // 来自你 v1.4（并对 50-55 更苛刻）
+  if (band === '极高纬') return { lowMax: 5,  midMax: 20, midIdeal: 10, highMax: 40, highIdeal: 25, keywords:'星点锐利 / 银河可见 / 对比强' };
+  if (band === '中高纬') return { lowMax: 10, midMax: 30, midIdeal: 20, highMax: 60, highIdeal: 45, keywords:'北向暗区仍在 / 星点未完全消失' };
+  if (band === '边缘纬') return { lowMax: 10, midMax: 50, midIdeal: 35, highMax: 80, highIdeal: 65, keywords:'不厚到吃星就行 / 薄幕OK' };
+  if (band === '极端边缘') return { lowMax: 8,  midMax: 30, midIdeal: 20, highMax: 50, highIdeal: 35, keywords:'只谈极端事件 / 要求更苛刻' };
+  return { lowMax: 0,  midMax: 0,  midIdeal: 0,  highMax: 0,  highIdeal: 0,  keywords:'' };
+}
+
+// ====== NOAA SWPC 近实时（2小时） ======
+async function fetchSWPC2h(notes){
+  const magUrl = 'https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json';
+  const plasmaUrl = 'https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json';
+
+  const magR = await fetchJSONWithFallback(magUrl, 'NOAA磁场', 'cache_noaa_mag2h', notes);
+  const plasmaR = await fetchJSONWithFallback(plasmaUrl, 'NOAA等离子体', 'cache_noaa_plasma2h', notes);
+
+  if (!magR.data || !plasmaR.data) return null;
+
+  const mag = magR.data;
+  const plasma = plasmaR.data;
 
   const magHeader = mag[0];
   const plasmaHeader = plasma[0];
@@ -165,7 +164,7 @@ try {
     .filter(x => x.time instanceof Date && !isNaN(x.time))
     .sort((a,b)=>a.time - b.time);
 
-  return series;
+  return { series, ts: Math.min(magR.ts ?? Date.now(), plasmaR.ts ?? Date.now()) };
 }
 
 function mean(arr){
@@ -181,35 +180,31 @@ function std(arr){
   return Math.sqrt(s2);
 }
 
+// 从近2小时里提取“当前状态 + Bz连续 + 锯齿”
 function computeSolarFeatures(series){
-  // use last 120 minutes for plateau/trigger signals
-  if (!series.length) throw new Error('SWPC 数据为空');
+  if (!series?.length) return null;
 
   const last = series[series.length-1];
   const lastTime = last.time;
 
-  const window = series.filter(x => (lastTime - x.time) <= 120*60*1000);
+  const w120 = series.filter(x => (lastTime - x.time) <= 120*60*1000);
+  const w60  = series.filter(x => (lastTime - x.time) <= 60*60*1000);
 
-  const btArr = window.map(x=>x.bt);
-  const bzArr = window.map(x=>x.bz);
-  const vArr  = window.map(x=>x.v);
-  const nArr  = window.map(x=>x.n);
+  const btArr = w120.map(x=>x.bt);
+  const bzArr = w120.map(x=>x.bz);
+  const vArr  = w120.map(x=>x.v);
+  const nArr  = w120.map(x=>x.n);
 
-  // Bt plateau proxy: std small + mean above threshold
-  const btMean = mean(btArr);
-  const btStd  = std(btArr);
-
-  // consecutive minutes bz <= -2 near end
+  // bz 连续分钟（每行基本是 1 分钟）
   let bzMinutes = 0;
-  for (let i=window.length-1;i>=0;i--){
-    const bz = window[i].bz;
+  for (let i=w120.length-1;i>=0;i--){
+    const bz = w120[i].bz;
     if (!Number.isFinite(bz)) break;
     if (bz <= -2) bzMinutes++;
     else break;
   }
 
-  // sawtooth proxy: too many sign flips in last 60 minutes
-  const w60 = window.filter(x => (lastTime - x.time) <= 60*60*1000);
+  // 锯齿：60分钟内翻转过多
   let flips = 0;
   let prev = null;
   for (const x of w60){
@@ -218,14 +213,12 @@ function computeSolarFeatures(series){
     if (prev !== null && s !== prev) flips++;
     prev = s;
   }
-  const bzSaw = flips >= 6; // heuristic
+  const bzSaw = flips >= 6;
 
   return {
-    now: {
-      time: lastTime,
-      bt: last.bt, bz: last.bz, v: last.v, n: last.n
-    },
-    btMean, btStd,
+    now: { time:lastTime, bt:last.bt, bz:last.bz, v:last.v, n:last.n },
+    btMean: mean(btArr),
+    btStd: std(btArr),
     vMean: mean(vArr),
     nMean: mean(nArr),
     bzMinutes,
@@ -233,11 +226,8 @@ function computeSolarFeatures(series){
   };
 }
 
-/**
- * Open-Meteo cloud cover (low/mid/high), hourly.
- * We request a date range covering 72h.
- */
-async function fetchClouds(lat, lon, startUTC, hours, tzStr){
+// ====== 云量（Open-Meteo） ======
+async function fetchClouds(lat, lon, startUTC, hours, tzStr, notes){
   const offsetH = parseUTCOffset(tzStr)/60;
   const tzParam = `GMT${offsetH>=0?'+':''}${offsetH}`;
 
@@ -252,96 +242,265 @@ async function fetchClouds(lat, lon, startUTC, hours, tzStr){
   url.searchParams.set('end_date', endDate);
   url.searchParams.set('timezone', tzParam);
 
-  const json = await fetch(url.toString(), { cache: 'no-store' }).then(r=>r.json());
-  const h = json.hourly;
-  if (!h || !h.time) throw new Error('云量数据返回异常');
+  const cloudR = await fetchJSONWithFallback(url.toString(), '云量', 'cache_cloud_om', notes);
+  const json = cloudR.data;
+  if (!json?.hourly?.time) return null;
 
-  const out = h.time.map((t, i) => ({
-    // time here is LOCAL time string under timezone=tzParam
+  const h = json.hourly;
+  return h.time.map((t, i) => ({
     timeLocalStr: t,
     low: Number(h.cloud_cover_low?.[i] ?? NaN),
     mid: Number(h.cloud_cover_mid?.[i] ?? NaN),
     high: Number(h.cloud_cover_high?.[i] ?? NaN),
   }));
-
-  return out;
 }
 
-/** ---- 模型（v0.1）：P1占位 + P2/P3可用 ----
- * 注意：静态站无法真正“预测未来太阳风”，所以 v0.1 使用“当前上游条件”作为 72h 背景，
- * 真正变化来自：云量（未来72h）+ 触发条件（当前是否打开/平台化等）
- */
-function evalP1_placeholder(){
-  return '⚠️'; // 先不给整段否决，后续你接 CH/CME 再升级
+// ====== 评分模型 v1.5（P3主导，10档） ======
+function scoreSky(cloud, band){
+  const th = cloudThresholds(band);
+
+  const low = cloud?.low;
+  const mid = cloud?.mid;
+  const high = cloud?.high;
+
+  // 低云一票否决
+  if (Number.isFinite(low) && low > th.lowMax){
+    return {
+      veto: true,
+      score: 0,
+      tips: [
+        `低云 Low=${low}% > ${th.lowMax}%（一票否决）`,
+        `判读关键词：${th.keywords || '—'}`,
+      ],
+      better: [
+        `更适合：Low ≤ ${th.lowMax}%（硬门槛）`,
+        `Mid 更好 ≤ ${th.midIdeal}%，High 更好 ≤ ${th.highIdeal}%`
+      ]
+    };
+  }
+
+  // 非否决情况下，天空最高 3 分
+  let s = 0;
+  const tips = [];
+  const better = [];
+
+  // Mid
+  if (Number.isFinite(mid)){
+    if (mid <= th.midIdeal){ s += 1; tips.push(`中云 Mid=${mid}%（很好）`); }
+    else if (mid <= th.midMax){ s += 0.5; tips.push(`中云 Mid=${mid}%（可用）`); }
+    else { tips.push(`中云 Mid=${mid}%（偏厚）`); }
+    better.push(`Mid 更好 ≤ ${th.midIdeal}%（上限 ${th.midMax}%）`);
+  }else{
+    tips.push('中云 Mid=—');
+  }
+
+  // High
+  if (Number.isFinite(high)){
+    if (high <= th.highIdeal){ s += 1; tips.push(`高云 High=${high}%（很好）`); }
+    else if (high <= th.highMax){ s += 0.5; tips.push(`高云 High=${high}%（可用）`); }
+    else { tips.push(`高云 High=${high}%（偏厚）`); }
+    better.push(`High 更好 ≤ ${th.highIdeal}%（上限 ${th.highMax}%）`);
+  }else{
+    tips.push('高云 High=—');
+  }
+
+  // Low（没否决也要提示）
+  if (Number.isFinite(low)){
+    tips.unshift(`低云 Low=${low}%（≤${th.lowMax}% 通过）`);
+    better.unshift(`Low 必须 ≤ ${th.lowMax}%（硬门槛）`);
+  }else{
+    tips.unshift(`低云 Low=—（门槛 ≤${th.lowMax}%）`);
+  }
+
+  // 两者都在“理想”给额外 +1
+  const midGood = Number.isFinite(mid) && mid <= th.midIdeal;
+  const highGood = Number.isFinite(high) && high <= th.highIdeal;
+  if (midGood && highGood) s += 1;
+
+  s = Math.min(3, s);
+
+  tips.push(`判读关键词：${th.keywords || '—'}`);
+
+  return { veto:false, score:s, tips, better };
 }
 
-function evalP2(features){
-  const speedOK = Number.isFinite(features.vMean) && features.vMean >= 420;
-  const btPlateau = Number.isFinite(features.btMean) && features.btMean >= 6 && Number.isFinite(features.btStd) && features.btStd <= 1.5;
-  const densityOK = Number.isFinite(features.nMean) && features.nMean >= 2;
+function scoreEnergy(features){
+  // 能量（0..6） + 解锁(+2)，并实现“未解锁封顶<8”
+  if (!features?.now) {
+    return {
+      score: 0,
+      unlocked: false,
+      tips: ['NOAA 数据缺失：能量项将保守处理（无法解锁可见）'],
+      better: ['需要：V≥450、Bt≥7、N≥3 才能解锁 ≥8 分区间']
+    };
+  }
 
-  if (speedOK && btPlateau && densityOK) return '✅';
-  if (speedOK || btPlateau) return '⚠️';
-  return '❌';
-}
-
-function evalP3(features, cloud){
   const v = features.now.v;
   const bt = features.now.bt;
   const n = features.now.n;
 
-  const visible = (v >= 450) && (bt >= 7) && (n >= 3);
-  const bzOpen = (features.bzMinutes >= 10) && (!features.bzSaw); // bz<=-2连续由bzMinutes代表
-  const skyOK = (cloud.low <= 10) && (cloud.mid <= 50) && (cloud.high <= 80);
+  let sv = 0, sbt = 0, sn = 0;
 
-  const can = visible && bzOpen && skyOK;
+  // V
+  if (v < 400) sv = 0;
+  else if (v < 450) sv = 0.5;
+  else if (v < 500) sv = 1;
+  else if (v < 600) sv = 1.5;
+  else sv = 2;
 
-  const reason = [];
-  reason.push(visible ? `能量满足 (V/Bt/N)` : `能量不足 (V/Bt/N)`);
-  reason.push(bzOpen ? `Bz 打开 (连续≥10min)` : `Bz 未稳定 (连续<10min 或锯齿)`);
-  reason.push(skyOK ? `天空可用 (low/mid/high)` : `云量不佳 (low/mid/high)`);
+  // Bt
+  if (bt < 5) sbt = 0;
+  else if (bt < 7) sbt = 0.5;
+  else if (bt < 9) sbt = 1;
+  else if (bt < 12) sbt = 1.5;
+  else sbt = 2;
 
-  return { can, visible, bzOpen, skyOK, reason };
+  // N
+  if (n < 1) sn = 0;
+  else if (n < 3) sn = 0.5;
+  else if (n < 5) sn = 1;
+  else if (n < 8) sn = 1.5;
+  else sn = 2;
+
+  let s = sv + sbt + sn; // 0..6
+
+  const needV = 450, needBt = 7, needN = 3;
+  const dv = Number.isFinite(v) ? Math.max(0, needV - v) : NaN;
+  const dbt = Number.isFinite(bt) ? Math.max(0, needBt - bt) : NaN;
+  const dn = Number.isFinite(n) ? Math.max(0, needN - n) : NaN;
+
+  const unlocked = (v >= needV) && (bt >= needBt) && (n >= needN);
+  if (unlocked) s += 2; // 解锁
+
+  const tips = [
+    `速度 V=${Number.isFinite(v)?v:'—'} km/s（阈值≥${needV}，差 ${Number.isFinite(dv)?dv.toFixed(0):'—'}）`,
+    `Bt=${Number.isFinite(bt)?bt:'—'} nT（阈值≥${needBt}，差 ${Number.isFinite(dbt)?dbt.toFixed(1):'—'}）`,
+    `密度 N=${Number.isFinite(n)?n:'—'} p/cm³（阈值≥${needN}，差 ${Number.isFinite(dn)?dn.toFixed(1):'—'}）`,
+    unlocked ? '可见解锁：✅（允许进入 8+ 分）' : '可见解锁：❌（最高不会到 8+）'
+  ];
+
+  const better = [
+    '更理想：V≥500、Bt≥9、N≥5（摄影更稳）'
+  ];
+
+  // 未解锁：后面总分强制封顶 < 8（我们在总分阶段做）
+  return { score: s, unlocked, tips, better };
 }
-function combineLevel(p1, p2, p3){
-  // 硬否决：P1不允许或你前面的纬度门槛已拦截
-  if (p1 === '❌') return '放弃';
 
-  // 以P3为主：这一小时到底值不值得折腾
-  // 1) 云不行：直接不建议
-  if (!p3.skyOK) return '不建议';
+function scoreBz(features){
+  // 0..1 轻权重，并给明确提示
+  if (!features?.now) {
+    return { score: 0, tips:['Bz=—（NOAA缺失）'], better:['更理想：Bz≤-2 连续≥10分钟'] };
+  }
 
-  // 2) 能量不足：直接不建议（不再因为 P2⚠️ 就给观望）
-  if (!p3.visible) return '不建议';
+  const mins = features.bzMinutes ?? 0;
+  const saw = !!features.bzSaw;
 
-  // 3) Bz 没开：观望（等开机）
-  if (!p3.bzOpen) return '观望';
+  let s = 0;
+  if (mins >= 10) s = 1;
+  else if (mins >= 5) s = 0.6;
+  else if (mins >= 2) s = 0.3;
 
-  // 走到这：P3三关都过 = 可以拍
-  // P2只负责“升档”，不负责“把你困在观望”
-  if (p2 === '✅' && p1 === '✅') return '强烈推荐';
+  if (saw) s *= 0.5;
 
-  return '可以拍';
+  const tips = [
+    `Bz 当前=${Number.isFinite(features.now.bz)?features.now.bz:'—'} nT`,
+    `南向持续≈${mins} 分钟（更理想≥10）`,
+    `锯齿：${saw ? '是（降权）' : '否'}`
+  ];
+  const better = ['更理想：Bz≤-2 且稳定（不反复翻转）'];
+
+  return { score: s, tips, better };
 }
 
-function renderTable(hoursUTC, tzStr, levels, reasons){
-  const out = $('out');
-  out.innerHTML = '';
+function scoreMoonPlaceholder(){
+  // 你还没接月角数据：先中性 0.5（不影响结构）
+  return {
+    score: 0.5,
+    tips: ['月角：未接入（当前以中性处理）'],
+    better: ['更理想：月角≤30°；30–45°只接受更强的极光']
+  };
+}
 
-  const legend = document.createElement('div');
-  legend.className = 'legend';
-  LEVELS.forEach(l=>{
+function computeHourlyScore({ band, cloud, features }){
+  // 低云否决
+  const sky = scoreSky(cloud, band);
+  if (sky.veto){
+    return {
+      score: 0,
+      label: scoreLabel(0),
+      detail: [
+        '【天空】' + sky.tips.join('；'),
+        '【建议】' + sky.better.join('；')
+      ]
+    };
+  }
+
+  const energy = scoreEnergy(features);
+  const bz = scoreBz(features);
+  const moon = scoreMoonPlaceholder();
+
+  let s = 0;
+  // 天空 0..3，能量 0..8（含解锁），Bz 0..1，月角 0..1（目前0.5）
+  s += sky.score;
+  s += energy.score;
+  s += bz.score;
+  s += moon.score;
+
+  // 未解锁：强制封顶 < 8（你要的“必须三条同时满足才 8+”）
+  if (!energy.unlocked){
+    s = Math.min(s, 7.9);
+  }
+
+  // 再按纬度段做一个轻微“现实主义修正”
+  // 极端边缘(50-55)：整体再压 0.6（避免误导普通人）
+  if (band === '极端边缘'){
+    s = Math.max(0, s - 0.6);
+  }
+
+  // 0..10
+  s = Math.max(0, Math.min(10, s));
+  const sInt = Math.round(s); // 表格用整数档
+
+  const detail = [
+    `【纬度段】${band}`,
+    `【分数】${s.toFixed(1)} / 10（显示档：${sInt}）`,
+    `【行动】${scoreLabel(s)}`,
+    '【天空】' + sky.tips.join('；'),
+    '【天空更理想】' + sky.better.join('；'),
+    '【能量】' + energy.tips.join('；'),
+    '【能量更理想】' + energy.better.join('；'),
+    '【触发(Bz)】' + bz.tips.join('；'),
+    '【触发更理想】' + bz.better.join('；'),
+    '【成像(月角)】' + moon.tips.join('；'),
+    '【成像更理想】' + moon.better.join('；')
+  ];
+
+  return { score: sInt, label: scoreLabel(s), detail };
+}
+
+// ====== UI渲染：0-10 纵轴表格 ======
+function renderLegend(){
+  const el = $('legend');
+  el.innerHTML = '';
+  for (let s=10;s>=0;s--){
     const b = document.createElement('div');
     b.className = 'badge';
-    b.innerHTML = `<span class="dot" style="background:${COLOR[l]}"></span>${l}`;
-    legend.appendChild(b);
-  });
-  out.appendChild(legend);
+    b.innerHTML = `<span class="dot" style="background:${scoreColor(s)}"></span>${s} 分`;
+    el.appendChild(b);
+  }
+}
+
+function renderTable(hoursUTC, tzStr, scores, details){
+  const out = $('out');
+  out.innerHTML = '';
 
   const wrap = document.createElement('div');
   wrap.className = 'tableWrap';
 
   const table = document.createElement('table');
+
+  // head
   const thead = document.createElement('thead');
   const trh = document.createElement('tr');
   const th0 = document.createElement('th');
@@ -356,104 +515,122 @@ function renderTable(hoursUTC, tzStr, levels, reasons){
   thead.appendChild(trh);
   table.appendChild(thead);
 
+  // body: 10..0
   const tbody = document.createElement('tbody');
-  LEVELS.forEach((rowLevel)=>{
+  for (let row=10; row>=0; row--){
     const tr = document.createElement('tr');
-    const tdLabel = document.createElement('td');
-    tdLabel.textContent = rowLevel;
-    tr.appendChild(tdLabel);
+    const th = document.createElement('th');
+    th.textContent = `${row} 分`;
+    tr.appendChild(th);
 
-    for (let i=0;i<levels.length;i++){
+    for (let i=0;i<scores.length;i++){
       const td = document.createElement('td');
       td.className = 'cell';
-      const isHit = levels[i] === rowLevel;
-      td.style.background = isHit ? COLOR[rowLevel] : '#0f1420';
-      td.title = reasons[i]?.join(' / ') || '';
+      const hit = scores[i] === row;
+      td.style.background = hit ? scoreColor(row) : '#0f1420';
+      td.title = (details[i] || []).join('\n');
+      td.innerHTML = hit ? `<small>${row}</small>` : '';
       tr.appendChild(td);
     }
     tbody.appendChild(tr);
-  });
+  }
 
   table.appendChild(tbody);
   wrap.appendChild(table);
   out.appendChild(wrap);
-
-  const note = document.createElement('small');
-  note.innerHTML = `注：v0.1 太阳风部分为“近实时 nowcast 延伸”，未来将接入 CH/CME（P1）与更完整的 P2 时间演化。`;
-  out.appendChild(note);
 }
 
+// ====== 主流程 ======
 async function run(){
   const lat = Number($('lat').value);
   const lon = Number($('lon').value);
   const tz = $('tz').value;
   const localTime = $('localTime').value.trim();
-  // —— 摄影经验纬度下限（地理纬度）——
-const alat = Math.abs(lat);
-if (alat < 50) {
-  alert(`地理纬度 ${alat.toFixed(1)}°，低于摄影可行下限（50°）。\n该纬度仅在极端太阳风暴下才可能可见，默认判「放弃」。`);
-  setStatus(`放弃：地理纬度 ${alat.toFixed(1)}° < 50°`);
-  return;
-}
-  
-  if (!Number.isFinite(lat) || lat < -90 || lat > 90) {
-    alert('纬度应在 -90 到 90'); return;
-  }
-  if (!Number.isFinite(lon) || lon < -180 || lon > 180) {
-    alert('经度应在 -180 到 180'); return;
-  }
-  if (!localTime) { alert('请填写当地时间'); return; }
+
+  if (!Number.isFinite(lat) || lat < -90 || lat > 90) { setStatus('纬度应在 -90 到 90'); return; }
+  if (!Number.isFinite(lon) || lon < -180 || lon > 180) { setStatus('经度应在 -180 到 180'); return; }
+  if (!localTime) { setStatus('请填写当地时间'); return; }
 
   $('run').disabled = true;
-  setStatus('拉取 NOAA / 云量数据中…');
+  setStatus('拉取数据中…');
+  setDataNote('');
 
   try{
     const T0 = parseLocalTimeToUTC(localTime, tz);
+    const absLat = Math.abs(lat);
 
-    const [swpcSeries, clouds] = await Promise.all([
-      fetchSWPC2h(),
-      fetchClouds(lat, lon, T0, 72, tz)
-    ]);
-
-    const features = computeSolarFeatures(swpcSeries);
-
-    const p1 = evalP1_placeholder();
-    const p2 = evalP2(features);
-
-    const hoursUTC = Array.from({length:72}, (_,i)=> addHours(T0, i));
-    const levels = [];
-    const reasons = [];
-
-    for (let i=0;i<72;i++){
-      const cloud = clouds[i] || { low: 100, mid: 100, high: 100 };
-      const p3 = evalP3(features, cloud);
-      const level = combineLevel(p1, p2, p3);
-      levels.push(level);
-      reasons.push(p3.reason);
+    // 低纬默认放弃（你现在门槛 50）
+    if (absLat < 50){
+      setStatus(`低纬（地理纬度 ${absLat.toFixed(1)}° < 50°）：默认放弃`);
+      const hoursUTC = Array.from({length:72}, (_,i)=> addHours(T0, i));
+      const scores = Array(72).fill(0);
+      const details = Array(72).fill([
+        `【纬度】${absLat.toFixed(1)}° < 50°`,
+        '【结论】默认放弃（仅极端历史级事件才可能）'
+      ]);
+      renderLegend();
+      renderTable(hoursUTC, tz, scores, details);
+      return;
     }
 
-    setStatus(`完成：P1=${p1} P2=${p2} | NOAA时间=${features.now.time.toISOString().slice(0,16)}Z`);
-    renderTable(hoursUTC, tz, levels, reasons);
+    const notes = [];
+    const [swpc, clouds] = await Promise.all([
+      fetchSWPC2h(notes),
+      fetchClouds(lat, lon, T0, 72, tz, notes)
+    ]);
+
+    // 页面数据健康提示（不弹窗）
+    setDataNote(notes.join('｜'));
+
+    const features = swpc?.series ? computeSolarFeatures(swpc.series) : null;
+
+    const band = latBand(absLat);
+    const hoursUTC = Array.from({length:72}, (_,i)=> addHours(T0, i));
+
+    // 云量缺失：仍可画表，但天空项会保守（当作偏差，容易低分）
+    const scores = [];
+    const details = [];
+
+    for (let i=0;i<72;i++){
+      const cloud = clouds?.[i] ?? { low: NaN, mid: NaN, high: NaN };
+      const r = computeHourlyScore({ band, cloud, features });
+      scores.push(r.score);
+      details.push(r.detail);
+    }
+
+    renderLegend();
+    renderTable(hoursUTC, tz, scores, details);
+
+    const noaaTime = features?.now?.time ? features.now.time.toISOString().slice(0,16)+'Z' : '—';
+    setStatus(`完成｜纬度段：${band}｜NOAA时间：${noaaTime}`);
 
   }catch(e){
-    console.error(e);
-    alert(String(e?.message || e));
-    setStatus('失败：请看控制台 Console');
+    // 不弹窗：只写状态，尽量继续保持可用
+    setStatus(`异常：${String(e?.message || e)}`);
   }finally{
     $('run').disabled = false;
   }
 }
 
+function swapLatLon(){
+  const a = $('lat').value;
+  $('lat').value = $('lon').value;
+  $('lon').value = a;
+}
+
+// ====== 初始化 ======
 window.addEventListener('DOMContentLoaded', ()=>{
   $('run').addEventListener('click', run);
+  $('swap').addEventListener('click', swapLatLon);
 
-  // 给你个默认示例，方便第一次就看到结果
-  $('lat').value = '65.01';
-  $('lon').value = '-18.75';
-  $('tz').value = 'UTC+0';
+  // 默认示例：漠河附近（你自己也可以改）
+  $('lat').value = '53.47';
+  $('lon').value = '122.35';
+  $('tz').value = 'UTC+8';
 
   const now = new Date();
   const pad = (n)=>String(n).padStart(2,'0');
-  // 默认用你当前电脑时间填一个格式（不含时区语义，只是占位）
   $('localTime').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} 22:00`;
+
+  renderLegend();
 });
