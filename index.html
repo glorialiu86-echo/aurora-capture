@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Aurora Forecast</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      background: #0b1020;
+      color: #e6e8ff;
+      padding: 40px;
+    }
+    h1 {
+      color: #8bdcff;
+    }
+    .box {
+      margin-top: 20px;
+      padding: 20px;
+      background: #141a33;
+      border-radius: 12px;
+      max-width: 480px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      background: #5b7cff;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌌 Aurora Forecast</h1>
+
+  <div class="box">
+    <label>Latitude</label>
+    <input placeholder="e.g. 69.6">
+
+    <label>Longitude</label>
+    <input placeholder="e.g. 18.9">
+
+    <label>Local time</label>
+    <input placeholder="2026-01-01 22:00">
+
+    <button>Get forecast</button>
+
+    <p style="margin-top: 16px; opacity: 0.7;">
+      Forecast model coming soon.
+    </p>
+  </div>
+</body>
+</html>
