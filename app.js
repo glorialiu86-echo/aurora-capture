@@ -845,26 +845,60 @@ function initTabs(){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('[AuroraCapture] DOM ready');
+
+  // tabs
   initTabs();
 
   // default values
   if($("lat") && !$("lat").value) $("lat").value = "53.47";
   if($("lon") && !$("lon").value) $("lon").value = "122.35";
 
-  // ✅ 兼容两个 id：btnRun / runBtn
-  const runBtn = $("btnRun") || $("runBtn");
-  if (runBtn) runBtn.addEventListener("click", (e)=>{ e.preventDefault(); run(); });
+  // ---------- 强力绑定：生成即时预测 ----------
+  const runCandidates = [
+    $("btnRun"),
+    $("runBtn"),
+    document.querySelector('[data-action="run"]'),
+    ...Array.from(document.querySelectorAll('button,a,input[type="button"],input[type="submit"]'))
+      .filter(el => (el.textContent || el.value || '').trim().includes('生成即时预测'))
+  ].filter(Boolean);
 
-  const magBtn = $("btnMag") || $("magBtn");
-  if (magBtn) magBtn.addEventListener("click", (e)=>{
-    e.preventDefault();
-    const lat = Number($("lat")?.value);
-    const lon = Number($("lon")?.value);
-    if(!isFinite(lat) || !isFinite(lon)){
-      setStatusText("请先输入有效经纬度。");
-      return;
-    }
-    const m = approxMagLat(lat, lon);
-    alert(`磁纬约 ${round1(m)}°`);
+  console.log('[AuroraCapture] runCandidates:', runCandidates);
+
+  runCandidates.forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('[AuroraCapture] RUN click', el);
+      run();
+    }, { passive: false });
+  });
+
+  // ---------- 强力绑定：转换磁纬度 ----------
+  const magCandidates = [
+    $("btnMag"),
+    $("magBtn"),
+    document.querySelector('[data-action="mag"]'),
+    ...Array.from(document.querySelectorAll('button,a,input[type="button"]'))
+      .filter(el => (el.textContent || el.value || '').trim().includes('转换磁纬度'))
+  ].filter(Boolean);
+
+  console.log('[AuroraCapture] magCandidates:', magCandidates);
+
+  magCandidates.forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('[AuroraCapture] MAG click', el);
+
+      const lat = Number($("lat")?.value);
+      const lon = Number($("lon")?.value);
+      if(!isFinite(lat) || !isFinite(lon)){
+        setStatusText("请先输入有效经纬度。");
+        return;
+      }
+      const m = approxMagLat(lat, lon);
+      alert(`磁纬约 ${round1(m)}°`);
+    }, { passive: false });
   });
 });
