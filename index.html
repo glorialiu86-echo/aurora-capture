@@ -3,59 +3,72 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>aurora-forecast v1.5</title>
+  <title>aurora-decision v2</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar">
+    <header class="top">
       <div>
-        <h1>aurora-forecast <span class="tag">v1.5</span></h1>
-        <p class="sub">输入经纬度 + 当地时间（含时区），输出未来 48 小时 <b>0–10 分</b> 极光行动建议表盘（低云一票否决）。</p>
+        <h1>aurora-decision <span class="tag">v2</span></h1>
+        <p class="sub">
+          三层输出（同页分开）：<b>1h精准(10min)</b>｜<b>3h概率态</b>｜<b>72h范围(按天)</b>。
+          时间自动读取设备本地时间。
+        </p>
       </div>
-      <div class="mini">
+      <div class="right">
         <div id="status" class="status">就绪</div>
-        <div id="dataNote" class="dataNote"></div>
+        <div id="note" class="note"></div>
       </div>
-    </div>
+    </header>
 
-    <div class="card">
-      <div class="grid">
+    <section class="card">
+      <div class="grid2">
         <label>
           纬度 Latitude
-          <input id="lat" type="number" step="0.0001" placeholder="例如 53.47（漠河附近）" />
+          <input id="lat" type="number" step="0.0001" placeholder="例如 53.47" />
         </label>
         <label>
           经度 Longitude
           <input id="lon" type="number" step="0.0001" placeholder="例如 122.35" />
         </label>
-
       </div>
 
       <div class="actions">
-        <button id="run">生成 48h 表盘</button>
-        <button id="swap" class="ghost" title="交换经纬度（防止填反）">交换经纬度</button>
+        <button id="run">生成三层结果</button>
+        <button id="swap" class="ghost">交换经纬度</button>
       </div>
 
-      <div class="hint">
-        <details>
-          <summary>如何查看经纬度？</summary>
-          <div class="hint-body">
-            <p>在地图 App（Google/Apple/高德）里长按位置，详情通常会显示「纬度, 经度」。复制填入即可。</p>
-            <p>⚠️ 常见错误：把经纬度填反。一般纬度在 -90~90，经度在 -180~180。</p>
-          </div>
-        </details>
-      </div>
-    </div>
+      <details class="hint">
+        <summary>如何查经纬度？</summary>
+        <div class="hint-body">
+          地图 App 长按位置 → 复制经纬度（注意：纬度在 -90~90，经度在 -180~180）。
+        </div>
+      </details>
+    </section>
 
-    <div id="out" class="out"></div>
-    <div id="detailsPanel" class="detailsPanel"></div>
-    <div class="footer">
-      <div class="legend" id="legend"></div>
-      <small class="small">
-        说明：0 分为低云一票否决或低纬默认放弃。≥8 分代表“可见条件已解锁”（V≥450、Bt≥7、N≥3 同时满足）。
+    <section class="panel">
+      <h2>① 1小时精准预测（10分钟粒度）</h2>
+      <div id="out1h" class="out"></div>
+    </section>
+
+    <section class="panel">
+      <h2>② 3小时概率预测（状态机）</h2>
+      <div id="out3h" class="out"></div>
+    </section>
+
+    <section class="panel">
+      <h2>③ 72小时范围预测（按天）</h2>
+      <div id="out72h" class="out"></div>
+    </section>
+
+    <section id="explain" class="explain"></section>
+
+    <footer class="footer">
+      <small>
+        数据源：NOAA SWPC（OVATION nowcast、实时太阳风、Kp 预报）与 Open-Meteo 云量预报。 [oai_citation:3‡NOAA Space Weather Prediction Center](https://www.swpc.noaa.gov/products/aurora-30-minute-forecast?utm_source=chatgpt.com)
       </small>
-    </div>
+    </footer>
   </div>
 
   <script src="./app.js"></script>
