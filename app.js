@@ -300,14 +300,21 @@
     const c = Math.acos(clamp(cosc, -1, 1));
     return 90 - deg(c);
   }
-
-  function label1h(c) {
-    if (c >= 8.2) return { t: "强烈推荐", cls: "g" };
-    if (c >= 6.8) return { t: "值得出门", cls: "g" };
-    if (c >= 5.0) return { t: "可蹲守", cls: "b" };
-    if (c >= 2.8) return { t: "低概率", cls: "y" };
-    return { t: "不可观测", cls: "r" };
-  }
+  function score5FromC10(c){
+  if (c >= 8.2) return 5;
+  if (c >= 6.8) return 4;
+  if (c >= 5.0) return 3;
+  if (c >= 2.8) return 2;
+  return 1;
+}
+  function label1h(c10){
+  const s = score5FromC10(c10);
+  if (s === 5) return { score: 5, t: "强烈推荐", cls: "g" };
+  if (s === 4) return { score: 4, t: "值得出门", cls: "g" };
+  if (s === 3) return { score: 3, t: "可蹲守", cls: "b" };
+  if (s === 2) return { score: 2, t: "低概率", cls: "y" };
+  return { score: 1, t: "不可观测", cls: "r" };
+}
 
   function label72(c) {
     if (c >= 7.2) return { t: "可能性高", cls: "g" };
@@ -520,11 +527,14 @@
         maintainAspectRatio: false,
         scales: {
           y: {
-            min: 0,
-            max: 10,
-            ticks: { color: "rgba(255,255,255,.55)" },
+            min: 1,
+            max: 5,
+            ticks: {
+              stepSize: 1,
+              color: "rgba(255,255,255,.55)"
+            },
             grid: { color: "rgba(255,255,255,.08)" }
-          },
+          },,
           x: {
             ticks: { color: "rgba(255,255,255,.55)" },
             grid: { display: false }
@@ -534,7 +544,7 @@
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx2) => `C值：${round1(ctx2.parsed.y)}`
+              label: (ctx2) => `C值：${ctx2.parsed.y} 分`
             }
           }
         }
@@ -666,7 +676,7 @@
 
         c = clamp(c, 0, 10);
         labels.push(fmtHM(d));
-        vals.push(round1(c));
+        vals.push(score5FromC10(c));
         if (i === 0) heroC = c;
       }
 
