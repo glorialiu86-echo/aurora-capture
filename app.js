@@ -1,3 +1,29 @@
+function deg2rad(d){ return d * Math.PI / 180; }
+function rad2deg(r){ return r * 180 / Math.PI; }
+
+// 粗略磁纬计算（用于决策下限，不追求高精度）
+function approxMagLat(lat, lon){
+  // 近似磁北极位置（够用）
+  const poleLat = 80.6;
+  const poleLon = -72.7;
+
+  const latR = deg2rad(lat), lonR = deg2rad(lon);
+  const pLatR = deg2rad(poleLat), pLonR = deg2rad(poleLon);
+
+  const r = [
+    Math.cos(latR) * Math.cos(lonR),
+    Math.cos(latR) * Math.sin(lonR),
+    Math.sin(latR)
+  ];
+  const m = [
+    Math.cos(pLatR) * Math.cos(pLonR),
+    Math.cos(pLatR) * Math.sin(pLonR),
+    Math.sin(pLatR)
+  ];
+
+  const dot = r[0]*m[0] + r[1]*m[1] + r[2]*m[2];
+  return rad2deg(Math.asin(Math.max(-1, Math.min(1, dot))));
+}
 const LEVELS = ['强烈推荐','可以拍','观望','不建议','放弃'];
 const COLOR = {
   '强烈推荐': '#1f8f4a',
@@ -303,7 +329,14 @@ async function run(){
   const lon = Number($('lon').value);
   const tz = $('tz').value;
   const localTime = $('localTime').value.trim();
-
+  // —— 磁纬下限硬门槛（摄影现实）——
+  const mlat = approxMagLat(lat, lon);
+  if (Math.abs(mlat) < 55) {
+    alert(`磁纬约 ${mlat.toFixed(1)}°，低于摄影可行下限（55°）。\n该纬度基本不可能拍到极光，直接判「放弃」。`);
+    setStatus(`放弃：磁纬 ${mlat.toFixed(1)}° < 55°`);
+    return;
+  }
+  
   if (!Number.isFinite(lat) || lat < -90 || lat > 90) {
     alert('纬度应在 -90 到 90'); return;
   }
