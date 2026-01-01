@@ -495,7 +495,6 @@ function renderLegend(){
 
 function renderTable(hoursUTC, tzStr, scores, details){
   const out = $('out');
-  renderDetails(hoursUTC, tz, scores, details);
   out.innerHTML = '';
 
   const wrap = document.createElement('div');
@@ -568,7 +567,6 @@ async function run(){
 const scores = Array(HORIZON_HOURS).fill(0);
 const details = Array(HORIZON_HOURS).fill([ ... ]);
       renderLegend();
-      renderTable(hoursUTC, tz, scores, details);
       return;
     }
 
@@ -599,7 +597,7 @@ const details = Array(HORIZON_HOURS).fill([ ... ]);
 
     renderLegend();
     renderTable(hoursUTC, tz, scores, details);
-
+    renderDetails(hoursUTC, tz, scores, details);
     const noaaTime = features?.now?.time ? features.now.time.toISOString().slice(0,16)+'Z' : '—';
     setStatus(`完成｜纬度段：${band}｜NOAA时间：${noaaTime}`);
 
