@@ -262,78 +262,7 @@ async function getRealtimeState() {
   }
 
   // ---------- data fetch ----------
-  async function fetchSWPC2h(){
-    const magUrl = "https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json";
-    const plasmaUrl = "https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json";
 
-    let mag, plasma, note = null;
-
-    try{
-      const [r1, r2] = await Promise.all([
-        fetch(magUrl, { cache:"no-store" }),
-        fetch(plasmaUrl, { cache:"no-store" })
-      ]);
-
-      const t1 = await r1.text();
-      const t2 = await r2.text();
-      if(!t1 || !t2) throw new Error("empty");
-
-      mag = JSON.parse(t1);
-      plasma = JSON.parse(t2);
-
-      cacheSet("cache_noaa_mag", mag);
-      cacheSet("cache_noaa_plasma", plasma);
-
-      note = "✅ NOAA 已更新";
-    }catch(e){
-      const cMag = cacheGet("cache_noaa_mag");
-      const cPl = cacheGet("cache_noaa_plasma");
-      if(cMag?.value && cPl?.value){
-        mag = cMag.value;
-        plasma = cPl.value;
-        note = `⚠️ NOAA 拉取失败，使用缓存（${fmtAge(Date.now() - (cMag.ts || Date.now()))}）`;
-      }else{
-        return { ok:false, note:"❌ NOAA 拉取失败且无缓存", data:null, missing: ["v","n","bt","bz"] };
-      }
-    }
-
-    // parse tables
-    const magHeader = mag[0];
-    const magRows = mag.slice(1).map(row=>{
-      const o={};
-      magHeader.forEach((k,i)=>o[k]=row[i]);
-      return o;
-    });
-
-    const plHeader = plasma[0];
-    const plRows = plasma.slice(1).map(row=>{
-      const o={};
-      plHeader.forEach((k,i)=>o[k]=row[i]);
-      return o;
-    });
-
-    // scan backwards for valid values
-    const v  = lastFinite(plRows, "speed");
-    const n  = lastFinite(plRows, "density");
-    const bt = lastFinite(magRows, "bt");
-    const bz = lastFinite(magRows, "bz");
-
-    const time = lastTimeTag(magRows) || lastTimeTag(plRows) || null;
-
-    const missing = [];
-    if(v == null)  missing.push("v");
-    if(n == null)  missing.push("n");
-    if(bt == null) missing.push("bt");
-    if(bz == null) missing.push("bz");
-
-    return {
-      ok: true,
-      note,
-      data: { v, n, bt, bz, time_tag: time },
-      missing
-    };
-  }
-  
   async function fetchKp(){
     const url = "https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json";
     try{
@@ -811,52 +740,52 @@ async function getRealtimeState() {
         setStatusText("已生成。");
         return;
       }
-      const [swPack, kp, clouds, ova] = await Promise.all([
-        fetchSW_MultiSource(),
+      const [rt, kp, clouds, ova] = await Promise.all([
+        getRealtimeState(),      // ✅ 只走 NOAA 镜像（mag/plasma.json）
         fetchKp(),
         fetchClouds(lat, lon),
         fetchOvation()
       ]);
-
-      // 状态点：太阳风来源改成 NASA/NOAA
+      
+      // 状态点：太阳风来源固定为镜像 + 新鲜度状态
       setStatusDots([
-        { level: swPack.ok ? "ok" : "bad", text: swPack.note || "太阳风" },
+        { level: rt.status === "OK" ? "ok" : (rt.status === "DEGRADED" ? "warn" : "bad"),
+          text: `太阳风：${rt.status}（mag ${Math.round(rt.imf.ageMin)}m / plasma ${Math.round(rt.solarWind.ageMin)}m）` },
         { level: kp.ok ? "ok" : "bad", text: kp.note || "Kp" },
         { level: clouds.ok ? "ok" : "bad", text: clouds.note || "云量" },
         { level: ova.ok ? "ok" : "bad", text: ova.note || "OVATION" },
       ]);
-
-      const sw = swPack.data;
-
-      // NASA/NOAA 都不可用：停止生成（不给装出来的自信）
-      if(!sw){
+      
+      // 统一字段 → 旧模型 sw 结构（最小侵入：不改你后面模型）
+      const sw = {
+        v: rt.solarWind.speed_km_s,
+        n: rt.solarWind.density_cm3,
+        bt: rt.imf.bt_nT,
+        bz: rt.imf.bz_gsm_nT,     // ✅ 只用 GSM Bz（来自 NOAA mag 的 bz_gsm）
+        time_tag: rt.imf.ts || rt.solarWind.ts || null,
+      };
+      
+      // missingKeys：用 null 判缺失（替代你旧的 missing 数组）
+      const missingKeys = [];
+      if (sw.v == null)  missingKeys.push("v");
+      if (sw.n == null)  missingKeys.push("n");
+      if (sw.bt == null) missingKeys.push("bt");
+      if (sw.bz == null) missingKeys.push("bz");
+      
+      // 不可用：>3小时 或者关键全空
+      if (rt.status === "INVALID") {
         safeText($("oneHeroLabel"), "—");
         safeText($("oneHeroMeta"), "—");
         safeText($("swLine"), "V — ｜ Bt — ｜ Bz — ｜ N —");
-        safeText($("swMeta"), "太阳风数据不可用");
-
+        safeText($("swMeta"), "太阳风数据不可用（断流>3小时）");
         const labels = ["+10m","+20m","+30m","+40m","+50m","+60m"];
         const vals = [0,0,0,0,0,0];
         const cols = vals.map(()=> "rgba(255,255,255,.14)");
         renderChart(labels, vals, cols);
-
-        setStatusText("🚫 NASA/NOAA 当前不可用（且无缓存），无法生成可靠预测。请稍后重试。");
+        setStatusText("🚫 太阳风数据断流超过 3 小时：已停止生成预测。");
         return;
       }
-
-      // 近实时行（四舍五入整数）
-      const vTxt  = sw.v  == null ? "—" : round0(sw.v);
-      const btTxt = sw.bt == null ? "—" : round0(sw.bt);
-      const bzTxt = sw.bz == null ? "—" : round0(sw.bz);
-      const nTxt  = sw.n  == null ? "—" : round0(sw.n);
-
-      safeText($("swLine"), `V ${vTxt} ｜ Bt ${btTxt} ｜ Bz ${bzTxt} ｜ N ${nTxt}`);
-      const src = swPack.meta?.source || "—";
-      const switched = swPack.meta?.switched ? "（数据源已切换）" : "";
-      safeText($("swMeta"), sw.time_tag ? `${src} 时间：${sw.time_tag}${switched}` : `${src} 时间：—${switched}`);
-      
       // NOAA 缺字段：强提示弹窗 + 页面状态文案（甩锅 NOAA + 保守估算）
-      const missingKeys = Array.isArray(swPack.missing) ? swPack.missing : [];
       const hasMissing = missingKeys.length > 0;
 
       if(hasMissing){
