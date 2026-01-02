@@ -1,4 +1,4 @@
-/* Aurora Capture 极光捕网 v2.5.2
+/* Aurora Capture 极光捕网 v2.5.3
  * - C值图表改为 0–5（整数）
  * - 结论统一：5档（5强烈推荐 / 4值得出门 / 3可蹲守 / 2低概率 / 1不可观测）
  * - NOAA 数据缺失：强提示 + 保守估算（不直接降到不可观测）
@@ -1099,22 +1099,6 @@ async function getRealtimeState() {
         renderChart(labels, vals, cols);
 
         setStatusText("🚫 NASA/NOAA 当前不可用（且无缓存），无法生成可靠预测。请稍后重试。");
-        return;
-      }
-      // NOAA 完全不可用：直接停止生成
-      const sw2 = noaa.data;
-      if(!sw2){
-        safeText($("oneHeroLabel"), "—");
-        safeText($("oneHeroMeta"), "—");
-        safeText($("swLine"), "V — ｜ Bt — ｜ Bz — ｜ N —");
-        safeText($("swMeta"), "NOAA 数据不可用");
-
-        const labels = ["+10m","+20m","+30m","+40m","+50m","+60m"];
-        const vals = [0,0,0,0,0,0];
-        const cols = vals.map(()=> "rgba(255,255,255,.14)");
-        renderChart(labels, vals, cols);
-
-        setStatusText("🚫 NOAA 当前不可用（且无缓存），无法生成可靠预测。请稍后重试。");
         return;
       }
 
