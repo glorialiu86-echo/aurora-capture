@@ -551,4 +551,8 @@ window.UI = {
   showAlertModal
 };
 
+  // expose data fetchers for app.js (window.Data.fetchKp/fetchClouds/fetchOvation)
+window.Data = window.Data || {};
+Object.assign(window.Data, { fetchKp, fetchClouds, fetchOvation });
+  
 })();
