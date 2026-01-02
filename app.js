@@ -1102,8 +1102,8 @@ async function getRealtimeState() {
         return;
       }
       // NOAA 完全不可用：直接停止生成
-      const sw = noaa.data;
-      if(!sw){
+      const sw2 = noaa.data;
+      if(!sw2){
         safeText($("oneHeroLabel"), "—");
         safeText($("oneHeroMeta"), "—");
         safeText($("swLine"), "V — ｜ Bt — ｜ Bz — ｜ N —");
