@@ -33,6 +33,27 @@
    const initAbout = () => { if (uiReady() && typeof window.UI.initAbout === "function") window.UI.initAbout(); };
    const showAlertModal = (html) => { if (uiReady() && typeof window.UI.showAlertModal === "function") window.UI.showAlertModal(html); };
 
+   // --- astro/model helpers from UI.js (must be proxied too) ---
+   const obsGate = (d, lat, lon) =>
+     (uiReady() && typeof window.UI.obsGate === "function")
+       ? window.UI.obsGate(d, lat, lon)
+       : { hardBlock: false, inWindow: true };
+   
+   const getMoonAltDeg = (d, lat, lon) =>
+     (uiReady() && typeof window.UI.getMoonAltDeg === "function")
+       ? window.UI.getMoonAltDeg(d, lat, lon)
+       : -999;
+   
+   const moonFactorByLat = (lat, moonAltDeg) =>
+     (uiReady() && typeof window.UI.moonFactorByLat === "function")
+       ? window.UI.moonFactorByLat(lat, moonAltDeg)
+       : 1.0;
+   
+   const soften = (f, ratio = 0.6) =>
+     (uiReady() && typeof window.UI.soften === "function")
+       ? window.UI.soften(f, ratio)
+       : f;
+
    // ---------- main run ----------
   async function run(){
     try{
