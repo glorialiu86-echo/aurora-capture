@@ -10,17 +10,6 @@ const {
   showAlertModal
 } = window.UI || {};
 
-  // ---------- 72h：高速风/能量输入 1/1 的代理规则 ----------
-  function p1a_fastWind(sw){
-    const v = Number(sw?.v ?? 0);
-    return v >= 480; // 高速风代理：速度>=480
-  }
-  function p1b_energyInput(sw){
-    const bt = Number(sw?.bt ?? 0);
-    const bz = Number(sw?.bz ?? 999);
-    return (bt >= 6.5) && (bz <= -2.0);
-  }
-
    // ---------- main run ----------
   async function run(){
     try{
@@ -146,8 +135,8 @@ const {
         setStatusText("已生成。");
       }
 
-      const mlat = approxMagLat(lat, lon);
-      const base10 = baseScoreFromSW(sw, missingKeys);
+      const mlat = window.Model.approxMagLat(lat, lon);
+      const base10 = window.Model.baseScoreFromSW(sw, missingKeys);
       const baseDate = now();
 
       // ---------- 1h: 10min bins ----------
@@ -187,14 +176,14 @@ const {
 
         c10 = clamp(c10, 0, 10);
 
-        const s5 = score5FromC10(c10); // 1..5
+        const s5 = window.Model.score5FromC10(c10); // 1..5
         labels.push(fmtHM(d));
         vals.push(s5);
         cols.push(s5 <= 1 ? "rgba(255,255,255,.20)" : "rgba(91,124,255,.72)");
         if(i===0) heroScore = s5;
       }
 
-      const heroObj = labelByScore5(heroScore);
+      const heroObj = window.Model.labelByScore5(heroScore);
       safeText($("oneHeroLabel"), `${heroObj.score}分 ${heroObj.t}`);
       // OVATION meta (time + age)
       let ovaTxt = "—";
@@ -225,8 +214,8 @@ const {
       renderChart(labels, vals, cols);
 
       // ---------- 3h：状态机 + 送达 + 云评分 ----------
-      let s3 = state3h(sw);
-      const del = deliverModel(sw);
+      let s3 = window.Model.state3h(sw);
+      const del = window.Model.deliverModel(sw);
 
       // 3h 同样吃后台门槛（但不解释）
       const g3 = obsGate(baseDate, lat, lon);
@@ -311,8 +300,8 @@ const {
         }
 
         // p1a/p1b（高速风/能量输入）
-        const p1a = p1a_fastWind(sw) ? 1 : 0;
-        const p1b = p1b_energyInput(sw) ? 1 : 0;
+        const p1a = window.Model.p1a_fastWind(sw) ? 1 : 0;
+        const p1b = window.Model.p1b_energyInput(sw) ? 1 : 0;
 
         const basis = [
           `• 能量背景：Kp峰值≈${kpMax == null ? "—" : round0(kpMax)}`,
@@ -356,7 +345,7 @@ const {
         setStatusText("请先输入有效经纬度。");
         return;
       }
-      const m = approxMagLat(lat, lon);
+      const m = window.Model.approxMagLat(lat, lon);
       alert(`磁纬约 ${Math.round(m * 10) / 10}°`);
     });
   }
