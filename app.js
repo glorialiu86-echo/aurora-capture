@@ -1,5 +1,5 @@
 const {
-  clamp, round0, abs,
+  $, clamp, round0, abs,
   safeText, safeHTML,
   setStatusDots, setStatusText,
   cacheSet, cacheGet, fmtAge,
