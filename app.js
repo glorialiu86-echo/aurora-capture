@@ -6,7 +6,7 @@ const BASE_PATH = window.location.pathname.includes("/aurora-capture/")
   ? "/aurora-capture"
   : "";
 
-// console.log("BASE_PATH", BASE_PATH, "pathname", window.location.pathname);
+console.log("BASE_PATH", BASE_PATH, "pathname", window.location.pathname);
 
 const DATA_ENDPOINTS = {
   plasma: `${BASE_PATH}/noaa/plasma.json`,
