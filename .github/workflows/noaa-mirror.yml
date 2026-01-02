@@ -44,12 +44,15 @@ jobs:
           # backward compatibility: keep latest.json as plasma
           wrap("noaa/plasma.raw.json", "noaa/latest.json")
           PY
-
+          
       - name: Commit & push if changed
         run: |
           rm -f noaa/plasma.raw.json noaa/mag.raw.json
           git config user.name "noaa-mirror-bot"
           git config user.email "actions@users.noreply.github.com"
+
+          git pull --rebase origin main
+
           git add noaa/plasma.json noaa/mag.json noaa/latest.json
           if git diff --cached --quiet; then
             echo "No changes."
