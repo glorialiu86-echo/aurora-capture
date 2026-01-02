@@ -1,4 +1,6 @@
-  // ---------- helpers ----------
+(() => {
+  
+// ---------- helpers ----------
   const $ = (id) => document.getElementById(id);
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const round0 = (x) => Math.round(x);
@@ -548,3 +550,5 @@ window.UI = {
   initTabs, initAbout,
   showAlertModal
 };
+
+})();
