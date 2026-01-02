@@ -1,22 +1,11 @@
-# tools/build_aacgmv2_mlat_grid.py
-# Build global 1°×1° AACGMv2 magnetic-latitude grid (mlat only).
-#
-# Output:
-#   data/aacgmv2_mlat_1deg_110km_2026-01-01_i16.bin  (int16, little-endian, mlat*100)
-#   data/aacgmv2_mlat_1deg_110km_2026-01-01_meta.json
-
 import os, json
 from datetime import datetime, timezone
 import numpy as np
 import aacgmv2
 
 ALT_KM = 110
-# 固定一个“参考日期”保证可复现（你也可以改成今天）
 DT = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
-# Grid definition:
-# lat: -90..90  (181)
-# lon: -180..179 (360)
 lats = np.arange(-90, 91, 1, dtype=np.float64)
 lons = np.arange(-180, 180, 1, dtype=np.float64)
 
@@ -30,15 +19,19 @@ def clamp_i16(x: int) -> int:
 for i, lat in enumerate(lats):
   for j, lon in enumerate(lons):
     mlat, mlon, mlt = aacgmv2.get_aacgm_coord(float(lat), float(lon), ALT_KM, DT)
-    # store mlat only, scaled by 100 (0.01° resolution)
-    v = int(np.round(float(mlat) * 100.0))
-    out[i, j] = np.int16(clamp_i16(v))
+
+    # AACGMv2 can be undefined (NaN) near the equator / low latitudes.
+    # Use sentinel int16 value for "invalid".
+    if not np.isfinite(mlat):
+      out[i, j] = np.int16(-32768)
+    else:
+      v = int(np.round(float(mlat) * 100.0))
+      out[i, j] = np.int16(clamp_i16(v))
 
 os.makedirs("data", exist_ok=True)
 bin_path = "data/aacgmv2_mlat_1deg_110km_2026-01-01_i16.bin"
 meta_path = "data/aacgmv2_mlat_1deg_110km_2026-01-01_meta.json"
 
-# write binary (little-endian int16)
 out.astype("<i2").tofile(bin_path)
 
 meta = {
@@ -54,6 +47,7 @@ meta = {
   "scale": 100,
   "dtype": "int16_le",
   "indexing": "idx = (lat+90)*360 + ((lon+180)%360), lon uses floor to 1deg bin",
+  "sentinel_invalid": -32768
 }
 with open(meta_path, "w", encoding="utf-8") as f:
   json.dump(meta, f, ensure_ascii=False, indent=2)
