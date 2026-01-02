@@ -13,6 +13,7 @@
 // Data Adapter (frozen protocol v1)
 // ===============================
 const BASE_PATH = window.location.pathname.includes("/aurora-capture/")
+  console.log("BASE_PATH", BASE_PATH, "pathname", window.location.pathname);
   ? "/aurora-capture"
   : "";
 
