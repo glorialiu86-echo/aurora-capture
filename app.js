@@ -345,6 +345,8 @@ function _cloudTotal(low, mid, high){
       if (sw.bt == null) missingKeys.push("bt");
       if (sw.bz == null) missingKeys.push("bz");
 
+      const baseDate = now();
+
     // ✅ always render realtime solar-wind line (otherwise UI stays "—")
     const fmtNum = (x, d=1) => (Number.isFinite(x) ? x.toFixed(d) : "—");
 
@@ -409,7 +411,6 @@ function _cloudTotal(low, mid, high){
 
       const mlat = window.Model.approxMagLat(lat, lon);
       const base10 = window.Model.baseScoreFromSW(sw, missingKeys);
-      const baseDate = now();
 
       // ---------- 1h: 10min bins ----------
       const labels = [];
