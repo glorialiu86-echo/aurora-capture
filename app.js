@@ -301,7 +301,8 @@ function _cloudTotal(low, mid, high){
         safeText($("threeHint"), "—");
         safeText($("threeDeliver"), "—");
         safeText($("threeDeliverMeta"), "—");
-        safeHTML($("threeClouds"), "云量评分：—");
+        // 云量模块已隐藏：停止向 threeClouds 写内容（保留云量逻辑供未来恢复）
+        // safeHTML($("threeClouds"), "云量评分：—");
 
         safeHTML($("daysBody"), `<tr><td colspan="4" class="muted">不可观测。</td></tr>`);
         setStatusDots([
@@ -711,29 +712,29 @@ function _cloudTotal(low, mid, high){
       const bestLine = (best.length >= 2)
         ? `并列最佳：${escapeHTML(bestWindows)}`
         : `最佳窗口：${escapeHTML(bestWindows)}`;
-      const burstLine = (s3Burst && s3Burst.state)
-        ? `<div class="mutedLine">爆发模型：<b>${escapeHTML(s3Burst.state)}</b>${s3Burst.hint ? ` · ${escapeHTML(s3Burst.hint)}` : ""}</div>`
-        : "";
+      const burstText = (s3Burst && s3Burst.state)
+        ? `爆发模型：${s3Burst.state}${s3Burst.hint ? ` · ${s3Burst.hint}` : ""}`
+        : "—";
+      safeText($("threeBurst"), burstText);
 
-      safeHTML($("threeHint"), `${burstLine}${slotHtml}<div class="mutedLine">${bestLine}</div>`);
+      safeHTML($("threeHint"), `${slotHtml}<div class="mutedLine">${bestLine}</div>`);
 
-      // 3小时云量摘要（保留你原来的“未来3小时内最好的那个小时点”）
-      let cloudBest3h = null;
-      if(clouds.ok && clouds.data) cloudBest3h = bestCloud3h(clouds.data, baseDate);
-
-      if(cloudBest3h){
-        const grade = cloudGradeFromBest(cloudBest3h);
-        safeHTML(
-          $("threeClouds"),
-          `云量评分：<b>${grade}</b>
-           <div class="cloudDetail">低云 ${cloudBest3h.low}% ｜ 中云 ${cloudBest3h.mid}% ｜ 高云 ${cloudBest3h.high}%</div>`
-        );
-      }else{
-        safeHTML(
-          $("threeClouds"),
-          `云量评分：<b>—</b><div class="cloudDetail">低云 —% ｜ 中云 —% ｜ 高云 —%</div>`
-        );
-      }
+      // 3小时云量摘要：云量模块已隐藏（停止向 threeClouds 写内容；保留计算逻辑做退路）
+      // let cloudBest3h = null;
+      // if(clouds.ok && clouds.data) cloudBest3h = bestCloud3h(clouds.data, baseDate);
+      // if(cloudBest3h){
+      //   const grade = cloudGradeFromBest(cloudBest3h);
+      //   safeHTML(
+      //     $("threeClouds"),
+      //     `云量评分：<b>${grade}</b>
+      //      <div class="cloudDetail">低云 ${cloudBest3h.low}% ｜ 中云 ${cloudBest3h.mid}% ｜ 高云 ${cloudBest3h.high}%</div>`
+      //   );
+      // }else{
+      //   safeHTML(
+      //     $("threeClouds"),
+      //     `云量评分：<b>—</b><div class="cloudDetail">低云 —% ｜ 中云 —% ｜ 高云 —%</div>`
+      //   );
+      // }
 
       // ---------- 72h：表格 ----------
       const days = next3DaysLocal(baseDate);

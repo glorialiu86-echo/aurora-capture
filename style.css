@@ -240,11 +240,22 @@ input::placeholder{color:rgba(255,255,255,.35)}
 .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
 
 /* 通用弱化行（用于提示/解释） */
+
 .mutedLine{
   margin-top: 6px;
   color: rgba(255,255,255,.62);
   font-size: 12px;
   line-height: 1.45;
+}
+
+/* 3小时：爆发模型（二级结论位，白字高亮） */
+.burstLine{
+  margin-top: 8px;
+  color: var(--txt);
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 650;
+  letter-spacing: .1px;
 }
 
 .chartCard{padding:14px}
@@ -444,7 +455,7 @@ canvas{width:100% !important; height:100% !important}
    =============================== */
 
 .threeSlots{
-  margin-top: 10px;
+  margin-top: 12px;
   display: grid;
   gap: 10px;
 }
