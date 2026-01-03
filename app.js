@@ -373,13 +373,77 @@ function _cloudTotal(low, mid, high){
         bz: rt.imf.bz_gsm_nT,     // ✅ 只用 GSM Bz（来自 NOAA mag 的 bz_gsm）
         time_tag: rt.imf.ts || rt.solarWind.ts || null,
       };
-      
+
       // missingKeys：用 null 判缺失（替代你旧的 missing 数组）
+      // 说明：这里的 missingKeys 表示“输入不确定性”，即便后面做了 V/N 回溯，也仍然保留缺失标记用于触发可信度提醒。
       const missingKeys = [];
       if (sw.v == null)  missingKeys.push("v");
       if (sw.n == null)  missingKeys.push("n");
       if (sw.bt == null) missingKeys.push("bt");
       if (sw.bz == null) missingKeys.push("bz");
+
+      // --- Plasma 回溯（退路方案 B）：当 NOAA plasma 最新点缺失时，回溯最近一次有效 speed/density ---
+      // 仅用于补齐展示与模型输入；仍保留 missingKeys 用于“数据可信度提醒”。
+      async function backfillPlasmaVNIfNeeded(swObj, maxAgeMin = 120){
+        try{
+          // 只有在 V 或 N 缺失时才回溯
+          if(swObj.v != null && swObj.n != null) return { ok:false };
+
+          // 拉取镜像的 plasma.json（同源静态文件，带缓存破坏参数）
+          const url = `./noaa/plasma.json?t=${Date.now()}`;
+          const res = await fetch(url, { cache: "no-store" });
+          if(!res.ok) return { ok:false };
+          const j = await res.json();
+
+          // 兼容两种形态：
+          // 1) noaa = [ [header...], [row...], ... ]
+          // 2) noaa = ["time_tag","density","speed",...]（仅字段名，表示无数据）
+          const arr = j?.noaa;
+          if(!Array.isArray(arr) || arr.length < 2) return { ok:false };
+          if(!Array.isArray(arr[0])) return { ok:false }; // 只有字段名时直接失败
+
+          const header = arr[0];
+          const idxT = header.indexOf("time_tag");
+          const idxD = header.indexOf("density");
+          const idxS = header.indexOf("speed");
+          if(idxT < 0 || idxD < 0 || idxS < 0) return { ok:false };
+
+          // 从最新往回找最近一次“speed + density 都有效”的点
+          for(let i = arr.length - 1; i >= 1; i--){
+            const row = arr[i];
+            if(!Array.isArray(row)) continue;
+
+            const tStr = row[idxT];
+            const speed = Number(row[idxS]);
+            const dens  = Number(row[idxD]);
+            const t = Date.parse(tStr);
+
+            if(!Number.isFinite(t) || !Number.isFinite(speed) || !Number.isFinite(dens)) continue;
+            const ageMin = (Date.now() - t) / 60000;
+            if(!Number.isFinite(ageMin) || ageMin < 0) continue;
+            if(ageMin > maxAgeMin) continue;
+
+            // ✅ 回填
+            swObj.v = speed;
+            swObj.n = dens;
+            // 如果原来没有 plasma ts，就用回溯点的时间作为 sw.time_tag 的候选（优先级低于 IMF）
+            if(!swObj.time_tag) swObj.time_tag = tStr;
+
+            // 记录用于 UI 展示
+            swObj._plasmaBackfillAgeMin = Math.round(ageMin);
+            return { ok:true, ageMin: swObj._plasmaBackfillAgeMin };
+          }
+
+          return { ok:false };
+        }catch(_){
+          return { ok:false };
+        }
+      }
+
+      // 执行回溯（只回溯 V/N，不回溯 Bt/Bz）
+      if(missingKeys.includes("v") || missingKeys.includes("n")){
+        await backfillPlasmaVNIfNeeded(sw, 120);
+      }
 
       const baseDate = now();
 
@@ -438,7 +502,7 @@ function _cloudTotal(low, mid, high){
       const tsText = sw.time_tag ? fmtYMDHM(new Date(sw.time_tag)) : "—";
       safeText(
         $("swMeta"),
-        `更新时间：${tsText} ・ 新鲜度：mag ${Math.round(rt.imf.ageMin)}m / plasma ${Math.round(rt.solarWind.ageMin)}m`
+        `更新时间：${tsText} ・ 新鲜度：mag ${Math.round(rt.imf.ageMin)}m / plasma ${Math.round(rt.solarWind.ageMin)}m${Number.isFinite(sw._plasmaBackfillAgeMin) ? ` ・ V/N回溯：${sw._plasmaBackfillAgeMin}m` : ""}`
       );
       
       // 不可用：>3小时 或者关键全空
