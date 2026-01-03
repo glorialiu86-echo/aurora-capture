@@ -593,17 +593,16 @@ canvas{width:100% !important; height:100% !important}
   }
 }
 
-/* 1小时下方：全宽模块堆叠 */
+/* 1小时下方：与上方内容同宽的模块堆叠（不要贴满整页） */
 .fullWidthStack {
-  width: 100%;
-  max-width: none;
+  width: min(1100px, 92vw);
+  margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
 }
 
-/* 确保卡片真的吃满 */
+/* 确保卡片吃满容器宽度 */
 .fullWidthStack > .card {
   width: 100%;
-  max-width: none;
 }
