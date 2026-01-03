@@ -592,3 +592,18 @@ canvas{width:100% !important; height:100% !important}
     max-width: none;
   }
 }
+
+/* 1小时下方：全宽模块堆叠 */
+.fullWidthStack {
+  width: 100%;
+  max-width: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+/* 确保卡片真的吃满 */
+.fullWidthStack > .card {
+  width: 100%;
+  max-width: none;
+}
