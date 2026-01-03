@@ -198,6 +198,16 @@ input::placeholder{color:rgba(255,255,255,.35)}
 .dot.bad{color:rgba(255,91,106,.95); border-color: rgba(255,91,106,.22)}
 .statusText{color:var(--muted); font-size:12px}
 
+/* 右侧：数据可信度提醒（状态区） */
+#statusText{
+  transition: opacity .15s ease, transform .15s ease;
+}
+#statusText.warn{ cursor: pointer; }
+#statusText.warn:hover{
+  opacity: .95;
+  transform: translateY(-1px);
+}
+
 .tabs{
   margin: 14px 0 10px;
   display:flex; gap:10px; flex-wrap:wrap;
@@ -729,6 +739,7 @@ canvas{width:100% !important; height:100% !important}
 .alertTitle{
   font-weight: 800;
   letter-spacing:.2px;
+  color: rgba(255,204,102,.95);
 }
 
 .modalX{
@@ -747,6 +758,14 @@ canvas{width:100% !important; height:100% !important}
   color: rgba(255,255,255,.88);
   line-height: 1.55;
   font-size: 14px;
+}
+
+/* NOAA：数据可信度提醒的补充说明 */
+.alertNote{
+  padding: 0 16px 10px;
+  color: rgba(255,255,255,.55);
+  font-size: 12px;
+  line-height: 1.45;
 }
 .alertBody .mutedLine{
   color: rgba(255,255,255,.60);

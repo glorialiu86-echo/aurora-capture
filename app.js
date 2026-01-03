@@ -431,10 +431,12 @@ function _cloudTotal(low, mid, high){
 
       if(hasMissing){
         const missCN = missingKeys.map(k => (k==="v"?"V":k==="n"?"N":k==="bt"?"Bt":k==="bz"?"Bz":k)).join("、");
-        setStatusText(`⚠️ 重要警告`);
+
+        // 数据可信度提醒：有值但不完整，建议谨慎参考
+        setStatusText("⚠️ 数据可信度提醒");
         showAlertModal(`
-          <div> NOAA 端口无法更新数据：<b>${escapeHTML(missCN)}</b></div>
-          <div class="mutedLine">下面结果为缺乏部分数据情况下的<b>极端保守估算</b>，建议谨慎参考。</div>
+          <div>NOAA 数据口径变动或部分数据缺失：<b>${escapeHTML(missCN)}</b></div>
+          <div class="mutedLine">当前预测可信度较低，建议谨慎参考。</div>
         `);
       }else{
         setStatusText("已生成。");
