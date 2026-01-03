@@ -958,3 +958,59 @@ section > .fullWidthStack {
   width: min(1100px, 92vw);
   margin: 0 auto;
 }
+/* ===== Mobile header layout fix ===== */
+@media (max-width: 520px) {
+  .brandRow{
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .brand{
+    align-items: flex-start;     /* 关键：别让 logo 垂直居中顶歪标题 */
+    gap: 10px;
+  }
+
+  .logo{
+    width: 28px;                 /* 移动端更紧凑 */
+    height: 28px;
+    margin-right: 10px;
+    margin-top: 2px;             /* 关键：让 logo 跟第一行标题对齐 */
+  }
+
+  .titleRow{
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;             /* 允许换行，但换得更自然 */
+  }
+
+  .titleRow h1{
+    font-size: 22px;             /* 压一点字号，不然移动端太“撑” */
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  .titleRow .cn{
+    display: block;              /* 中文强制到第二行，干净 */
+    font-size: 20px;
+    opacity: .9;
+    margin-top: 4px;
+  }
+
+  .ver{
+    margin-left: 0;
+    margin-top: 6px;             /* 版本号放得稳一点 */
+    display: inline-flex;
+  }
+
+  .subtitle{
+    font-size: 13px;             /* 让说明更像“注释”，别抢标题 */
+    line-height: 1.35;
+    margin-top: 6px;
+    opacity: .75;
+  }
+
+  #btnAbout{
+    padding: 8px 12px;           /* 右上角按钮更像手机按钮 */
+    height: auto;
+  }
+}
