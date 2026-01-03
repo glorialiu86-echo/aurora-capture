@@ -78,6 +78,72 @@ const SW_PLACEHOLDER_HTML = `
      }
    }
 
+   // --- MLAT gating (hard stop + strong warning) ---
+   const MLAT_HARD_STOP = 40;   // |MLAT| < 40° : always impossible
+   const MLAT_STRONG_WARN = 50; // 40–50° : rare edge cases only
+
+   function openAlertOverlayFull(titleText, html, noteText){
+     try{
+       const title = document.getElementById("alertTitle");
+       const note  = document.getElementById("alertNote");
+       if(title && titleText) title.textContent = titleText;
+       if(note  && noteText)  note.textContent  = noteText;
+       openAlertOverlay(html);
+     }catch(e){
+       console.error("[AuroraCapture] openAlertOverlayFull error:", e);
+       openAlertOverlay(html);
+     }
+   }
+
+   function mlatGateHtml(absM){
+     return (
+       `当前位置磁纬约 <b>${absM.toFixed(1)}°</b>（|MLAT|）。<br>` +
+       `当 <b>|MLAT| &lt; ${MLAT_STRONG_WARN}°</b> 时，极光可见性高度依赖<strong>极端磁暴</strong>与<strong>北向开阔地平线</strong>，不适合“常规出门拍”的决策。<br>` +
+       `建议：尽量提高磁纬（靠近/进入极光椭圆边缘）再使用本工具。`
+     );
+   }
+
+   function showMlatHardStop(mlat){
+     const absM = Math.abs(mlat);
+     openAlertOverlayFull(
+       "⚠️ 磁纬限制：不可观测",
+       (
+         `当前位置磁纬约 <b>${absM.toFixed(1)}°</b>（|MLAT|）。<br>` +
+         `当 <b>|MLAT| &lt; ${MLAT_HARD_STOP}°</b> 时，极光几乎不可能到达你的可见范围。<br>` +
+         `这是硬性地理限制：无论 Kp / Bz / 速度如何，都不建议投入等待与拍摄。`
+       ),
+       "这是硬性地理限制，不是数据缺失或模型不确定性。"
+     );
+   }
+
+   function showMlatStrongWarn(mlat){
+     const absM = Math.abs(mlat);
+     openAlertOverlayFull(
+       "⚠️ 磁纬较低：仅极端事件才可能",
+       mlatGateHtml(absM),
+       "提示：你仍可继续生成，但请把它当作“极端磁暴边缘赌局”。"
+     );
+   }
+
+   // Wait until the user dismisses the alert overlay (OK / X). Used for strong-warning gate.
+   function waitAlertDismiss(){
+     return new Promise((resolve) => {
+       const ok = document.getElementById("alertOk");
+       const x  = document.getElementById("alertClose");
+       let done = false;
+       const finish = () => {
+         if(done) return;
+         done = true;
+         resolve();
+       };
+       // Resolve on either button click (existing handlers will hide overlay)
+       if(ok) ok.addEventListener("click", finish, { once: true });
+       if(x)  x.addEventListener("click", finish, { once: true });
+       // Fallback: if overlay is not present, just continue.
+       if(!ok && !x) finish();
+     });
+   }
+
    // --- astro/model helpers from UI.js (must be proxied too) ---
    const obsGate = (d, lat, lon) =>
      (uiReady() && typeof window.UI.obsGate === "function")
@@ -350,8 +416,14 @@ function _cloudTotal(low, mid, high){
         { level:"warn", text:"OVATION 拉取中" },
       ]);
 
-      // 位置门槛（不解释）
-      if(abs(lat) < 50){
+      // 先计算磁纬（用于“硬限制/强警告”门槛；避免误伤北京这类低地理纬度但仍可能事件）
+      const mlat = window.Model.approxMagLat(lat, lon);
+      const absMlat = Math.abs(mlat);
+
+      // Hard Stop：|MLAT| < 40° -> 直接弹窗 + 不运行
+      if(Number.isFinite(absMlat) && absMlat < MLAT_HARD_STOP){
+        showMlatHardStop(mlat);
+
         safeHTML($("oneHeroLabel"), `<span style="color:${cColor(1)} !important;">1分 不可观测</span>`);
         safeText($("oneHeroMeta"), "—");
         safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
@@ -384,15 +456,24 @@ function _cloudTotal(low, mid, high){
           const card = $("day"+i);
           if(card) card.className = "dayCard c1";
         });
+
         setStatusDots([
           { level:"ok", text:"NOAA —" },
           { level:"ok", text:"Kp —" },
           { level:"ok", text:"云量 —" },
           { level:"ok", text:"OVATION —" },
         ]);
-        setStatusText("已生成。");
+        setStatusText("⚠️ 磁纬过低：已停止生成。 ");
         return;
       }
+
+      // Strong Warning：40–50° -> 弹窗教育，但允许继续（用户点击“知道了”后继续）
+      if(Number.isFinite(absMlat) && absMlat < MLAT_STRONG_WARN){
+        showMlatStrongWarn(mlat);
+        await waitAlertDismiss();
+      }
+
+      // 继续正常拉取
       const [rt, kp, clouds, ova] = await Promise.all([
         getRealtimeState(),
         window.Data.fetchKp(),
@@ -592,7 +673,6 @@ function _cloudTotal(low, mid, high){
         }
       }
 
-      const mlat = window.Model.approxMagLat(lat, lon);
       const base10 = window.Model.baseScoreFromSW(sw, missingKeys);
 
       // ---------- 1h: 10min bins ----------

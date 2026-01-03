@@ -682,6 +682,16 @@ canvas{width:100% !important; height:100% !important}
   margin-top: 14px;
 }
 
+/* 3小时页签：两个顶层卡片之间留出间距（避免移动端模块“粘连”） */
+#t3 > .card + .card{
+  margin-top: 14px;
+}
+
+/* 3小时页签：卡片内部主要区块之间也要留呼吸（slot 列表 / 送达模型 / 结论说明） */
+#t3 .threeSlots{ margin-bottom: 14px; }
+#t3 .fullWidth{ margin-top: 14px; }
+#t3 .fullWidth + .explain{ margin-top: 14px; }
+
 /* 72小时顶部说明：标题与导语之间更松一点，避免“顶头” */
 #t72 .hero .k{
   margin-bottom: 10px;
@@ -846,8 +856,8 @@ canvas{width:100% !important; height:100% !important}
   .chartWrap{height: 220px}
   .subtitle{line-height:1.4}
   .brandRow{align-items:flex-start}
-  .threeSlots{gap: 8px}
-  .threeSlots .slot{padding: 10px 12px}
+  .threeSlots{ gap: 12px; }
+  .threeSlots .slot{ padding: 10px 12px; }
 
   /* 3小时三卡：移动端结论略缩小，避免太挤 */
   #t3 .threeTri .dayConclusion{ font-size: 28px; }
