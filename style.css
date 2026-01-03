@@ -1,3 +1,28 @@
+/* ===============================
+   Global Font Unification
+   =============================== */
+
+:root{
+  --font-sans:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Text",
+    "SF Pro Display",
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+html, body{
+  font-family: var(--font-sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 :root{
   --bg0:#060912;
   --bg1:#0a1020;
