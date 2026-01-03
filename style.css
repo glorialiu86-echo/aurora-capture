@@ -1106,3 +1106,32 @@ section > .fullWidthStack {
   font-weight: 600;
   color: rgba(150, 255, 215, .9); /* 和你工具的浅绿体系一致 */
 }
+/* Mobile: separate 3h cards so they don't stick together */
+@media (max-width: 680px) {
+  .threeSlots,
+  .threeSlotGrid,
+  .threeCards {
+    gap: 12px;
+  }
+
+  .threeSlots > .dayCard,
+  .threeSlotGrid > .dayCard,
+  .threeCards > .dayCard {
+    margin-bottom: 12px;
+  }
+
+  .threeSlots > .dayCard:last-child,
+  .threeSlotGrid > .dayCard:last-child,
+  .threeCards > .dayCard:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Mobile: make time range larger (important!) */
+  #threeSlot0Time,
+  #threeSlot1Time,
+  #threeSlot2Time {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+}

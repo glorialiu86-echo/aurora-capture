@@ -1,3 +1,7 @@
+window.MODEL_CONFIG = {
+  aacgmEndpoint: "https://<你的接口地址>/aacgmv2/mlat"
+};
+
 // --- UI proxies (robust against load-order / cache) ---
    const uiReady = () =>
      window.UI &&
@@ -79,8 +83,27 @@ const SW_PLACEHOLDER_HTML = `
    }
 
    // --- MLAT gating (hard stop + strong warning) ---
+
    const MLAT_HARD_STOP = 40;   // |MLAT| < 40° : always impossible
    const MLAT_STRONG_WARN = 50; // 40–50° : rare edge cases only
+
+   // Prefer real AACGMv2 MLAT if available; otherwise fall back to dipole approx.
+   // Note: window.Model.aacgmV2MagLat may be provided later (async, returns degrees).
+   async function getMLAT(lat, lon, atDate = null){
+     try{
+       if(window.Model && typeof window.Model.aacgmV2MagLat === "function"){
+         const v = await window.Model.aacgmV2MagLat(lat, lon, atDate);
+         if(Number.isFinite(v)) return v;
+       }
+     }catch(_){ /* fall through */ }
+     try{
+       if(window.Model && typeof window.Model.approxMagLat === "function"){
+         const v2 = window.Model.approxMagLat(lat, lon);
+         if(Number.isFinite(v2)) return v2;
+       }
+     }catch(_){ /* fall through */ }
+     return NaN;
+   }
 
    function openAlertOverlayFull(titleText, html, noteText){
      try{
@@ -97,7 +120,7 @@ const SW_PLACEHOLDER_HTML = `
 
    function mlatGateHtml(absM){
      return (
-       `当前位置磁纬约 <b>${absM.toFixed(1)}°</b>（|MLAT|）。<br>` +
+       `当前位置磁纬约 <b>${absM.toFixed(1)}°</b>（|MLAT|，估算值）。<br>` +
        `当 <b>|MLAT| &lt; ${MLAT_STRONG_WARN}°</b> 时，极光可见性高度依赖<strong>极端磁暴</strong>与<strong>北向开阔地平线</strong>，不适合“常规出门拍”的决策。<br>` +
        `建议：尽量提高磁纬（靠近/进入极光椭圆边缘）再使用本工具。`
      );
@@ -108,7 +131,7 @@ const SW_PLACEHOLDER_HTML = `
      openAlertOverlayFull(
        "⚠️ 磁纬限制：不可观测",
        (
-         `当前位置磁纬约 <b>${absM.toFixed(1)}°</b>（|MLAT|）。<br>` +
+         `当前位置磁纬约 <b>${absM.toFixed(1)}°</b>（|MLAT|，估算值）。<br>` +
          `当 <b>|MLAT| &lt; ${MLAT_HARD_STOP}°</b> 时，极光几乎不可能到达你的可见范围。<br>` +
          `这是硬性地理限制：无论 Kp / Bz / 速度如何，都不建议投入等待与拍摄。`
        ),
@@ -408,6 +431,8 @@ function _cloudTotal(low, mid, high){
         return;
       }
 
+      const baseDate = now();
+
       setStatusText("拉取数据中…");
       setStatusDots([
         { level:"warn", text:"NOAA 拉取中" },
@@ -416,8 +441,12 @@ function _cloudTotal(low, mid, high){
         { level:"warn", text:"OVATION 拉取中" },
       ]);
 
+      // Ensure placeholder layout before any run
+      safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
+      safeText($("swMeta"), "—");
+
       // 先计算磁纬（用于“硬限制/强警告”门槛；避免误伤北京这类低地理纬度但仍可能事件）
-      const mlat = window.Model.approxMagLat(lat, lon);
+      const mlat = await getMLAT(lat, lon, baseDate);
       const absMlat = Math.abs(mlat);
 
       // Hard Stop：|MLAT| < 40° -> 直接弹窗 + 不运行
@@ -570,7 +599,7 @@ function _cloudTotal(low, mid, high){
         await backfillPlasmaVNIfNeeded(sw, 120);
       }
 
-      const baseDate = now();
+      // (moved baseDate up)
 
     // ✅ always render realtime solar-wind line (otherwise UI stays "—")
     const fmtNum = (x, d=1) => (Number.isFinite(x) ? x.toFixed(d) : "—");
@@ -1076,6 +1105,10 @@ function _cloudTotal(low, mid, high){
 
     if($("lat") && !$("lat").value) $("lat").value = "53.47";
     if($("lon") && !$("lon").value) $("lon").value = "122.35";
+
+    // Ensure placeholder layout is consistent before any run()
+    safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
+    safeText($("swMeta"), "—");
 
     $("btnRun")?.addEventListener("click", run);
 

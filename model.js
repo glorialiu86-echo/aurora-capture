@@ -22,7 +22,8 @@
     block_twilight_sun_alt_gt: -10, // 天色偏亮：太阳高度 > -10°（更贴近观测/摄影体感）
   };
 
-  // 你旧的“近似磁纬”保留（目前已用 AACGM 查表替代，但我不删的）
+  // “近似磁纬”（偶极近似）：可离线计算，但与真实 AACGMv2/CGM 会有偏差（尤其在东亚高经度区）。
+  // 真实 AACGMv2 建议走 aacgmV2MagLat()（远程换算服务），失败则 fallback 到本函数。
   function approxMagLat(lat, lon){
     const poleLat = 80.65;
     const poleLon = -72.68;
@@ -34,6 +35,86 @@
     const cosc = Math.sin(a1)*Math.sin(a2) + Math.cos(a1)*Math.cos(a2)*Math.cos(b1-b2);
     const c = Math.acos(clamp(cosc, -1, 1));
     return 90 - deg(c);
+  }
+
+  // ------------------------------------------------------------
+  // AACGMv2 MLAT (preferred): via remote conversion endpoint
+  // ------------------------------------------------------------
+  // Why remote?
+  // AACGMv2 不是简单公式，需要磁场模型系数与算法实现。纯前端实现成本很高。
+  // 所以前端这里提供一个“可选远程换算”接口：
+  //   - 配置了 endpoint：优先拿真实 AACGMv2 MLAT
+  //   - 拉不到 / 没配置：返回 NaN，让上层 fallback 到 approxMagLat
+  //
+  // 你可以在 window.Config 或 window.MODEL_CONFIG 里配置：
+  //   window.MODEL_CONFIG = { aacgmEndpoint: "https://<your-endpoint>/aacgmv2/mlat" }
+  // 远程接口约定：POST JSON -> { lat, lon, alt_km, time }，返回 JSON -> { mlat }
+
+  const AACGM_CACHE_PREFIX = "aacgmv2_mlat_v1:";
+  const AACGM_CACHE_TTL_MS = 14 * 24 * 3600 * 1000; // 14 days
+
+  function _aacgmKey(lat, lon, date){
+    const d = (date instanceof Date) ? date : new Date(date || Date.now());
+    // bucket by hour
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    const hh = String(d.getUTCHours()).padStart(2, "0");
+    const latK = Number(lat).toFixed(2);
+    const lonK = Number(lon).toFixed(2);
+    return `${AACGM_CACHE_PREFIX}${latK},${lonK},${y}${m}${day}${hh}`;
+  }
+
+  function _aacgmCacheGet(k){
+    try{
+      const raw = localStorage.getItem(k);
+      if(!raw) return null;
+      const obj = JSON.parse(raw);
+      if(!obj || !Number.isFinite(obj.v) || !Number.isFinite(obj.t)) return null;
+      if(Date.now() - obj.t > AACGM_CACHE_TTL_MS) return null;
+      return obj.v;
+    }catch(_){
+      return null;
+    }
+  }
+
+  function _aacgmCacheSet(k, v){
+    try{
+      localStorage.setItem(k, JSON.stringify({ v, t: Date.now() }));
+    }catch(_){ /* ignore */ }
+  }
+
+  async function aacgmV2MagLat(lat, lon, date){
+    const d = (date instanceof Date) ? date : new Date(date || Date.now());
+    const k = _aacgmKey(lat, lon, d);
+    const cached = _aacgmCacheGet(k);
+    if(Number.isFinite(cached)) return cached;
+
+    const endpoint = window.MODEL_CONFIG?.aacgmEndpoint || window.Config?.aacgmEndpoint || "";
+    if(!endpoint) return NaN;
+
+    const payload = {
+      lat: Number(lat),
+      lon: Number(lon),
+      alt_km: 0,
+      time: d.toISOString(),
+    };
+
+    try{
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if(!res.ok) return NaN;
+      const j = await res.json();
+      const v = Number(j && j.mlat);
+      if(!Number.isFinite(v)) return NaN;
+      _aacgmCacheSet(k, v);
+      return v;
+    }catch(_){
+      return NaN;
+    }
   }
 
   function labelByScore5(s){
@@ -203,6 +284,7 @@
   window.Model = {
     W,
     approxMagLat,
+    aacgmV2MagLat,
     labelByScore5,
     baseScoreFromSW,
     score5FromC10,
