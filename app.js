@@ -338,7 +338,7 @@ function _cloudTotal(low, mid, high){
           safeText($("day"+i+"Conclusion"), "1分 不可观测");
           safeText($("day"+i+"Basis"), "不可观测。");
           const card = $("day"+i);
-          if(card) card.className = "dayCard r";
+          if(card) card.className = "dayCard c1";
         });
         setStatusDots([
           { level:"ok", text:"NOAA —" },
@@ -809,7 +809,7 @@ function _cloudTotal(low, mid, high){
         const score = Number.isFinite(s.score5) ? s.score5 : "—";
         const win = fmtWin(s);
         const isBest = s.score5 === maxScore;
-        const badge = isBest ? `<span class="badge g">${escapeHTML(score)}分</span>` : `<span class="badge b">${escapeHTML(score)}分</span>`;
+        const badge = `<span class="badge c${escapeHTML(String(score))}">${escapeHTML(score)}分</span>`;
 
         const factor = s.factorText
           ? `<div class="mutedLine">主要影响因素：${escapeHTML(s.factorText)}</div>`
@@ -883,11 +883,11 @@ function _cloudTotal(low, mid, high){
         score5 = clamp(score5, 1, 5);
 
         const map5 = {
-          5: { t: "强烈推荐", cls: "g" },
-          4: { t: "值得出门", cls: "g" },
-          3: { t: "可蹲守", cls: "b" },
-          2: { t: "低概率", cls: "y" },
-          1: { t: "不可观测", cls: "r" },
+          5: { t: "强烈推荐", cls: "c5" },
+          4: { t: "值得出门", cls: "c4" },
+          3: { t: "可蹲守", cls: "c3" },
+          2: { t: "低概率", cls: "c2" },
+          1: { t: "不可观测", cls: "c1" },
         };
         const lab = map5[score5];
 
