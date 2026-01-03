@@ -254,6 +254,70 @@ input::placeholder{color:rgba(255,255,255,.35)}
 .chartWrap{ height: 240px; }
 canvas{width:100% !important; height:100% !important}
 
+.chartWrap{ height: 240px; }
+canvas{width:100% !important; height:100% !important}
+
+/* ===============================
+   上游实况 · 仪表行（swLine）
+   =============================== */
+
+#swLine{
+  display: block;
+  margin-top: 6px;
+}
+
+/* 第一行：空间环境（V / Bt / Bz / N） */
+#swLine .swMain{
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;              /* 控制整体高度，避免换行 */
+  line-height: 1.35;
+}
+
+/* label（V / Bt / Bz / N） */
+#swLine .swK{
+  font-size: 11px;
+  letter-spacing: .4px;
+  color: var(--muted2);
+  margin-right: 2px;
+}
+
+/* value（数值） */
+#swLine .swV{
+  font-weight: 600;
+  color: var(--txt);
+}
+
+/* 分隔符 */
+#swLine .swSep{
+  color: var(--muted2);
+  font-size: 12px;
+}
+
+/* 第二行：成像环境（云量 / 月角） */
+#swLine .swAux{
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* 辅助项（云 / 月） */
+#swLine .swAuxItem{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
 .explain{padding:14px}
 .bullets{
   margin:8px 0 0;

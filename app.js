@@ -351,28 +351,51 @@ function _cloudTotal(low, mid, high){
     const fmtNum = (x, d=1) => (Number.isFinite(x) ? x.toFixed(d) : "—");
 
     // 实时云量（当前小时 L/M/H）
-    let cloudBits = "";
+    let cloudLine = "";
     try{
       if(clouds?.ok && clouds?.data){
         const cnow = cloudNow3layer(clouds.data, baseDate);
         if(cnow){
-          cloudBits = ` ｜ 云 L/M/H ${cnow.low}/${cnow.mid}/${cnow.high}%`;
+          cloudLine = `云 L/M/H ${cnow.low}/${cnow.mid}/${cnow.high}%`;
         }
       }
-    }catch(_){ cloudBits = ""; }
+    }catch(_){ cloudLine = ""; }
 
     // 实时月角（当前时刻月亮高度角）
-    let moonBits = "";
+    let moonLine = "";
     try{
       const moonAlt = getMoonAltDeg(baseDate, lat, lon);
       if(Number.isFinite(moonAlt)){
-        moonBits = ` ｜ 月角 ${moonAlt.toFixed(1)}°`;
+        moonLine = `月角 ${moonAlt.toFixed(1)}°`;
       }
-    }catch(_){ moonBits = ""; }
+    }catch(_){ moonLine = ""; }
 
-    safeText(
+    // 方案二：两行展示
+    // 第一行：V / Bt / Bz / N（尽量不换行；未来你在 style.css 再细调）
+    // 第二行：云量 / 月角（重要但次一级，单独一行更清爽）
+    const kv = (k, v) => (
+      `<span class="swK">${escapeHTML(k)}</span> ` +
+      `<span class="swV">${escapeHTML(v)}</span>`
+    );
+
+    const line1 = [
+      kv("V",  fmtNum(sw.v, 0)),
+      kv("Bt", fmtNum(sw.bt, 1)),
+      kv("Bz", fmtNum(sw.bz, 1)),
+      kv("N",  fmtNum(sw.n, 2)),
+    ].join(" <span class=\"swSep\">｜</span> ");
+
+    const line2Parts = [];
+    if(cloudLine) line2Parts.push(`<span class="swAuxItem">${escapeHTML(cloudLine)}</span>`);
+    if(moonLine)  line2Parts.push(`<span class="swAuxItem">${escapeHTML(moonLine)}</span>`);
+
+    const line2 = line2Parts.length
+      ? `<div class="swAux">${line2Parts.join(" <span class=\"swSep\">｜</span> ")}</div>`
+      : "";
+
+    safeHTML(
       $("swLine"),
-      `V ${fmtNum(sw.v, 0)} ｜ Bt ${fmtNum(sw.bt, 1)} ｜ Bz ${fmtNum(sw.bz, 1)} ｜ N ${fmtNum(sw.n, 2)}${cloudBits}${moonBits}`
+      `<div class="swMain" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${line1}</div>${line2}`
     );
       
       // meta: show timestamps + freshness
