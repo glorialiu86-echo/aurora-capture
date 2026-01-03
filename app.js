@@ -618,10 +618,10 @@ function _cloudTotal(low, mid, high){
       }
 
       const heroObj = window.Model.labelByScore5(heroScore);
-      // 1小时标题：分数字体跟随 C 值颜色（c1~c5）
+      // 1小时标题：整句跟随 C 值颜色（用 inline + !important 防止被 CSS 覆盖）
       safeHTML(
         $("oneHeroLabel"),
-        `<span class="${cClass(heroObj.score)} cText">${escapeHTML(String(heroObj.score))}分</span> ${escapeHTML(heroObj.t)}`
+        `<span style="color:${cColor(heroObj.score)} !important;">${escapeHTML(String(heroObj.score))}分 ${escapeHTML(heroObj.t)}</span>`
       );
       // OVATION meta (time + age)
       let ovaTxt = "—";

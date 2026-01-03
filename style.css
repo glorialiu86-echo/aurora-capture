@@ -189,11 +189,31 @@ input::placeholder{color:rgba(255,255,255,.35)}
   border-color: rgba(91,124,255,.35);
 }
 .btn.primary:hover{filter:brightness(1.04)}
+/* actions：主按钮 + 工具介绍 按钮同等尺寸与对齐 */
+.actions .btn{
+  font-size: 14px;
+}
+.actions .btn.primary,
+.actions .btn.ghost{
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 .btn.ghost{
-  height:36px;
-  padding:0 12px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.02);
+  /* 与主按钮同等级：尺寸一致 + 浅绿色强调 */
+  height:40px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: rgba(70, 210, 150, .10);
+  border: 1px solid rgba(70, 210, 150, .32);
+  color: rgba(150, 255, 215, .92);
+}
+.btn.ghost:hover{
+  background: rgba(70, 210, 150, .14);
+  border-color: rgba(70, 210, 150, .42);
 }
 .btn.icon{
   width:36px;

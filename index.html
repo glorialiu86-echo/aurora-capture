@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Aurora Capture 极光捕网</title>
-  <link rel="stylesheet" href="./style.css?v=0280" />
+  <link rel="stylesheet" href="./style.css?v=0282" />
   <!-- SunCalc: 太阳/月亮高度（仅后台计算，不在前台露出） -->
   <script src="https://unpkg.com/suncalc@1.9.0/suncalc.js"></script>
   <!-- Chart.js: 1小时 C值柱状图 -->
@@ -208,7 +208,7 @@
 
     <footer class="foot">
       数据源：NOAA SWPC（实时太阳风、OVATION nowcast、Kp 预报）与 Open-Meteo 云量预报。磁纬（MLAT）由 AACGMv2驱动，并已进行实时换算。
-      <br>版本：v3.0.0280
+      <br>版本：v3.0.0282
     </footer>
   </div>
 
@@ -221,33 +221,71 @@
         <button id="btnAboutClose" class="btn icon" type="button" aria-label="关闭">✕</button>
       </div>
       <div class="modalBody">
-        <p>
-        KP 是为全球空间天气监测而设计的宏观指标。<br>
-        它在航天器运行、电力系统防护、长期磁扰评估中非常有效，但它的设计目标，从来不是服务于具体地点、具体时段的地面观测者。
+        <p class="aboutSectionTitle">
+          工具应该怎么使用？
         </p>
+
         <p>
-        对于普通极光观测与拍摄来说，KP 的粒度过于粗糙。<br>
-        它不区分 IMF 的瞬时方向变化，也难以反映短时稳定性与局地响应。<br>
-        这也是为什么在真实体验中，常常会出现：KP 看似“非常合适”，却完全无法观测或拍摄的情况。
+          输入经纬度，系统会自动读取你当前所在的时间与时区，生成极光观测预告。
         </p>
+
         <p>
-        于是，在漠河零下40度的寒夜中，Aurora Capture 诞生了。
+          <b>【1 小时精准】</b><br>
+          以 10 分钟为粒度，即时回答：<br>
+          「我现在要不要出门？要不要架机？」
         </p>
+
         <p>
-        C 值并不是用来替代 KP 的，<br>
-        它更像是一个面向摄影师与追光者的【可拍可观指数】。
+          <b>【3 小时观测窗口】</b><br>
+          呈现逐小时状态，选出最适合观测极光的一个小时。<br>
+          同时告诉你当前极光是处在爆发中还是已衰落，并回答：<br>
+          「接下来 3 小时值不值得守？」
         </p>
+
         <p>
-        作为一名理工科出身的风光摄影爱好者，我尝试从更接近观测者的角度出发，直接调用太阳风与磁场的原始参数建模。<br>
-        在更短的时间尺度上，评估它们是否正在形成一个对拍摄友好的窗口。
+          <b>【72 小时范围】</b><br>
+          引入更多 CH 与 CME 日冕物质抛射的信息，以天为单位，预测极光爆发的可能性。<br>
+          从更宏观的数据视角，回答：<br>
+          「未来三天，哪一天最值得安排时间？」
         </p>
+
+        <p class="aboutSectionTitle">
+          极光预测，为什么不能只是 KP？
+        </p>
+
         <p>
-        让我们一起来看看：<br>
-        此刻，地球手里握着的，究竟是一副什么样的牌？
+          KP 是为全球空间天气监测而设计的宏观指标。<br>
+          它在航天器运行、电力系统防护、长期磁扰评估中非常有效，<br>
+          但它的设计目标，从来不是服务于具体地点、具体时段的地面观测者。
         </p>
+
+        <p>
+          对于普通极光观测与拍摄来说，KP 的粒度过于粗糙。<br>
+          它不区分 IMF 的瞬时方向变化，也难以反映短时稳定性与局地响应。<br>
+          这也是为什么在真实体验中，常常会出现：<br>
+          KP 看似“非常合适”，却完全无法观测或拍摄的情况。
+        </p>
+
+        <p>
+          C 值并不是用来替代 KP 的。<br>
+          它更像是一个面向摄影师与追光者的【可拍可观指数】。
+        </p>
+
+        <p>
+          作为一名理工科出身的风光摄影爱好者，<br>
+          我尝试从更接近观测者的角度出发，直接调用太阳风与磁场的原始参数建模，<br>
+          在更短的时间尺度上，评估它们是否正在形成一个对拍摄友好的窗口。
+        </p>
+
+        <p>
+          让我们一起看看：<br>
+          此刻，地球手里握着的，究竟是一副什么样的牌？
+        </p>
+
         <p style="margin-top:18px; text-align:right; color:rgba(255,255,255,.55); font-size:12px;">
-        —— @小狮子佑酱
+          —— @小狮子佑酱
         </p>
+
       </div>
     </div>
   </div>
@@ -268,10 +306,10 @@
   </div>
   
   <!-- your modules -->
-  <script defer src="./adapter.js?v=0280"></script>
-  <script defer src="./ui.js?v=0280"></script>
-  <script defer src="./model.js?v=0280"></script>
-  <script defer src="./app.js?v=0280"></script>
+  <script defer src="./adapter.js?v=0282"></script>
+  <script defer src="./ui.js?v=0282"></script>
+  <script defer src="./model.js?v=0282"></script>
+  <script defer src="./app.js?v=0282"></script>
   
 </body>
 </html>
