@@ -537,9 +537,7 @@ function _cloudTotal(low, mid, high){
 
           blockerHTML = `
             <div class="blockerExplain s${heroScore}">
-              <div class="blockerTitle">${escapeHTML(title)}</div>
-              <div>主要因素：${escapeHTML(ex.primaryText || "—")}</div>
-              ${ex.secondaryText ? `<div>次要因素：${escapeHTML(ex.secondaryText)}</div>` : ``}
+              <div>主要影响因素：${escapeHTML(ex.primaryText || "—")}</div>
             </div>
           `;
         }
