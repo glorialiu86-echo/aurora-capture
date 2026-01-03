@@ -19,7 +19,7 @@
           <div class="titleBlock">
             <div class="titleRow">
               <h1>Aurora Capture <span class="cn">极光捕网</span></h1>
-              <span class="ver">v2.6.37</span>
+              <span class="ver">v2.6.38</span>
             </div>
             <div class="subtitle">输入经纬度 → 生成关于极光可见性/可拍性的即时预测（1小时/3小时/72小时）</div>
           </div>
@@ -61,7 +61,7 @@
 
     <section class="tabs">
       <button class="tab active" data-tab="t1">1小时精准</button>
-      <button class="tab" data-tab="t3">3小时概率态</button>
+      <button class="tab" data-tab="t3">3小时观测窗口</button>
       <button class="tab" data-tab="t72">72小时范围</button>
     </section>
 
@@ -75,7 +75,7 @@
         <div class="big" id="oneHeroLabel">—</div>
         <div class="small" id="oneHeroMeta">—</div>
 
-        <!-- 右侧“不可观测原因”预留区（可选） -->
+        <!-- 右侧解释预留区（可选） -->
         <div class="heroTopRow" style="margin-top:12px;">
           <div class="heroMain"></div>
           <div class="heroSide" id="oneBlockers"></div>
@@ -123,9 +123,9 @@
     <section id="t3" class="pane">
       <div class="gridCards">
         <div class="card hero">
-          <div class="k">当前系统状态（未来3小时不分分钟）</div>
+          <div class="k">3小时观测窗口（逐小时）</div>
           <div class="big" id="threeState">—</div>
-          <div class="small" id="threeHint">—</div>
+          <div class="threeSlots" id="threeHint">—</div>
         </div>
 
         <div class="card hero">
@@ -142,12 +142,13 @@
       </div>
 
       <div class="card explain">
-        <div class="k">3小时状态分级</div>
+        <div class="k">3小时结论分级（C值）</div>
         <ul class="bullets">
-          <li><b>爆发进行中</b>：触发更明确，短时内值得马上看。</li>
-          <li><b>爆发概率上升</b>：系统更容易发生，但未到持续触发。</li>
-          <li><b>爆发后衰落期</b>：刚有过波动，仍可能余震一会儿。</li>
-          <li><b>静默</b>：背景不足或触发不清晰，先别投入。</li>
+          <li><b>5分 强烈推荐</b>：投入回报高，建议立即行动。</li>
+          <li><b>4分 值得出门</b>：条件不错，建议准备与试拍。</li>
+          <li><b>3分 可蹲守</b>：存在机会，建议架机等待触发。</li>
+          <li><b>2分 低概率</b>：机会小，可低成本尝试。</li>
+          <li><b>1分 不可观测</b>：当前时段不建议投入。</li>
         </ul>
       </div>
     </section>
@@ -247,10 +248,10 @@
   </div>
   
   <!-- your modules -->
-  <script defer src="./adapter.js?v=37"></script>
-  <script defer src="./ui.js?v=37"></script>
-  <script defer src="./model.js?v=37"></script>
-  <script defer src="./app.js?v=37"></script>
+  <script defer src="./adapter.js?v=38"></script>
+  <script defer src="./ui.js?v=38"></script>
+  <script defer src="./model.js?v=38"></script>
+  <script defer src="./app.js?v=38"></script>
   
 </body>
 </html>

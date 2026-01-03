@@ -532,12 +532,12 @@ function _cloudTotal(low, mid, high){
 
           const ex = window.Model.explainUnobservable({ cloudMax, moonAltDeg, moonFrac, sunAltDeg });
 
-          const titleMap = { 1: "不可观测原因", 2: "观测受限原因", 3: "观测受限因素" };
-          const title = titleMap[heroScore] || "观测限制";
+          // 文案体系统一：只用“主要影响因素”（与 3 小时模块一致）
+          const title = "主要影响因素";
 
           blockerHTML = `
             <div class="blockerExplain s${heroScore}">
-              <div>主要影响因素：${escapeHTML(ex.primaryText || "—")}</div>
+              <div>${escapeHTML(title)}：${escapeHTML(ex.primaryText || "—")}</div>
             </div>
           `;
         }
@@ -550,30 +550,163 @@ function _cloudTotal(low, mid, high){
 
       renderChart(labels, vals, cols);
 
-      // ---------- 3h：状态机 + 送达 + 云评分 ----------
-      let s3 = window.Model.state3h(sw);
+      // ---------- 3小时观测窗口：每小时独立判断 + 并列最佳 ----------
+
+      // 送达模型（保留：作为背景信息）
       const del = window.Model.deliverModel(sw);
+      safeText($("threeDeliver"), `${del.count}/3 成立`);
+      safeText(
+        $("threeDeliverMeta"),
+        `Bt平台${del.okBt ? "✅" : "⚠️"} ・ 速度背景${del.okV ? "✅" : "⚠️"} ・ 密度结构${del.okN ? "✅" : "⚠️"}`
+      );
 
-      // 3h 同样吃后台门槛（但不解释）
-      const g3 = obsGate(baseDate, lat, lon);
-      const moonAlt3 = getMoonAltDeg(baseDate, lat, lon);
-      const moonF3 = moonFactorByLat(lat, moonAlt3);
+      // 取某个时刻对应的“小时云量三层”，并返回 cloudMax（不区分高/中/低云展示）
+      function _cloudMaxAt(openMeteoJson, atDate){
+        const pack = _omGetHourlyCloudArrays(openMeteoJson);
+        if(!pack) return null;
+        const t0 = atDate instanceof Date ? atDate.getTime() : Date.now();
 
-      let s3score = s3.score;
-      if(g3.hardBlock) s3score = 0;
-      else{
-        if(!g3.inWindow) s3score *= 0.65;
-        s3score *= moonF3;
+        // 找最接近该时刻的小时点
+        let bestI = -1;
+        let bestD = Infinity;
+        for(let i=0;i<pack.times.length;i++){
+          const ti = Date.parse(pack.times[i]);
+          if(!Number.isFinite(ti)) continue;
+          const d = Math.abs(ti - t0);
+          if(d < bestD){ bestD = d; bestI = i; }
+        }
+        if(bestI < 0) return null;
+
+        const low  = Number(pack.low[bestI]);
+        const mid  = Number(pack.mid[bestI]);
+        const high = Number(pack.high[bestI]);
+        if(!Number.isFinite(low) || !Number.isFinite(mid) || !Number.isFinite(high)) return null;
+
+        return {
+          low: Math.round(low),
+          mid: Math.round(mid),
+          high: Math.round(high),
+          cloudMax: Math.max(low, mid, high)
+        };
       }
 
-      if(s3score < 3.2) s3 = { ...s3, state:"静默", hint:"—" };
-      else if(s3score < 5.0 && s3.state === "爆发进行中") s3 = { ...s3, state:"爆发概率上升", hint:"—" };
+      // 云量对“可观测”的保守因子（止血版：只影响分数，不对外暴露公式）
+      function _cloudFactorByMax(cloudMax){
+        if(!Number.isFinite(cloudMax)) return 0.65; // 无数据：保守中低
+        if(cloudMax <= 30) return 1.0;
+        if(cloudMax <= 60) return 0.75;
+        if(cloudMax <= 85) return 0.45;
+        return 0.25;
+      }
 
-      safeText($("threeState"), s3.state);
-      safeText($("threeHint"), s3.hint || "—");
-      safeText($("threeDeliver"), `${del.count}/3 成立`);
-      safeText($("threeDeliverMeta"), `Bt平台${del.okBt ? "✅" : "⚠️"} ・ 速度背景${del.okV ? "✅" : "⚠️"} ・ 密度结构${del.okN ? "✅" : "⚠️"}`);
+      // 以当前时刻为基准：生成未来 3 个“整点小时窗口”（当前小时起算）
+      const slots = [];
+      const baseHour = new Date(baseDate);
+      baseHour.setMinutes(0, 0, 0);
 
+      for(let h=0; h<3; h++){
+        const start = new Date(baseHour.getTime() + h * 3600 * 1000);
+        const end   = new Date(start.getTime() + 3600 * 1000);
+        const mid   = new Date(start.getTime() + 30 * 60000);
+
+        const gate = obsGate(mid, lat, lon);
+
+        // 月角/磁纬轻微因子（与 1h 口径一致）
+        const moonAlt = getMoonAltDeg(mid, lat, lon);
+        const moonF = moonFactorByLat(lat, moonAlt);
+
+        const latBoost = clamp((mlat - 55) / 12, 0, 1);
+        const latF = 0.85 + latBoost*0.15;
+
+        // 1h 的 10min 外推是 0.92^i；这里按“每小时 = 6 个 bin”做同口径衰减
+        const decay = Math.pow(0.92, h * 6);
+
+        // 基础 C10
+        let c10 = base10 * decay;
+
+        // 门槛/窗口影响
+        if(gate.hardBlock){
+          c10 = 0;
+        }else{
+          if(!gate.inWindow) c10 *= 0.55;
+          c10 *= moonF;
+          c10 *= latF;
+        }
+
+        // 云量影响（不拆层，使用 cloudMax）
+        let cloudMax = null;
+        let cloud3 = null;
+        if(clouds?.ok && clouds?.data){
+          cloud3 = _cloudMaxAt(clouds.data, mid);
+          cloudMax = cloud3?.cloudMax ?? null;
+          c10 *= _cloudFactorByMax(cloudMax);
+        }else{
+          c10 *= _cloudFactorByMax(null);
+        }
+
+        c10 = clamp(c10, 0, 10);
+        const score5 = window.Model.score5FromC10(c10);
+
+        // 主要影响因素：只在低分（<=2）时展示一个
+        let factorText = "";
+        if(score5 <= 2 && !gate.hardBlock && typeof window.Model?.explainUnobservable === "function"){
+          const sunAltDeg  = getSunAltDeg(mid, lat, lon);
+          const moonAltDeg = moonAlt;
+
+          let moonFrac = null;
+          try{
+            if(window.SunCalc?.getMoonIllumination){
+              const mi = SunCalc.getMoonIllumination(mid);
+              if(mi && mi.fraction != null) moonFrac = Number(mi.fraction);
+            }
+          }catch(_){ moonFrac = null; }
+
+          const ex = window.Model.explainUnobservable({ cloudMax, moonAltDeg, moonFrac, sunAltDeg });
+          factorText = ex?.primaryText ? String(ex.primaryText) : "";
+        }
+
+        slots.push({ start, end, mid, score5, factorText, cloud3 });
+      }
+
+      // 并列最佳逻辑：同分不选靠前，提示“机会均等”
+      const maxScore = Math.max.apply(null, slots.map(s => s.score5));
+      const best = slots.filter(s => s.score5 === maxScore);
+
+      if(best.length >= 2){
+        safeText($("threeState"), "观测机会均等");
+      }else{
+        safeText($("threeState"), "最佳观测窗口");
+      }
+
+      const fmtWin = (s) => `${fmtHM(s.start)}–${fmtHM(s.end)}`;
+
+      // 渲染三小时条（用 HTML，方便并列/换行；后面你再用 style.css 微调）
+      const slotHtml = slots.map(s => {
+        const score = Number.isFinite(s.score5) ? s.score5 : "—";
+        const win = fmtWin(s);
+        const isBest = s.score5 === maxScore;
+        const badge = isBest ? `<span class="badge g">${escapeHTML(score)}分</span>` : `<span class="badge b">${escapeHTML(score)}分</span>`;
+
+        const factor = s.factorText
+          ? `<div class="mutedLine">主要影响因素：${escapeHTML(s.factorText)}</div>`
+          : ``;
+
+        return `
+          <div class="slot ${isBest ? "best" : ""}">
+            <div><b>${escapeHTML(win)}</b> ${badge}</div>
+            ${factor}
+          </div>
+        `;
+      }).join("");
+
+      const bestWindows = best.map(fmtWin).join(" / ");
+      const bestLine = (best.length >= 2)
+        ? `并列最佳：${escapeHTML(bestWindows)}`
+        : `最佳窗口：${escapeHTML(bestWindows)}`;
+
+      safeHTML($("threeHint"), `${slotHtml}<div class="mutedLine">${bestLine}</div>`);
+
+      // 3小时云量摘要（保留你原来的“未来3小时内最好的那个小时点”）
       let cloudBest3h = null;
       if(clouds.ok && clouds.data) cloudBest3h = bestCloud3h(clouds.data, baseDate);
 

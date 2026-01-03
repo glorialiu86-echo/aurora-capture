@@ -239,6 +239,14 @@ input::placeholder{color:rgba(255,255,255,.35)}
 .small{color:var(--muted2); font-size:12px; line-height:1.45}
 .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
 
+/* 通用弱化行（用于提示/解释） */
+.mutedLine{
+  margin-top: 6px;
+  color: rgba(255,255,255,.62);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .chartCard{padding:14px}
 .chartHead{
   display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;
@@ -431,6 +439,42 @@ canvas{width:100% !important; height:100% !important}
   color: rgba(255,255,255,.62);
 }
 
+/* ===============================
+   3小时观测窗口：逐小时 slots
+   =============================== */
+
+.threeSlots{
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.threeSlots .slot{
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.12);
+}
+
+.threeSlots .slot.best{
+  border-color: rgba(43,209,126,.28);
+  background: rgba(43,209,126,.08);
+}
+
+/* 3小时里用到的 badge：缩小一号，别抢主视觉 */
+.threeSlots .badge{
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border-color: rgba(255,255,255,.12);
+  background: rgba(0,0,0,.16);
+}
+
+/* 3小时的分数胶囊：不需要 bDot，也不要强制 gap 很大 */
+.threeSlots .badge{
+  gap: 6px;
+}
+
 /* 手机适配 */
 @media (max-width: 820px){
   .wrap{width:min(980px, 94vw)}
@@ -441,6 +485,8 @@ canvas{width:100% !important; height:100% !important}
   .chartWrap{height: 220px}
   .subtitle{line-height:1.4}
   .brandRow{align-items:flex-start}
+  .threeSlots{gap: 8px}
+  .threeSlots .slot{padding: 10px 12px}
 }
 /* ========== NOAA 强提示弹窗（alertOverlay）完全独立，避免和 aboutModal 冲突 ========== */
 .alertOverlay{
@@ -571,7 +617,7 @@ canvas{width:100% !important; height:100% !important}
   max-width: 420px;
 }
 
-/* 让“不可观测原因”更像并列模块，而不是贴边小块 */
+/* 让“主要影响因素”更像并列模块，而不是贴边小块 */
 .heroTopRow .heroSide .blockerExplain{
   margin-top: 0; /* 取消它原来自带的上边距，避免下沉 */
   height: 100%;

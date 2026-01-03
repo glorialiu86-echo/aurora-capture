@@ -121,23 +121,20 @@
   // -----------------------------
   const ObservationBlocker = {
     CLOUD_COVER: "CLOUD_COVER",
-    MOONLIGHT: "MOONLIGHT",
-    TWILIGHT: "TWILIGHT",
+    BRIGHT_SKY: "BRIGHT_SKY", // 月光/天光统一解释为“天色偏亮”
     LOW_AURORA_CONTRAST: "LOW_AURORA_CONTRAST",
   };
 
   const BlockerText = {
     [ObservationBlocker.CLOUD_COVER]: "天空被云层遮挡，不利于观测",
-    [ObservationBlocker.MOONLIGHT]: "天色偏亮，微弱极光难以分辨",
-    [ObservationBlocker.TWILIGHT]: "天色偏亮，微弱极光难以分辨",
+    [ObservationBlocker.BRIGHT_SKY]: "天色偏亮，微弱极光难以分辨",
     [ObservationBlocker.LOW_AURORA_CONTRAST]: "极光亮度不足以被当前环境清晰分辨",
   };
 
-  // 优先级（最终只输出一个原因）：云 > 天色偏亮（含月/日） > 对比度不足
+  // 优先级（最终只输出一个原因）：云 > 天色偏亮 > 对比度不足
   const BlockerPriority = [
     ObservationBlocker.CLOUD_COVER,
-    ObservationBlocker.MOONLIGHT,
-    ObservationBlocker.TWILIGHT,
+    ObservationBlocker.BRIGHT_SKY,
     ObservationBlocker.LOW_AURORA_CONTRAST,
   ];
 
@@ -167,33 +164,31 @@
     // ②-1 月光：需要月亮高度 + 月相亮度
     if(moonAltDeg != null && moonFrac != null){
       if(moonAltDeg >= W.block_moon_alt_ge && moonFrac >= W.block_moon_frac_ge){
-        hit.add(ObservationBlocker.MOONLIGHT);
+        hit.add(ObservationBlocker.BRIGHT_SKY);
       }
     }
 
     // ②-2 天光：太阳高度超过阈值（现在用 -10°）
     if(sunAltDeg != null){
       if(sunAltDeg > W.block_twilight_sun_alt_gt){
-        hit.add(ObservationBlocker.TWILIGHT);
+        hit.add(ObservationBlocker.BRIGHT_SKY);
       }
     }
 
     // ③ 兜底：极光对比度不足（只在前两类都不成立时）
     const anyTop2 = hit.has(ObservationBlocker.CLOUD_COVER)
-      || hit.has(ObservationBlocker.MOONLIGHT)
-      || hit.has(ObservationBlocker.TWILIGHT);
+      || hit.has(ObservationBlocker.BRIGHT_SKY);
 
     if(!anyTop2){
       hit.add(ObservationBlocker.LOW_AURORA_CONTRAST);
     }
 
-    // 最终只输出一个原因：云 > 天色偏亮（含月/日） > 对比度不足
+    // 最终只输出一个原因：云 > 天色偏亮 > 对比度不足
     let primary = ObservationBlocker.LOW_AURORA_CONTRAST;
     if(hit.has(ObservationBlocker.CLOUD_COVER)){
       primary = ObservationBlocker.CLOUD_COVER;
-    } else if(hit.has(ObservationBlocker.MOONLIGHT) || hit.has(ObservationBlocker.TWILIGHT)){
-      // 二者文案已统一，这里任选其一作为类型标识即可
-      primary = hit.has(ObservationBlocker.TWILIGHT) ? ObservationBlocker.TWILIGHT : ObservationBlocker.MOONLIGHT;
+    } else if(hit.has(ObservationBlocker.BRIGHT_SKY)){
+      primary = ObservationBlocker.BRIGHT_SKY;
     }
 
     return {
