@@ -1038,3 +1038,8 @@ section > .fullWidthStack {
   .actions .btn.ghost{ border-radius: 14px; height: 44px; }
   .actions .hint{ margin-top: 2px; }
 }
+.aboutSectionTitle{
+  margin: 18px 0 8px;
+  font-weight: 600;
+  color: rgba(150, 255, 215, .9); /* 和你工具的浅绿体系一致 */
+}
