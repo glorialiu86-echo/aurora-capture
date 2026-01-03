@@ -305,6 +305,7 @@ function _cloudTotal(low, mid, high){
         // safeHTML($("threeClouds"), "云量评分：—");
 
         safeHTML($("daysBody"), `<tr><td colspan="4" class="muted">不可观测。</td></tr>`);
+        safeHTML($("daysOverview"), "");
         setStatusDots([
           { level:"ok", text:"NOAA —" },
           { level:"ok", text:"Kp —" },
@@ -736,11 +737,12 @@ function _cloudTotal(low, mid, high){
       //   );
       // }
 
-      // ---------- 72h：表格 ----------
+      // ---------- 72h：概览条 + 表格（依据折叠） ----------
       const days = next3DaysLocal(baseDate);
       const kpMap = kp.ok ? kpMaxByDay(kp.data) : null;
 
       const tbody = [];
+      const overview = [];
 
       days.forEach(d => {
         const key = fmtYMD(d);
@@ -774,35 +776,69 @@ function _cloudTotal(low, mid, high){
         };
         const lab = map5[score5];
 
-        // 云量更佳点
-        let cloudLine = "云量更佳点：—";
+        // 云量更佳点（用于摘要/详情；即使云量模块隐藏，这里仍作为内部依据展示的一部分）
+        let cloudBrief = "云 —";
+        let cloudDetail = "云量更佳点：—";
         if (clouds.ok && clouds.data) {
           const win = bestCloudHourForDay(clouds.data, d);
-          if (win) cloudLine = `云量更佳点：${win.hh}:00（低云≈${win.low}% 中云≈${win.mid}% 高云≈${win.high}%）`;
+          if (win) {
+            cloudBrief = `云 ${win.hh}:00`;
+            cloudDetail = `云量更佳点：${win.hh}:00（低云≈${win.low}% 中云≈${win.mid}% 高云≈${win.high}%）`;
+          }
         }
 
         // p1a/p1b（高速风/能量输入）
         const p1a = window.Model.p1a_fastWind(sw) ? 1 : 0;
         const p1b = window.Model.p1b_energyInput(sw) ? 1 : 0;
 
-        const basis = [
+        // 依据摘要（1行，便于扫读）
+        const kpTxt = kpMax == null ? "Kp—" : `Kp≈${round0(kpMax)}`;
+        const delTxt = `送达${del.count}/3`;
+        const nightTxt = `夜${Math.round(nightRatio * 100)}%`;
+        const sumLine = `${kpTxt} · ${delTxt} · ${nightTxt} · ${cloudBrief}`;
+
+        // 依据详情（展开后）
+        const basisDetail = [
           `• 能量背景：Kp峰值≈${kpMax == null ? "—" : round0(kpMax)}`,
           `• 日冕洞与日冕物质抛射模型：高速风${p1a}/1，能量输入${p1b}/1`,
           `• 太阳风送达能力综合模型：当前 ${del.count}/3（Bt/速度/密度）`,
-          `• ${cloudLine}`,
+          `• ${cloudDetail}`,
         ].join("<br/>");
+
+        // 表格：依据折叠（默认显示摘要）
+        const basisFoldHTML = `
+          <details class="basisFold">
+            <summary>${escapeHTML(sumLine)}</summary>
+            <div class="basisDetail muted2">${basisDetail}</div>
+          </details>
+        `;
 
         tbody.push(`
           <tr>
             <td>${key}</td>
             <td>${badgeHTML(lab.t, lab.cls)}</td>
             <td>${score5}</td>
-            <td class="muted2">${basis}</td>
+            <td>${basisFoldHTML}</td>
           </tr>
+        `);
+
+        // 概览条：3张小卡片
+        overview.push(`
+          <div class="dayMini ${escapeHTML(lab.cls)}">
+            <div class="dayMiniTop">
+              <div class="dayMiniDate">${escapeHTML(key)}</div>
+              <div class="dayMiniBadge">${badgeHTML(lab.t, lab.cls)}</div>
+            </div>
+            <div class="dayMiniMid">
+              <div class="dayMiniScore">${escapeHTML(String(score5))}</div>
+              <div class="dayMiniWhy">${escapeHTML(sumLine)}</div>
+            </div>
+          </div>
         `);
       });
 
       safeHTML($("daysBody"), tbody.join(""));
+      safeHTML($("daysOverview"), overview.join(""));
 
     }catch(err){
       console.error("[AuroraCapture] run error:", err);
