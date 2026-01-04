@@ -632,6 +632,341 @@ function fillCurrentLocation(){
   }
 }
 
+    // ===============================
+    // Realtime solar-wind (B-route): keep generating unless catastrophic
+    // Sources:
+    //   1) NOAA RTSW 1m (more continuous, noisier)  -> realtime feel + continuity
+    //   2) Local mirrored NOAA products (mag/plasma)-> steadier baseline
+    //   3) Last-known-good cache                    -> outage fallback
+    //   4) FMI (reference)                          -> hint when degraded/outage
+    // ===============================
+
+    const NOAA_RTSW_MAG_1M = "https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json";
+    const NOAA_RTSW_WIND_1M = "https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json";
+    const FMI_R_INDEX = "https://space.fmi.fi/MIRACLE/RWC/data/r_index_latest_en.json";
+
+    const LKG_CACHE_KEY = "ac_last_good_sw_v1";
+
+    const _num = (x) => {
+      const v = Number(x);
+      return Number.isFinite(v) ? v : null;
+    };
+
+    const _parseTimeLike = (v) => {
+      if(!v) return null;
+      const t = Date.parse(v);
+      return Number.isFinite(t) ? t : null;
+    };
+
+    const _pick = (obj, keys) => {
+      if(!obj) return null;
+      for(const k of keys){
+        if(obj[k] != null) return obj[k];
+      }
+      return null;
+    };
+
+    async function _fetchJson(url, timeoutMs = 12000){
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+      try{
+        const res = await fetch(url, { cache:"no-store", signal: ctrl.signal });
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      }finally{
+        clearTimeout(timer);
+      }
+    }
+
+    function _latestValidFromNoaaTable(noaaTable, want){
+      // noaaTable: [headerRow, ...dataRows]
+      try{
+        if(!Array.isArray(noaaTable) || noaaTable.length < 2) return null;
+        const header = noaaTable[0];
+        if(!Array.isArray(header)) return null;
+
+        const idxT = header.indexOf(want.time);
+        if(idxT < 0) return null;
+
+        const idx = {};
+        for(const [outKey, candKeys] of Object.entries(want.fields)){
+          let found = -1;
+          for(const ck of candKeys){
+            const j = header.indexOf(ck);
+            if(j >= 0){ found = j; break; }
+          }
+          idx[outKey] = found;
+        }
+
+        for(let i = noaaTable.length - 1; i >= 1; i--){
+          const row = noaaTable[i];
+          if(!Array.isArray(row)) continue;
+
+          const tsStr = row[idxT];
+          const ts = _parseTimeLike(tsStr);
+          if(!Number.isFinite(ts)) continue;
+
+          const out = { ts: tsStr };
+          let hasAny = false;
+
+          for(const [k, j] of Object.entries(idx)){
+            if(j < 0) continue;
+            const v = _num(row[j]);
+            if(v != null){ out[k] = v; hasAny = true; }
+          }
+
+          if(hasAny) return out;
+        }
+        return null;
+      }catch(_){
+        return null;
+      }
+    }
+
+    async function _fetchRtsw1m(){
+      const out = {
+        ok:false,
+        src:"rtsw-1m",
+        imf:{ bt_nT:null, bz_gsm_nT:null, ts:null, ageMin: Infinity },
+        solarWind:{ speed_km_s:null, density_cm3:null, ts:null, ageMin: Infinity }
+      };
+
+      try{
+        const [magJ, windJ] = await Promise.all([
+          _fetchJson(NOAA_RTSW_MAG_1M, 12000),
+          _fetchJson(NOAA_RTSW_WIND_1M, 12000)
+        ]);
+
+        const pickLast = (j) => {
+          if(Array.isArray(j) && j.length) return j[j.length-1];
+          if(j && Array.isArray(j.data) && j.data.length) return j.data[j.data.length-1];
+          return null;
+        };
+
+        const magLast = pickLast(magJ);
+        const windLast = pickLast(windJ);
+
+        const magTs = _pick(magLast, ["time_tag","time","timestamp","datetime","date_time"]);
+        const bt = _num(_pick(magLast, ["bt","bt_nT","bt_nt","B_t","total"]));
+        const bz = _num(_pick(magLast, ["bz_gsm","bz_gsm_nT","bz","bz_nt","Bz"]));
+
+        const windTs = _pick(windLast, ["time_tag","time","timestamp","datetime","date_time"]);
+        const v = _num(_pick(windLast, ["speed","speed_km_s","v","V","flow_speed"]));
+        const n = _num(_pick(windLast, ["density","density_cm3","n","N","proton_density"]));
+
+        const nowMs = Date.now();
+        const tMag = _parseTimeLike(magTs);
+        const tWind = _parseTimeLike(windTs);
+
+        if(bt != null) out.imf.bt_nT = bt;
+        if(bz != null) out.imf.bz_gsm_nT = bz;
+        if(magTs) out.imf.ts = magTs;
+        if(Number.isFinite(tMag)) out.imf.ageMin = (nowMs - tMag) / 60000;
+
+        if(v != null) out.solarWind.speed_km_s = v;
+        if(n != null) out.solarWind.density_cm3 = n;
+        if(windTs) out.solarWind.ts = windTs;
+        if(Number.isFinite(tWind)) out.solarWind.ageMin = (nowMs - tWind) / 60000;
+
+        const okMag = (out.imf.bt_nT != null || out.imf.bz_gsm_nT != null) && Number.isFinite(out.imf.ageMin);
+        const okWind = (out.solarWind.speed_km_s != null || out.solarWind.density_cm3 != null) && Number.isFinite(out.solarWind.ageMin);
+        out.ok = okMag || okWind;
+
+        return out;
+      }catch(e){
+        out.err = String(e?.message || e);
+        return out;
+      }
+    }
+
+    async function _fetchMirrorProducts(){
+      const out = {
+        ok:false,
+        src:"mirror-products",
+        imf:{ bt_nT:null, bz_gsm_nT:null, ts:null, ageMin: Infinity },
+        solarWind:{ speed_km_s:null, density_cm3:null, ts:null, ageMin: Infinity }
+      };
+
+      try{
+        const [magWrap, plasmaWrap] = await Promise.all([
+          _fetchJson(`./noaa/mag.json?t=${Date.now()}`, 12000),
+          _fetchJson(`./noaa/plasma.json?t=${Date.now()}`, 12000),
+        ]);
+
+        const magLast = _latestValidFromNoaaTable(magWrap?.noaa, {
+          time:"time_tag",
+          fields:{
+            bt:["bt","Bt","bt_nT","bt_nt"],
+            bz:["bz_gsm","Bz","bz","bz_gsm_nT","bz_nt"]
+          }
+        });
+
+        const plasmaLast = _latestValidFromNoaaTable(plasmaWrap?.noaa, {
+          time:"time_tag",
+          fields:{
+            v:["speed","V","speed_km_s","flow_speed"],
+            n:["density","N","density_cm3","proton_density"]
+          }
+        });
+
+        const nowMs = Date.now();
+
+        if(magLast){
+          if(magLast.bt != null) out.imf.bt_nT = magLast.bt;
+          if(magLast.bz != null) out.imf.bz_gsm_nT = magLast.bz;
+          out.imf.ts = magLast.ts;
+          const t = _parseTimeLike(magLast.ts);
+          if(Number.isFinite(t)) out.imf.ageMin = (nowMs - t) / 60000;
+        }
+
+        if(plasmaLast){
+          if(plasmaLast.v != null) out.solarWind.speed_km_s = plasmaLast.v;
+          if(plasmaLast.n != null) out.solarWind.density_cm3 = plasmaLast.n;
+          out.solarWind.ts = plasmaLast.ts;
+          const t = _parseTimeLike(plasmaLast.ts);
+          if(Number.isFinite(t)) out.solarWind.ageMin = (nowMs - t) / 60000;
+        }
+
+        const hasAny =
+          out.imf.bt_nT != null || out.imf.bz_gsm_nT != null ||
+          out.solarWind.speed_km_s != null || out.solarWind.density_cm3 != null;
+
+        out.ok = hasAny && (Number.isFinite(out.imf.ageMin) || Number.isFinite(out.solarWind.ageMin));
+        return out;
+      }catch(e){
+        out.err = String(e?.message || e);
+        return out;
+      }
+    }
+
+    async function _fetchFmiHint(){
+      try{
+        const j = await _fetchJson(FMI_R_INDEX, 12000);
+
+        let bestProb = null;
+        const scan = (node) => {
+          if(!node) return;
+          if(Array.isArray(node)) return node.forEach(scan);
+          if(typeof node !== "object") return;
+
+          const prob = _num(_pick(node, ["probability","prob","AuroraProbability","aurora_probability"]));
+          if(prob != null) bestProb = (bestProb == null ? prob : Math.max(bestProb, prob));
+
+          for(const v of Object.values(node)) scan(v);
+        };
+        scan(j);
+
+        return { ok: bestProb != null, prob: bestProb };
+      }catch(e){
+        return { ok:false, err:String(e?.message || e) };
+      }
+    }
+
+    function _mergeRt(primary, secondary){
+      const out = JSON.parse(JSON.stringify(primary || {}));
+      if(!out.imf) out.imf = { bt_nT:null, bz_gsm_nT:null, ts:null, ageMin:Infinity };
+      if(!out.solarWind) out.solarWind = { speed_km_s:null, density_cm3:null, ts:null, ageMin:Infinity };
+
+      const fill = (dst, src, k) => {
+        if(dst[k] == null && src && src[k] != null) dst[k] = src[k];
+      };
+
+      if(secondary?.imf){
+        fill(out.imf, secondary.imf, "bt_nT");
+        fill(out.imf, secondary.imf, "bz_gsm_nT");
+        if(!out.imf.ts && secondary.imf.ts) out.imf.ts = secondary.imf.ts;
+        if(!Number.isFinite(out.imf.ageMin) && Number.isFinite(secondary.imf.ageMin)) out.imf.ageMin = secondary.imf.ageMin;
+      }
+
+      if(secondary?.solarWind){
+        fill(out.solarWind, secondary.solarWind, "speed_km_s");
+        fill(out.solarWind, secondary.solarWind, "density_cm3");
+        if(!out.solarWind.ts && secondary.solarWind.ts) out.solarWind.ts = secondary.solarWind.ts;
+        if(!Number.isFinite(out.solarWind.ageMin) && Number.isFinite(secondary.solarWind.ageMin)) out.solarWind.ageMin = secondary.solarWind.ageMin;
+      }
+
+      return out;
+    }
+
+    function _statusFromAge(rt){
+      const magAge = Number(rt?.imf?.ageMin);
+      const plaAge = Number(rt?.solarWind?.ageMin);
+
+      const magOk = Number.isFinite(magAge) && magAge <= 30;
+      const plaOk = Number.isFinite(plaAge) && plaAge <= 30;
+
+      if(magOk && plaOk) return "OK";
+
+      const hasAny =
+        rt?.imf?.bt_nT != null || rt?.imf?.bz_gsm_nT != null ||
+        rt?.solarWind?.speed_km_s != null || rt?.solarWind?.density_cm3 != null;
+
+      if(hasAny) return "DEGRADED";
+      return "OUTAGE";
+    }
+
+    function _isCatastrophicOutage(rt){
+      const magAge = Number(rt?.imf?.ageMin);
+      const plaAge = Number(rt?.solarWind?.ageMin);
+      const magBad = !Number.isFinite(magAge) || magAge > 720; // 12h
+      const plaBad = !Number.isFinite(plaAge) || plaAge > 720; // 12h
+      return magBad && plaBad;
+    }
+
+    function _cacheLastGood(sw, rt){
+      try{
+        cacheSet(LKG_CACHE_KEY, { at: Date.now(), sw, rt });
+      }catch(_){}
+    }
+
+    function _loadLastGood(){
+      try{
+        return cacheGet(LKG_CACHE_KEY);
+      }catch(_){
+        return null;
+      }
+    }
+
+    async function getRealtimeStateSmart(){
+      const [rtsw, mir, fmi] = await Promise.all([
+        _fetchRtsw1m(),
+        _fetchMirrorProducts(),
+        _fetchFmiHint()
+      ]);
+
+      // Prefer mirror-products, merge rtsw to reduce dead air
+      let merged = _mergeRt(mir, rtsw);
+
+      let status = _statusFromAge(merged);
+      if(status !== "OUTAGE" && _isCatastrophicOutage(merged)) status = "OUTAGE";
+
+      // OUTAGE: try last-known-good
+      const lkg = _loadLastGood();
+      if(status === "OUTAGE" && lkg?.rt){
+        merged = _mergeRt(merged, lkg.rt);
+      }
+
+      merged.status = status;
+      merged.source = {
+        primary: mir?.ok ? "mirror-products" : (rtsw?.ok ? "rtsw-1m" : "none"),
+        merged: [mir?.ok ? "mirror-products" : null, rtsw?.ok ? "rtsw-1m" : null].filter(Boolean)
+      };
+      merged.fmi = fmi;
+
+      // cache when usable and not outage
+      const sw = {
+        v: merged?.solarWind?.speed_km_s ?? null,
+        n: merged?.solarWind?.density_cm3 ?? null,
+        bt: merged?.imf?.bt_nT ?? null,
+        bz: merged?.imf?.bz_gsm_nT ?? null,
+        time_tag: merged?.imf?.ts || merged?.solarWind?.ts || null
+      };
+      const hasSome = sw.v!=null || sw.n!=null || sw.bt!=null || sw.bz!=null;
+      if(hasSome && status !== "OUTAGE") _cacheLastGood(sw, merged);
+
+      return merged;
+    }
+
    // ---------- main run ----------
   async function run(){
     try{
@@ -739,7 +1074,7 @@ function fillCurrentLocation(){
 
       // 继续正常拉取
       const [rt, kp, clouds, ova] = await Promise.all([
-        getRealtimeState(),
+        getRealtimeStateSmart(),
         window.Data.fetchKp(),
         window.Data.fetchClouds(lat, lon),
         window.Data.fetchOvation()
@@ -748,7 +1083,9 @@ function fillCurrentLocation(){
       // 状态点：太阳风来源固定为镜像 + 新鲜度状态
       setStatusDots([
         { level: rt.status === "OK" ? "ok" : (rt.status === "DEGRADED" ? "warn" : "bad"),
-          text: `太阳风：${rt.status}（mag ${Math.round(rt.imf.ageMin)}m / plasma ${Math.round(rt.solarWind.ageMin)}m）` },
+        text: `太阳风：${rt.status}（mag ${Math.round(rt.imf.ageMin)}m / plasma ${Math.round(rt.solarWind.ageMin)}m）` +
+        (rt?.source?.primary ? ` · 来源:${rt.source.primary}` : "") +
+        ((rt.status !== "OK" && rt?.fmi?.ok && rt.fmi.prob != null) ? ` · FMI概率≈${Math.round(rt.fmi.prob)}%` : "")},
         { level: kp.ok ? "ok" : "bad", text: kp.note || "Kp" },
         { level: clouds.ok ? "ok" : "bad", text: clouds.note || "云量" },
         { level: ova.ok ? "ok" : "bad", text: ova.note || "OVATION" },
@@ -894,18 +1231,9 @@ function fillCurrentLocation(){
         `更新时间：${tsText} ・ 新鲜度：mag ${Math.round(rt.imf.ageMin)}m / plasma ${Math.round(rt.solarWind.ageMin)}m${Number.isFinite(sw._plasmaBackfillAgeMin) ? ` ・ V/N回溯：${sw._plasmaBackfillAgeMin}m` : ""}`
       );
       
-      // 不可用：>3小时 或者关键全空
-      if (rt.status === "INVALID") {
-        safeText($("oneHeroLabel"), "—");
-        safeText($("oneHeroMeta"), "—");
-        safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
-        safeText($("swMeta"), "太阳风数据不可用（断流>3小时）");
-        const labels = ["+10m","+20m","+30m","+40m","+50m","+60m"];
-        const vals = [0,0,0,0,0,0];
-        const cols = vals.map(()=> "rgba(255,255,255,.14)");
-        renderChart(labels, vals, cols);
-        setStatusText("🚫 太阳风数据断流超过 3 小时：已停止生成预测。");
-        return;
+      // OUTAGE 不硬停：提示 + 弱模式/降权
+      if (rt.status === "OUTAGE") {
+        setStatusText("⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）");
       }
       // NOAA 缺字段：强提示弹窗 + 页面状态文案（甩锅 NOAA + 保守估算）
       const hasMissing = missingKeys.length > 0;
@@ -938,6 +1266,9 @@ function fillCurrentLocation(){
       }
 
       const base10 = window.Model.baseScoreFromSW(sw, missingKeys);
+      let base10Adj = base10;
+      if (rt.status === "DEGRADED") base10Adj = base10 * 0.78;
+      if (rt.status === "OUTAGE")   base10Adj = base10 * 0.60;
 
       // ---------- 1h: 10min bins ----------
       const labels = [];
@@ -961,7 +1292,7 @@ function fillCurrentLocation(){
 
         // 保守外推：逐步衰减
         const decay = Math.pow(0.92, i);
-        let c10 = base10 * decay;
+        let c10 = base10Adj * decay;
 
         // 门槛/窗口（后台）
         if(gate.hardBlock){
@@ -1147,7 +1478,7 @@ function fillCurrentLocation(){
         const decay = Math.pow(0.92, h * 6);
 
         // 基础 C10
-        let c10 = base10 * decay;
+        let c10 = base10Adj * decay;
 
         // 门槛/窗口影响
         if(gate.hardBlock){
