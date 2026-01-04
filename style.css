@@ -205,6 +205,24 @@ input::placeholder{color:rgba(255,255,255,.35)}
   align-items: center;
   justify-content: center;
 }
+
+/* 获取位置按钮：与“生成即时预测”同权重，不弱化 */
+#btnGeo.btn.primary{
+  gap: 8px;                 /* 图标与文字的呼吸感 */
+  letter-spacing: .2px;
+}
+
+/* actions 行：三个按钮视觉均衡 */
+.actions{
+  align-items: center;
+}
+
+/* 移动端：主按钮保持同等存在感 */
+@media (max-width: 520px){
+  #btnGeo.btn.primary{
+    flex: 1 1 auto;         /* 与生成预测同级 */
+  }
+}
 .btn.ghost{
   /* 与主按钮同等级：尺寸一致 + 浅绿色强调 */
   height:40px;

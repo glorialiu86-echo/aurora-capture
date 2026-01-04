@@ -524,6 +524,114 @@ function _cloudTotal(low, mid, high){
         }
       }
 
+// ---------- btnGeo success flash (no color change / no animation) ----------
+let __geoBtnResetTimer = null;
+
+function flashGeoButtonSuccess(){
+  const btn = $("btnGeo");
+  if(!btn) return;
+
+  // remember original label once
+  if(!btn.dataset.labelOriginal){
+    btn.dataset.labelOriginal = btn.textContent || "📍获取位置";
+  }
+
+  // clear pending reset if user clicks again
+  if(__geoBtnResetTimer) clearTimeout(__geoBtnResetTimer);
+
+  // temporary label (no class change -> no color jump)
+  btn.textContent = "已获取 ✓";
+
+  // restore after 1.5s
+  __geoBtnResetTimer = setTimeout(() => {
+    btn.textContent = btn.dataset.labelOriginal || "📍获取位置";
+    __geoBtnResetTimer = null;
+  }, 1500);
+}
+
+// ---------- geolocation (fill lat/lon) ----------
+function fillCurrentLocation(){
+  try{
+    if(!navigator.geolocation){
+      openAlertOverlayFull(
+        "📍 无法获取定位",
+        "当前浏览器不支持定位功能。<br><br>你可以手动输入经纬度。",
+        "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。"
+      );
+      return;
+    }
+
+    setStatusText("📍 正在获取当前位置…");
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        try{
+          const coords = pos && pos.coords ? pos.coords : null;
+          const latitude = coords ? Number(coords.latitude) : NaN;
+          const longitude = coords ? Number(coords.longitude) : NaN;
+          const accuracy = coords ? Number(coords.accuracy) : NaN;
+
+          if(!Number.isFinite(latitude) || !Number.isFinite(longitude)){
+            setStatusText("⚠️ 定位返回无效坐标");
+            openAlertOverlayFull(
+              "📍 定位失败",
+              "定位返回的经纬度无效，请重试或手动输入。",
+              "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。"
+            );
+            return;
+          }
+
+          // Fill inputs (keep enough precision for users; 5 decimals ≈ 1.1m lat)
+          const latEl = $("lat");
+          const lonEl = $("lon");
+          if(latEl) latEl.value = latitude.toFixed(5);
+          if(lonEl) lonEl.value = longitude.toFixed(5);
+
+          const accTxt = Number.isFinite(accuracy) ? `（精度约 ${Math.round(accuracy)}m）` : "";
+          setStatusText(`已获取当前位置 ${accTxt}`);
+          flashGeoButtonSuccess();
+        }catch(e){
+          console.error("[AuroraCapture] geolocation success handler error:", e);
+          setStatusText("⚠️ 定位处理异常");
+          openAlertOverlayFull(
+            "📍 定位失败",
+            "定位成功返回，但处理坐标时发生异常。请重试或手动输入。",
+            "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。"
+          );
+        }
+      },
+      (err) => {
+        const code = err && typeof err.code === "number" ? err.code : null;
+
+        let reason = "定位失败，请重试或手动输入。";
+        if(code === 1) reason = "你拒绝了定位授权。请在浏览器设置中允许定位后重试。";
+        else if(code === 2) reason = "暂时无法获取定位（信号弱/系统未开启定位服务）。";
+        else if(code === 3) reason = "获取定位超时，请稍后重试。";
+
+        setStatusText("⚠️ 无法获取定位");
+        openAlertOverlayFull(
+          "📍 无法获取定位",
+          reason,
+          "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。"
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 60000
+      }
+    );
+  }catch(e){
+    console.error("[AuroraCapture] geolocation error:", e);
+    setStatusText("⚠️ 无法获取定位");
+    openAlertOverlayFull(
+      "📍 无法获取定位",
+      "获取定位时发生异常，请重试或手动输入。",
+      "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。"
+    );
+  }
+}
+
    // ---------- main run ----------
   async function run(){
     try{
@@ -1248,7 +1356,9 @@ function _cloudTotal(low, mid, high){
     safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
     safeText($("swMeta"), "—");
 
+
     $("btnRun")?.addEventListener("click", run);
+    $("btnGeo")?.addEventListener("click", fillCurrentLocation);
 
     // Alert modal close buttons
     document.getElementById("alertClose")?.addEventListener("click", closeAlertOverlay);
