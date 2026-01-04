@@ -160,6 +160,7 @@ const badgeHTML = (text, cls) => {
 
 const initTabs = () => { if (uiReady() && typeof window.UI.initTabs === "function") { try{ window.UI.initTabs(); }catch(_){ } } };
 const initAbout = () => { if (uiReady() && typeof window.UI.initAbout === "function") { try{ window.UI.initAbout(); }catch(_){ } } };
+const initLangToggle = () => { if (uiReady() && typeof window.UI.initLangToggle === "function") { try{ window.UI.initLangToggle(); }catch(_){ } } };
 
    const showAlertModal = (html) => { if (uiReady() && typeof window.UI.showAlertModal === "function") window.UI.showAlertModal(html); };
 
@@ -319,6 +320,42 @@ function cColor(c){
   }catch(_){
     return "rgba(255,255,255,.20)";
   }
+}
+
+// ===============================
+// Language: conclusion translation (EN only; CN remains unchanged)
+// ===============================
+function getLangSafe(){
+  try{
+    const g = window.UI?.getLang;
+    if(typeof g === "function"){
+      const v = g();
+      return (v === "en") ? "en" : "cn";
+    }
+  }catch(_){ /* ignore */ }
+  return "cn";
+}
+
+function translateConclusionIfEN(score5, cnPhrase){
+  const s = Math.max(1, Math.min(5, Math.round(Number(score5) || 1)));
+  const cn = String(cnPhrase || "").trim();
+
+  // CN: keep exact existing format
+  if(getLangSafe() !== "en"){
+    return `${s}分 ${cn || "不可观测"}`;
+  }
+
+  // EN: map phrase, keep score (no "分")
+  const map = {
+    "强烈推荐": "Highly Recommended",
+    "值得出门": "Worth Going Out",
+    "可蹲守": "Worth Waiting",
+    "低概率": "Low Probability",
+    "不可观测": "Not Observable",
+  };
+
+  const en = map[cn] || cn || "Not Observable";
+  return `${s} ${en}`;
 }
 
 // ===============================
@@ -1083,7 +1120,7 @@ function fillCurrentLocation(){
       if(Number.isFinite(absMlat) && absMlat < MLAT_HARD_STOP){
         showMlatHardStop(mlat);
 
-        safeHTML($("oneHeroLabel"), `<span style="color:${cColor(1)} !important;">1分 不可观测</span>`);
+        safeHTML($("oneHeroLabel"), `<span style="color:${cColor(1)} !important;">${escapeHTML(translateConclusionIfEN(1, "不可观测"))}</span>`);
         safeText($("oneHeroMeta"), "—");
         safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
         safeText($("swMeta"), "—");
@@ -1101,7 +1138,7 @@ function fillCurrentLocation(){
         // 3小时（三卡，与 72h 同模板）
         [0,1,2].forEach(i => {
           safeText($("threeSlot"+i+"Time"), "—");
-          safeText($("threeSlot"+i+"Conclusion"), "1分 不可观测");
+          safeText($("threeSlot"+i+"Conclusion"), translateConclusionIfEN(1, "不可观测"));
           safeText($("threeSlot"+i+"Reason"), "不可观测。");
           const card = $("threeSlot"+i);
           if(card) card.className = "dayCard c1";
@@ -1445,7 +1482,8 @@ function fillCurrentLocation(){
       const heroObj = window.Model.labelByScore5(heroScore);
       // 1小时标题：整句跟随 C 值颜色（用 inline + !important 防止被 CSS 覆盖）
       const heroAllowPlus = (heroScore >= 2 && heroScore <= 4);
-      const heroLabelInner = `<span style="color:${cColor(heroObj.score)} !important;">${escapeHTML(String(heroObj.score))}分 ${escapeHTML(heroObj.t)}</span>`;
+      const heroLabelText = translateConclusionIfEN(heroObj.score, heroObj.t);
+      const heroLabelInner = `<span style="color:${cColor(heroObj.score)} !important;">${escapeHTML(String(heroLabelText))}</span>`;
       safeHTML(
         $("oneHeroLabel"),
         maybePlusWrap(heroLabelInner, heroAllowPlus)
@@ -1685,7 +1723,8 @@ function fillCurrentLocation(){
         const lab = map5[score] || map5[1];
 
         const slotAllowPlus = (score >= 2 && score <= 4);
-        const slotConclusionInner = `${escapeHTML(String(score))}分 ${escapeHTML(lab.t)}`;
+        const slotConclusionText = translateConclusionIfEN(score, lab.t);
+        const slotConclusionInner = `${escapeHTML(String(slotConclusionText))}`;
         safeHTML($("threeSlot"+i+"Conclusion"), maybePlusWrap(slotConclusionInner, slotAllowPlus));
 
         // 仅显示一个主要影响因素（当 score<=2 且有 factorText）
@@ -1799,7 +1838,7 @@ function fillCurrentLocation(){
 
         // 写入到三列卡片
         safeText($("day"+i+"Date"), key);
-        safeText($("day"+i+"Conclusion"), `${score5}分 ${lab.t}`);
+        safeText($("day"+i+"Conclusion"), translateConclusionIfEN(score5, lab.t));
         safeHTML($("day"+i+"Basis"), basisHTML);
 
         const card = $("day"+i);
@@ -1815,6 +1854,7 @@ function fillCurrentLocation(){
   // ---------- bootstrap ----------
   function bootstrap(){
     initTabs();
+    initLangToggle();
     initAbout();
 
     if($("lat") && !$("lat").value) $("lat").value = "53.47";
@@ -1835,4 +1875,4 @@ function fillCurrentLocation(){
   }
   document.addEventListener("DOMContentLoaded", bootstrap);
 
-getRealtimeState().then(s => console.log("RealtimeState", s)).catch(e => console.error(e));
+getRealtimeStateSmart().then(s => console.log("RealtimeState", s)).catch(e => console.error(e));

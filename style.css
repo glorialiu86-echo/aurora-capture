@@ -87,6 +87,50 @@ body{
   gap:14px;
 }
 
+/* Header right area: language toggle (subtle, non-intrusive) */
+.headRight{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  flex: 0 0 auto;
+}
+
+.langToggle{
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.03);
+  user-select: none;
+}
+
+.langToggle .langOpt{
+  appearance:none;
+  border:0;
+  background: transparent;
+  color: rgba(255,255,255,.62);
+  font-size: 12px;
+  letter-spacing: .3px;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.langToggle .langOpt:hover{
+  color: rgba(255,255,255,.78);
+}
+
+.langToggle .langOpt.active{
+  color: rgba(255,255,255,.92);
+  font-weight: 700;
+}
+
+.langToggle .langSep{
+  color: rgba(255,255,255,.35);
+  font-size: 12px;
+}
+
 .brand{
   display:flex;
   gap:14px;
@@ -855,6 +899,9 @@ canvas{width:100% !important; height:100% !important}
   text-align:center;
 }
 
+/* Utility: hide any element (used by CN/EN toggle) */
+.hidden{ display:none !important; }
+
 /* 背景介绍 Modal（aboutModal） */
 .modal.hidden{display:none}
 .modal{
@@ -960,6 +1007,14 @@ canvas{width:100% !important; height:100% !important}
   .chartWrap{height: 220px}
   .subtitle{line-height:1.4}
   .brandRow{align-items:center}
+  
+  /* Language toggle stays top-right and compact on mobile */
+  .langToggle{
+    padding: 5px 9px;
+  }
+  .langToggle .langOpt{
+    font-size: 11px;
+  }
   .threeSlots{ gap: 12px; }
   .threeSlots .slot{ padding: 10px 12px; }
 

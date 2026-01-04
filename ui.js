@@ -111,6 +111,95 @@
     return 1 - (1 - f) * ratio;
   }
 
+  // ---------- language (CN default; EN only when toggled) ----------
+  const LANG_KEY = "ac_lang";
+
+  function getLang(){
+    try{
+      const v = localStorage.getItem(LANG_KEY);
+      return (v === "en") ? "en" : "cn";
+    }catch(e){
+      return "cn";
+    }
+  }
+
+  function setLang(lang){
+    const v = (lang === "en") ? "en" : "cn";
+    try{ localStorage.setItem(LANG_KEY, v); }catch(e){}
+    applyLang(v);
+  }
+
+  function applyLang(lang){
+    // 1) Toggle header CN/EN buttons
+    const lt = $("langToggle");
+    if(lt){
+      const opts = Array.from(lt.querySelectorAll(".langOpt"));
+      opts.forEach(b => b.classList.toggle("active", (b.dataset.lang || "cn") === lang));
+    }
+
+    // 2) About modal title + body switching (CN experience must remain unchanged by default)
+    const aboutTitle = $("aboutTitle");
+    if(aboutTitle){
+      const cn = aboutTitle.getAttribute("data-cn") || aboutTitle.textContent || "";
+      const en = aboutTitle.getAttribute("data-en") || cn;
+      aboutTitle.textContent = (lang === "en") ? en : cn;
+    }
+
+    const cnBody = $("aboutBodyCN");
+    const enBody = $("aboutBodyEN");
+    if(cnBody && enBody){
+      cnBody.classList.toggle("hidden", lang === "en");
+      enBody.classList.toggle("hidden", lang !== "en");
+    }
+
+    // 3) Static UI texts: buttons / tabs (CN stays exactly as original; EN swaps copy)
+    const setBilingualText = (el, enText) => {
+      if(!el) return;
+      // capture original CN on first run
+      if(!el.getAttribute("data-cn")){
+        el.setAttribute("data-cn", el.textContent || "");
+      }
+      if(enText && !el.getAttribute("data-en")){
+        el.setAttribute("data-en", enText);
+      }
+      const cn = el.getAttribute("data-cn") || (el.textContent || "");
+      const en = el.getAttribute("data-en") || cn;
+      el.textContent = (lang === "en") ? en : cn;
+    };
+
+    // Buttons (be tolerant to id variations)
+    setBilingualText($("btnGeo"), "📍 Get Location");
+    setBilingualText($("btnRun"), "✍️ Run Forecast");
+    setBilingualText($("btnPredict"), "✍️ Run Forecast");
+    setBilingualText($("btnAbout"), "📖 About");
+
+    // Tabs
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+    tabs.forEach(t => {
+      const id = t.dataset.tab || "";
+      if(id === "t1") setBilingualText(t, "1-Hour Precision");
+      else if(id === "t3") setBilingualText(t, "3-Hour Window");
+      else if(id === "t72") setBilingualText(t, "72-Hour Outlook");
+    });
+
+    // NOTE: Dynamic outputs (conclusion text, reasons, etc.) are handled by app.js based on UI.getLang().
+  }
+
+  function initLangToggle(){
+    const lt = $("langToggle");
+    if(!lt) return;
+
+    // init from cache
+    applyLang(getLang());
+
+    lt.addEventListener("click", (e) => {
+      const t = e.target;
+      if(!t || !t.classList || !t.classList.contains("langOpt")) return;
+      const lang = t.dataset.lang || "cn";
+      setLang(lang);
+    });
+  }
+
   // ---------- UI bits: tabs / modal / alert ----------
   function initTabs(){
     const tabs = Array.from(document.querySelectorAll(".tab"));
@@ -134,24 +223,13 @@
 
     if(!modal || !btn) return;
 
-    // --- Tool intro (replaces “背景介绍”) ---
-    const TOOL_TITLE = "工具介绍";
-
-    function setModalTitle(){
-      // Prefer explicit ids if you have them
-      const t1 = $("aboutTitle");
-      if(t1){ t1.textContent = TOOL_TITLE; return; }
-
-      // Otherwise: first heading inside modal
-      const h = modal.querySelector("h1,h2,h3");
-      if(h) h.textContent = TOOL_TITLE;
-    }
-
     const open = () => {
-      setModalTitle();
+      // ensure About title/body matches current language
+      applyLang(getLang());
       modal.classList.remove("hidden");
       modal.setAttribute("aria-hidden", "false");
     };
+
     const hide = () => {
       modal.classList.add("hidden");
       modal.setAttribute("aria-hidden", "true");
@@ -329,6 +407,11 @@
     initTabs,
     initAbout,
     showAlertModal,
+    // language
+    getLang,
+    setLang,
+    applyLang,
+    initLangToggle,
   };
 
   // Data fetchers kept as window.Data.* for app.js
