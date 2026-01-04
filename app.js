@@ -1201,6 +1201,10 @@ function fillCurrentLocation(){
 
         safeHTML($("oneHeroLabel"), `<span style="color:${cColor(1)} !important;">${escapeHTML(translateConclusionTextIfEN("不可观测"))}</span>`);
         safeText($("oneHeroMeta"), actionNote1h(1, { hardBlock:true }));
+        safeHTML(
+          $("oneBlockers"),
+          `<div class="blockerExplain s1"><div>${escapeHTML(primaryPrefixIfEN() + translateReasonIfEN("磁纬过低，已停止生成"))}</div></div>`
+        );
         safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
         safeText($("swMeta"), "—");
 
@@ -1638,6 +1642,7 @@ function fillCurrentLocation(){
       }catch(e){ blockerHTML = ""; }
 
       safeText($("oneHeroMeta"), actionNote1h(heroScore, heroGate));
+      safeHTML($("oneBlockers"), blockerHTML || "");
 
       renderChart(labels, vals, cols);
 
