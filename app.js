@@ -1770,11 +1770,8 @@ function fillCurrentLocation(){
       const maxScore = Math.max.apply(null, slots.map(s => s.score5));
       const best = slots.filter(s => s.score5 === maxScore);
 
-      if(best.length >= 2){
-        safeText($("threeState"), _tIfEN("观测机会均等", "Observation opportunities are equal"));
-      }else{
-        safeText($("threeState"), _tIfEN("最佳观测窗口", "Best viewing window"));
-      }
+      // 3h: remove redundant "window winner" wording; hour cards already express it clearly
+      safeText($("threeState"), "");
 
       const fmtWin = (s) => `${fmtHM(s.start)}–${fmtHM(s.end)}`;
 
@@ -1827,9 +1824,18 @@ function fillCurrentLocation(){
         : `最佳窗口：${bestWindows}`;
 
       const burstText = (s3Burst && s3Burst.state)
-        ? `爆发模型：${s3Burst.state}${s3Burst.hint ? ` · ${s3Burst.hint}` : ""}`
+        ? `爆发状态：${s3Burst.state}${s3Burst.hint ? ` · ${s3Burst.hint}` : ""}`
         : "—";
-      safeText($("threeBurst"), burstText);
+
+      const burstNote = _tIfEN(
+        "爆发 ≠ 可观测，仍受云量与天光影响。",
+        "Burst \u2260 observable. Visibility still depends on clouds and sky brightness."
+      );
+
+      safeText(
+        $("threeBurst"),
+        burstText + (burstText !== "—" ? `  ｜  ${burstNote}` : "")
+      );
 
       // 如果你以后想在 hero 里加一行“并列最佳/最佳窗口”，这里预留：
       // safeText($("threeBestLine"), bestLine);

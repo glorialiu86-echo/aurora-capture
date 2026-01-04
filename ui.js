@@ -342,11 +342,26 @@
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { grid: { display:false } },
+          x: {
+            grid: { display:false },
+            ticks: {
+              // Make time labels more visible (important for decision-making)
+              color: "rgba(255,255,255,0.78)",
+              font: { size: 12, weight: "600" },
+              padding: 10,
+              maxRotation: 0,
+              minRotation: 0,
+            }
+          },
           y: {
             min: 0,
             max: 5,
-            ticks: { stepSize: 1 },
+            ticks: {
+              stepSize: 1,
+              color: "rgba(255,255,255,0.55)",
+              font: { size: 11, weight: "500" },
+              padding: 6,
+            },
             grid: { display:false }
           }
         }

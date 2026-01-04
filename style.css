@@ -642,6 +642,12 @@ canvas{width:100% !important; height:100% !important}
 #t3 .fullWidth{ margin-top: 14px; }
 #t3 .explain{ margin-top: 14px; }
 
+/* 3小时：threeState 已弃用时不占位，避免空一行 */
+#threeState:empty { display: none; }
+
+/* threeState 隐藏后，避免爆发状态被多余顶下 */
+#threeState:empty + #threeBurst { margin-top: 0; }
+
 /* best 卡：轻微抬起 + 内描边（不强行改颜色，保持 c1~c5 体系） */
 .dayCard.best{
   box-shadow:
