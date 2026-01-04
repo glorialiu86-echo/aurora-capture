@@ -41,19 +41,19 @@ html, body{
   --r:18px;
 
   /* 分数色板（全站统一） */
-  --c1: rgba(120,150,190,.95);  /* 1分：灰蓝 */
+  --c1: rgba(210,210,210,.88);  /* 1分：浅灰（避免与 3分蓝重合） */
   --c2: rgba(255,204,102,.98);  /* 2分：琥珀黄 */
   --c3: rgba(91,124,255,.98);   /* 3分：偏蓝 */
   --c4: rgba(43,209,126,.98);   /* 4分：偏绿 */
   --c5: rgba(255,91,106,.98);   /* 5分：红 */
 
-  --c1b: rgba(120,150,190,.22);
+  --c1b: rgba(210,210,210,.22);
   --c2b: rgba(255,204,102,.22);
   --c3b: rgba(91,124,255,.22);
   --c4b: rgba(43,209,126,.22);
   --c5b: rgba(255,91,106,.22);
 
-  --c1bg: rgba(120,150,190,.06);
+  --c1bg: rgba(210,210,210,.06);
   --c2bg: rgba(255,204,102,.05);
   --c3bg: rgba(91,124,255,.06);
   --c4bg: rgba(43,209,126,.06);
@@ -1081,7 +1081,7 @@ canvas{width:100% !important; height:100% !important}
   margin-top: 6px;
 }
 /* 主要影响因素：按分数固定色板（c1~c5） */
-.blockerExplain.c1{ background: rgba(120,150,190,.16); border-color: rgba(120,150,190,.28); }
+.blockerExplain.c1{ background: rgba(210,210,210,.14); border-color: rgba(210,210,210,.26); }
 .blockerExplain.c2{ background: rgba(255,204,102,.14); border-color: rgba(255,204,102,.26); }
 .blockerExplain.c3{ background: rgba(91,124,255,.14);  border-color: rgba(91,124,255,.26); }
 .blockerExplain.c4{ background: rgba(43,209,126,.14);  border-color: rgba(43,209,126,.26); }

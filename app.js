@@ -727,7 +727,7 @@ function fillCurrentLocation(){
       const out = {
         ok:false,
         src:"rtsw-1m",
-        imf:{ bt_nT:null, bz_gsm_nT:null, ts:null, ageMin: Infinity },
+        imf:{ bt_nT:null, bz_gsm_nT:null, ts:null, ageMin: Infinity, bz15_nT:null, bz30_nT:null, dbz15_nT:null, dbz30_nT:null },
         solarWind:{ speed_km_s:null, density_cm3:null, ts:null, ageMin: Infinity }
       };
 
@@ -746,6 +746,50 @@ function fillCurrentLocation(){
         const magLast = pickLast(magJ);
         const windLast = pickLast(windJ);
 
+        // --- Trend (dBz/dt) from RTSW 1m history ---
+        const pickBzBack = (arr, minutesBack) => {
+          try{
+            const a = Array.isArray(arr) ? arr : (Array.isArray(arr?.data) ? arr.data : null);
+            if(!a || !a.length) return null;
+
+            // approximate: use latest timestamp and scan backward to nearest target time
+            const last = a[a.length - 1];
+            const tLastStr = _pick(last, ["time_tag","time","timestamp","datetime","date_time"]);
+            const tLast = _parseTimeLike(tLastStr);
+            if(!Number.isFinite(tLast)) return null;
+
+            const target = tLast - minutesBack * 60000;
+            let best = null;
+            let bestD = Infinity;
+
+            // scan from end backward (faster)
+            for(let i = a.length - 1; i >= 0; i--){
+              const row = a[i];
+              const tsStr = _pick(row, ["time_tag","time","timestamp","datetime","date_time"]);
+              const t = _parseTimeLike(tsStr);
+              if(!Number.isFinite(t)) continue;
+
+              // stop early if we are much older than target (array ordered by time)
+              if(t < target - 10*60000) break;
+
+              const d = Math.abs(t - target);
+              if(d < bestD){
+                const bzv = _num(_pick(row, ["bz_gsm","bz_gsm_nT","bz","bz_nt","Bz"]));
+                if(bzv != null){
+                  bestD = d;
+                  best = bzv;
+                }
+              }
+            }
+            return best;
+          }catch(_){
+            return null;
+          }
+        };
+
+        const bz15 = pickBzBack(magJ, 15);
+        const bz30 = pickBzBack(magJ, 30);
+
         const magTs = _pick(magLast, ["time_tag","time","timestamp","datetime","date_time"]);
         const bt = _num(_pick(magLast, ["bt","bt_nT","bt_nt","B_t","total"]));
         const bz = _num(_pick(magLast, ["bz_gsm","bz_gsm_nT","bz","bz_nt","Bz"]));
@@ -760,6 +804,10 @@ function fillCurrentLocation(){
 
         if(bt != null) out.imf.bt_nT = bt;
         if(bz != null) out.imf.bz_gsm_nT = bz;
+        if(bz15 != null) out.imf.bz15_nT = bz15;
+        if(bz30 != null) out.imf.bz30_nT = bz30;
+        if(bz != null && bz15 != null) out.imf.dbz15_nT = (bz - bz15);
+        if(bz != null && bz30 != null) out.imf.dbz30_nT = (bz - bz30);
         if(magTs) out.imf.ts = magTs;
         if(Number.isFinite(tMag)) out.imf.ageMin = (nowMs - tMag) / 60000;
 
@@ -1019,6 +1067,18 @@ function fillCurrentLocation(){
       const mlat = await getMLAT(lat, lon, baseDate);
       const absMlat = Math.abs(mlat);
 
+      // --- Aurora Oval (backend-only): soft spatial constraint ---
+      // 只做“温和降级”，不做一票否决；并且用 model.js 的乐观边距抵消磁纬误差。
+      const applyOvalC10 = (c10) => {
+        try{
+          if(window.Model && typeof window.Model.applyOvalConstraint === "function" && Number.isFinite(mlat)){
+            const r = window.Model.applyOvalConstraint(c10, mlat);
+            if(r && Number.isFinite(r.adjustedC10)) return r.adjustedC10;
+          }
+        }catch(_){ /* ignore */ }
+        return c10;
+      };
+
       // Hard Stop：|MLAT| < 40° -> 直接弹窗 + 不运行
       if(Number.isFinite(absMlat) && absMlat < MLAT_HARD_STOP){
         showMlatHardStop(mlat);
@@ -1107,6 +1167,60 @@ function fillCurrentLocation(){
       if (sw.n == null)  missingKeys.push("n");
       if (sw.bt == null) missingKeys.push("bt");
       if (sw.bz == null) missingKeys.push("bz");
+
+      // ===============================
+      // "+" explanation layer (scheme A): trend-only, no score jump
+      // ===============================
+      // 人话：分数代表“现在”，加号代表“正在变好”。
+      // 只在 2/3/4 分上允许出现“+”，并且不做一票否决。
+      const trendPlus = (() => {
+        try{
+          const bt = Number(sw.bt);
+          const bzNow = Number(sw.bz);
+
+          // Prefer RTSW 1m-derived trend (more responsive)
+          const bz15 = Number(rt?.imf?.bz15_nT);
+          const bz30 = Number(rt?.imf?.bz30_nT);
+
+          // Require usable field strength to avoid noise
+          if(!Number.isFinite(bt) || bt < 5) return { on:false, level:0, reason:"" };
+          if(!Number.isFinite(bzNow)) return { on:false, level:0, reason:"" };
+
+          const drop15 = (Number.isFinite(bz15) ? (bz15 - bzNow) : null);
+          const drop30 = (Number.isFinite(bz30) ? (bz30 - bzNow) : null);
+
+          // Trigger rules (simple + stable)
+          const ok30 = (drop30 != null && drop30 >= 3);
+          const ok15 = (drop15 != null && drop15 >= 2);
+
+          if(!(ok30 || ok15)) return { on:false, level:0, reason:"" };
+
+          // copywriting: keep it short + actionable
+          const desc = ok30
+            ? `趋势：Bz 在过去 30 分钟明显转南（≈${drop30.toFixed(1)}nT），建议提前准备（30–60min）`
+            : `趋势：Bz 在过去 15 分钟快速转南（≈${drop15.toFixed(1)}nT），建议提前准备（30–60min）`;
+
+          return { on:true, level:1, reason: desc };
+        }catch(_){
+          return { on:false, level:0, reason:"" };
+        }
+      })();
+
+      // Inline "+" badge HTML (no extra CSS dependency)
+      const plusBadgeInline = () => (
+        `<span style="position:absolute; top:-6px; right:-6px; width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px; ` +
+        `border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.10); font-size:12px; font-weight:700; color:rgba(255,255,255,.88);">+</span>`
+      );
+
+      const maybePlusWrap = (innerHtml, allow) => {
+        if(!(trendPlus?.on && allow)) return innerHtml;
+        return `<span style="position:relative; display:inline-block; padding-right:10px;">${innerHtml}${plusBadgeInline()}</span>`;
+      };
+
+      const trendExplainInline = () => {
+        if(!(trendPlus?.on && trendPlus.reason)) return "";
+        return `<div style=\"margin-top:6px; font-size:12px; opacity:.88;\">${escapeHTML(trendPlus.reason)}</div>`;
+      };
 
       // --- Plasma 回溯（退路方案 B）：当 NOAA plasma 最新点缺失时，回溯最近一次有效 speed/density ---
       // 仅用于补齐展示与模型输入；仍保留 missingKeys 用于“数据可信度提醒”。
@@ -1310,6 +1424,10 @@ function fillCurrentLocation(){
 
         c10 = clamp(c10, 0, 10);
 
+        // Aurora Oval soft constraint (backend-only)
+        c10 = applyOvalC10(c10);
+        c10 = clamp(c10, 0, 10);
+
         const s5 = window.Model.score5FromC10(c10); // 1..5
         labels.push(fmtHM(d));
         vals.push(s5);
@@ -1319,9 +1437,11 @@ function fillCurrentLocation(){
 
       const heroObj = window.Model.labelByScore5(heroScore);
       // 1小时标题：整句跟随 C 值颜色（用 inline + !important 防止被 CSS 覆盖）
+      const heroAllowPlus = (heroScore >= 2 && heroScore <= 4);
+      const heroLabelInner = `<span style="color:${cColor(heroObj.score)} !important;">${escapeHTML(String(heroObj.score))}分 ${escapeHTML(heroObj.t)}</span>`;
       safeHTML(
         $("oneHeroLabel"),
-        `<span style="color:${cColor(heroObj.score)} !important;">${escapeHTML(String(heroObj.score))}分 ${escapeHTML(heroObj.t)}</span>`
+        maybePlusWrap(heroLabelInner, heroAllowPlus)
       );
       // OVATION meta (time + age)
       let ovaTxt = "—";
@@ -1393,7 +1513,7 @@ function fillCurrentLocation(){
 
       safeHTML(
         $("oneHeroMeta"),
-        `本地时间：${escapeHTML(fmtYMDHM(baseDate))} ・ OVATION：${escapeHTML(ovaTxt)}${blockerHTML}`
+        `本地时间：${escapeHTML(fmtYMDHM(baseDate))} ・ OVATION：${escapeHTML(ovaTxt)}${trendExplainInline()}${blockerHTML}`
       );
 
       renderChart(labels, vals, cols);
@@ -1501,6 +1621,11 @@ function fillCurrentLocation(){
         }
 
         c10 = clamp(c10, 0, 10);
+
+        // Aurora Oval soft constraint (backend-only)
+        c10 = applyOvalC10(c10);
+        c10 = clamp(c10, 0, 10);
+
         const score5 = window.Model.score5FromC10(c10);
 
         // 主要影响因素：只在低分（<=2）时展示一个；hardBlock 也给出统一原因
@@ -1552,13 +1677,18 @@ function fillCurrentLocation(){
         const score = Number.isFinite(s.score5) ? clamp(Math.round(s.score5), 1, 5) : 1;
         const lab = map5[score] || map5[1];
 
-        safeText($("threeSlot"+i+"Conclusion"), `${score}分 ${lab.t}`);
+        const slotAllowPlus = (score >= 2 && score <= 4);
+        const slotConclusionInner = `${escapeHTML(String(score))}分 ${escapeHTML(lab.t)}`;
+        safeHTML($("threeSlot"+i+"Conclusion"), maybePlusWrap(slotConclusionInner, slotAllowPlus));
 
         // 仅显示一个主要影响因素（当 score<=2 且有 factorText）
         const reason = (score <= 2 && s.factorText)
           ? `主要影响因素：${s.factorText}`
           : (score === 1 ? "主要影响因素：天色偏亮，微弱极光难以分辨" : "—");
-        safeText($("threeSlot"+i+"Reason"), reason);
+
+        // Scheme A: add trend explanation line when "+" is on
+        const reasonHtml = `<div>${escapeHTML(reason)}</div>` + (trendPlus?.on ? trendExplainInline() : "");
+        safeHTML($("threeSlot"+i+"Reason"), reasonHtml);
 
         const card = $("threeSlot"+i);
         if(card) card.className = `dayCard ${lab.cls}${s.score5 === maxScore ? " best" : ""}`;
@@ -1623,6 +1753,10 @@ function fillCurrentLocation(){
         const fMoon = soften(moonFactorByLat(lat, mAlt), 0.6);
         cDay10 *= fMoon;
 
+        cDay10 = clamp(cDay10, 0, 10);
+
+        // Aurora Oval soft constraint (backend-only)
+        cDay10 = applyOvalC10(cDay10);
         cDay10 = clamp(cDay10, 0, 10);
 
         let score5 = Math.round((cDay10 / 10) * 5);

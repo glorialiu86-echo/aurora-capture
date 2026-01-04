@@ -28,6 +28,15 @@
     block_moon_alt_ge: 15,      // 月光干扰：月亮高度 ≥ 15°
     block_moon_frac_ge: 0.50,   // 月相亮度（0~1）≥ 0.50（半月以上）
     block_twilight_sun_alt_gt: -10, // 天色偏亮：太阳高度 > -10°（更贴近观测/摄影体感）
+
+    // --- Aurora Oval (backend-only) ---
+    // 目标：给用户“多给机会，但别乱给”的空间约束；不做一票否决，只做温和降级。
+    // mlat 本身有误差，所以这里用“乐观边距”来抵消误差带来的误杀。
+    oval_margin_deg: 3.0,       // 乐观边距：等价于把用户磁纬向极区“挪近”3°（减少误杀）
+    oval_in_deg: 2.0,           // 视为“椭圆内”的安全余量（>= +2°）
+    oval_edge_out_deg: 6.0,     // 视为“边缘可视”的外延范围（到 -6° 仍可能看见低仰角/高空极光）
+    oval_floor_factor: 0.62,    // 最低压制系数（再远也不低于这个，避免直接掐死机会）
+    oval_edge_factor: 0.82      // 边缘区的典型压制系数（轻降一档感）
   };
 
   // “近似磁纬”（离线）：目标是更贴近 AACGMv2 的观测语境（用于极光决策），而不是第一版那种与极光无关的“伪磁纬”。
@@ -110,6 +119,107 @@
     if(c10 >= 5.0) return 3;
     if(c10 >= 2.8) return 2;
     return 1;
+  }
+
+  // ------------------------------------------------------------
+  // Aurora Oval (backend-only): soft spatial constraint
+  // ------------------------------------------------------------
+  // 说明（人话）：椭圆图更像“通常在哪里发生”，不是“你能不能看到”。
+  // 我们用它做一个温和的空间约束：
+  // - 让“离舞台很远”的时候别过度乐观
+  // - 但永远不做一票否决（给用户机会，避免因磁纬误差误杀）
+
+  // 用 c10（0~10 活动强度）粗估“典型椭圆最低磁纬”。
+  // 这是一个经验映射：强度越高，椭圆越向低纬扩张。
+  // 不追求精确，只追求：不离谱 + 稳定 + 可解释。
+  function ovalMinMlatFromC10(c10){
+    const x = clamp(Number(c10 ?? 0), 0, 10);
+
+    // 分段线性：
+    // 0  -> 72
+    // 3  -> 69
+    // 5  -> 66
+    // 7  -> 62
+    // 9  -> 58
+    // 10 -> 56
+    if(x <= 3)  return 72 - (3/3)*x;                 // 72 -> 69
+    if(x <= 5)  return 69 - (3/2)*(x - 3);           // 69 -> 66
+    if(x <= 7)  return 66 - (4/2)*(x - 5);           // 66 -> 62
+    if(x <= 9)  return 62 - (4/2)*(x - 7);           // 62 -> 58
+    return 58 - (2/1)*(x - 9);                       // 58 -> 56
+  }
+
+  // 根据用户磁纬与椭圆最低磁纬的关系，给出温和的分数修正与分区解释。
+  // 关键点：
+  // - 用 oval_margin_deg 做“乐观边距”以抵消磁纬误差（减少误杀）
+  // - 只做乘法压制 + 上限约束（不会把“有机会”直接判死）
+  function applyOvalConstraint(c10, userMlat){
+    const mlat = Number(userMlat);
+    if(!Number.isFinite(mlat)){
+      return {
+        ok:false,
+        adjustedC10: clamp(Number(c10 ?? 0), 0, 10),
+        factor: 1,
+        zone: "UNKNOWN",
+        hint: "",
+        minMlat: null,
+        deltaEff: null,
+      };
+    }
+
+    const base = clamp(Number(c10 ?? 0), 0, 10);
+    const minMlat = ovalMinMlatFromC10(base);
+
+    // delta: >0 表示你比椭圆最低磁纬更靠极（更有利）
+    // deltaEff: 加上乐观边距，减少因磁纬误差导致的误杀
+    const delta = mlat - minMlat;
+    const deltaEff = delta + Number(W.oval_margin_deg ?? 0);
+
+    const inDeg   = Number(W.oval_in_deg ?? 2.0);
+    const edgeOut = Number(W.oval_edge_out_deg ?? 6.0);
+
+    let factor = 1.0;
+    let zone = "IN";
+    let hint = "你的位置处于主发生区附近（更容易头顶/高仰角出现）。";
+
+    if(deltaEff >= inDeg){
+      // 椭圆内：不压制
+      factor = 1.0;
+      zone = "IN";
+      hint = "你的位置更接近主发生区（更容易头顶/高仰角出现）。";
+    } else if(deltaEff >= -edgeOut){
+      // 边缘可视：轻压制（给机会，但提醒多为低仰角/更吃条件）
+      // 从 inDeg -> -edgeOut 线性过渡到 oval_edge_factor
+      const t = clamp((inDeg - deltaEff) / (inDeg + edgeOut), 0, 1);
+      const edgeFactor = Number(W.oval_edge_factor ?? 0.82);
+      factor = 1 - t*(1 - edgeFactor);
+      zone = "EDGE";
+      hint = "你在椭圆外缘的可视区：更可能是北向低仰角/高空极光，成败更吃云与天色。";
+    } else {
+      // 离得更远：压制到 floor（但不一票否决）
+      const floor = Number(W.oval_floor_factor ?? 0.62);
+      factor = floor;
+      zone = "OUT";
+      hint = "你离主发生区较远：更像“赌边缘天边光”，需要更强触发或更长持续。";
+    }
+
+    // 温和上限：离舞台越远，最多给到的“乐观程度”越低。
+    // 仍然保留机会：EDGE 最多 9.0（≈ 4 档），OUT 最多 7.2（≈ 3~4 档边缘）。
+    let cap = 10;
+    if(zone === "EDGE") cap = 9.0;
+    if(zone === "OUT")  cap = 7.2;
+
+    const adjustedC10 = clamp(base * factor, 0, cap);
+
+    return {
+      ok:true,
+      adjustedC10,
+      factor,
+      zone,
+      hint,
+      minMlat,
+      deltaEff,
+    };
   }
 
   function deliverModel(sw){
@@ -248,6 +358,9 @@
     state3h,
     p1a_fastWind,
     p1b_energyInput,
+
+    ovalMinMlatFromC10,
+    applyOvalConstraint,
 
     ObservationBlocker,
     explainUnobservable,
