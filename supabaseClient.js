@@ -6,11 +6,27 @@
   const LOG_PREFIX = "[AC Supabase]";
 
   const readConfig = () => {
-    const cfg = window[CONFIG_KEY] || {};
+    const base = window.__AC_PUBLIC_CONFIG__ || {};
+    const override = window[CONFIG_KEY] || {};
+    const cfg = { ...base, ...override };
     return {
       url: String(cfg[URL_KEY] || "").trim(),
       anonKey: String(cfg[ANON_KEY] || "").trim()
     };
+  };
+
+  let localConfigLoaded = false;
+  const loadLocalConfig = async () => {
+    if(localConfigLoaded) return;
+    localConfigLoaded = true;
+    try{
+      const res = await fetch("./config.js", { cache: "no-store" });
+      if(!res.ok) return;
+      const code = await res.text();
+      if(!code) return;
+      const fn = new Function(code);
+      fn();
+    }catch(_){ /* silent */ }
   };
 
   const hasSDK = () => {
@@ -30,6 +46,7 @@
   };
 
   const selfCheck = async () => {
+    await loadLocalConfig();
     const cfg = readConfig();
     if(!cfg.url || !cfg.anonKey){
       console.log(`${LOG_PREFIX} Missing config (set in config.js).`);
