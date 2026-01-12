@@ -451,6 +451,7 @@ const setFormError = (el, msg) => {
 };
 
 let pendingLoginAction = null;
+window.AC_AUTH = window.AC_AUTH || { loggedIn: false, userId: null };
 const openLoginModal = (afterLogin) => {
   pendingLoginAction = typeof afterLogin === "function" ? afterLogin : null;
   const modal = $("loginModal");
@@ -2343,11 +2344,31 @@ function fillCurrentLocation(){
 
     $("btnFav")?.addEventListener("click", () => {
       const openEdit = () => openFavEditModal("create", null, false);
-      if(!authProvider.isLoggedIn()){
+      if(!window.AC_AUTH?.loggedIn){
         openLoginModal(openEdit);
         return;
       }
-      openEdit();
+      const userId = window.AC_AUTH?.userId || null;
+      const lat = normalizeCoord($("lat")?.value);
+      const lon = normalizeCoord($("lon")?.value);
+      if(!userId){
+        openLoginModal(openEdit);
+        return;
+      }
+      if(!isValidCoords(lat, lon)){
+        openFavEditModal("create", null, false);
+        return;
+      }
+      window.AC_SUPABASE?.createFavorite?.({
+        user_id: userId,
+        name: "—",
+        lat,
+        lon
+      }).then(() => {
+        openFavEditModal("create", null, false);
+      }).catch(() => {
+        openFavEditModal("create", null, false);
+      });
     });
 
     $("btnFavs")?.addEventListener("click", () => {
@@ -2363,11 +2384,31 @@ function fillCurrentLocation(){
     });
 
     $("btnLoginConfirm")?.addEventListener("click", () => {
-      authProvider.login();
-      closeLoginModal();
-      const next = pendingLoginAction;
-      pendingLoginAction = null;
-      if(typeof next === "function") next();
+      const email = String($("loginEmail")?.value || "").trim();
+      if(!email || !email.includes("@")){
+        setFormError($("loginError"), "请输入正确的邮箱。");
+        return;
+      }
+      const btn = $("btnLoginConfirm");
+      if(btn) btn.disabled = true;
+      const origin = window.location.origin;
+      const path = window.location.pathname || "/";
+      const isStaging = path.includes("aurora-capture-staging");
+      const redirectTo = isStaging
+        ? `${origin}/aurora-capture-staging/`
+        : `${origin}/aurora-capture/`;
+      window.AC_SUPABASE?.sendMagicLink?.(email, redirectTo).then((res) => {
+        if(!res || res.ok !== true){
+          setFormError($("loginError"), "登录暂不可用");
+          if(btn) btn.disabled = false;
+          return;
+        }
+        setFormError($("loginError"), "已发送，请查收邮件");
+        if(btn) btn.disabled = false;
+      }).catch(() => {
+        setFormError($("loginError"), "登录暂不可用");
+        if(btn) btn.disabled = false;
+      });
     });
     $("btnLoginCancel")?.addEventListener("click", () => {
       pendingLoginAction = null;
@@ -2435,6 +2476,12 @@ function fillCurrentLocation(){
     });
 
     window.AC_SUPABASE?.selfCheck?.();
+    window.AC_SUPABASE?.onAuthStateChange?.((evt, session) => {
+      window.AC_AUTH = {
+        loggedIn: !!session?.user,
+        userId: session?.user?.id || null
+      };
+    });
 
     // Alert modal close buttons
     document.getElementById("alertClose")?.addEventListener("click", closeAlertOverlay);

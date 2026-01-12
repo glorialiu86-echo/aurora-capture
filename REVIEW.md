@@ -1,33 +1,38 @@
 # Review Summary
 
 ## What changed
-- Added public Supabase config file for GitHub Pages delivery
-- Limited local config.js override loading to localhost only to avoid production 404s
-- Ensured public config script uses a relative path for GitHub Pages
-- Public config only includes SUPABASE_URL + SUPABASE_PUBLISHABLE_KEY (sb_publishable_); sb_secret_ is forbidden in frontend/repo/docs
-- Bumped cache/version tokens in index.html from 0327 to 0328
+- Replaced local login stub with Supabase Magic Link auth (no OTP)
+- Wired favorites read/create to Supabase for signed-in users only
+- Added email input + send-link control inside existing login modal
+- Added logout text link at the end of favorites modal content (signed-in only)
+- Explicit redirectTo: staging -> /aurora-capture-staging/, production -> /aurora-capture/
+- Favorites user_id is taken from current session (not from UI input)
+- Added i18n placeholder support for login email input
+- App wiring: auth state stored in window.AC_AUTH; login button sends Magic Link; favorite button creates Supabase record
 
 ## Files touched
-- Modified: index.html, supabaseClient.js, config.example.js, REVIEW.md
-- Added: config.public.js
+- Modified: index.html, app.js, supabaseClient.js, REVIEW.md
+- Added:
 - Deleted:
 
 ## Behavior impact
-- What user-visible behavior changed: None (config loading only)
-- What explicitly did NOT change: Prediction flow, favorites UI/logic, and button state machine
+- What user-visible behavior changed: Login modal now accepts email + sends Magic Link; favorites sync to Supabase after login; logout link appears at bottom of favorites modal when logged in
+- What explicitly did NOT change: Prediction flow, C-value model, status system, favorites button structure/state machine
 
 ## Risk assessment
-- Possible failure modes: Missing/invalid public keys keep Supabase disabled without breaking predictions; localhost override skipped if host mismatch
-- Performance / cost / quota impact: One extra config script load
-- Deployment or environment risks: Low; only public keys are shipped
+- Possible failure modes: Missing config or auth errors block login/favorites but do not affect predictions; email send failure shows a short message
+- Performance / cost / quota impact: Supabase auth + favorites queries per user action; no background polling
+- Deployment or environment risks: Low; uses publishable key only (no sb_secret_)
 
 ## How to test
-1. Open staging and confirm no config-related 404s in Console
-2. Verify console shows `[AC Supabase] session:`
-3. On localhost with config.js present, confirm override takes precedence
+1. Open staging, click “⭐ 收藏地址” or “🌟 收藏夹”, enter email, send Magic Link
+2. Click Magic Link, return to staging, confirm `[AC Supabase] session:` is non-null
+3. Click “⭐ 收藏地址” to create a favorite; open “🌟 收藏夹” to confirm it appears (newest first)
+4. On another device/browser, log in with same email and confirm favorites list matches
+5. Click “退出登录” at the bottom of favorites modal; modal returns to logged-out prompt with no toast
 
 ## Rollback plan
 - Revert the commit on `staging`
 
 ## Open questions / follow-ups
-- None
+- Rename/delete not wired this round if no existing UI hook (documented)

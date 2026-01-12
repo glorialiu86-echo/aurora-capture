@@ -404,9 +404,14 @@
       <div class="modalBody">
         <p data-i18n="为了跨设备保存收藏位置，需要登录一次。">为了跨设备保存收藏位置，需要登录一次。</p>
         <p data-i18n="登录后，你收藏的地点就可以在不同设备上使用啦 🌟">登录后，你收藏的地点就可以在不同设备上使用啦 🌟</p>
+        <label class="field">
+          <span class="label" data-i18n="邮箱">邮箱</span>
+          <input id="loginEmail" type="email" placeholder="邮箱" data-i18n-placeholder="邮箱" />
+        </label>
+        <div class="formError hidden" id="loginError">—</div>
       </div>
       <div class="modalFoot">
-        <button id="btnLoginConfirm" class="btn primary" type="button" data-i18n="登录 / 注册">登录 / 注册</button>
+        <button id="btnLoginConfirm" class="btn primary" type="button" data-i18n="发送登录链接">发送登录链接</button>
         <button id="btnLoginCancel" class="btn secondary" type="button" data-i18n="取消">取消</button>
       </div>
     </div>
@@ -423,6 +428,9 @@
       <div class="modalBody">
         <div id="favEmpty" class="emptyText" data-i18n="还没有收藏的地点。先生成或输入一个地点，再点击 ⭐ 收藏">还没有收藏的地点。先生成或输入一个地点，再点击 ⭐ 收藏</div>
         <div id="favList" class="favList"></div>
+        <div id="favLogoutRow" class="hidden" style="margin-top:10px; text-align:center;">
+          <button id="btnLogout" type="button" data-i18n="退出登录" style="border:0; background:transparent; color:rgba(255,255,255,.5); font-size:12px; cursor:pointer; text-decoration:underline;">退出登录</button>
+        </div>
       </div>
     </div>
   </div>
