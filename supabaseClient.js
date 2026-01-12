@@ -16,9 +16,14 @@
   };
 
   let localConfigLoaded = false;
+  const isLocalhost = () => {
+    const host = String(window.location.hostname || "").trim();
+    return host === "localhost" || host === "127.0.0.1";
+  };
   const loadLocalConfig = async () => {
     if(localConfigLoaded) return;
     localConfigLoaded = true;
+    if(!isLocalhost()) return;
     try{
       const res = await fetch("./config.js", { cache: "no-store" });
       if(!res.ok) return;
