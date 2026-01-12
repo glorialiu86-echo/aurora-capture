@@ -20,7 +20,7 @@
 - 未改动预测、翻译主流程与其他 UI 行为
 
 ## Risk assessment
-- 可能的失败模式：data-zh 为空时状态词为空
+- 可能的失败模式：data-zh 缺失时可能回退到英文母本或空串（取决于调用点）
 - 性能/成本/配额影响：无
 - 部署或环境风险：仅涉及缓存版本变化
 
@@ -33,11 +33,11 @@
    - non-zh + Trans ON：状态词为英文母本或目标语言（翻译输入为 data-i18n），其他 UI 允许翻译
    - non-zh + Trans OFF：状态词为中文（#statusText 与 [data-status-key]），其他 UI 不翻译
 4. 每条矩阵断言下，连续两次 Generate/Refresh，不刷新页面，状态词保持正确语言
-5. non-zh + Trans OFF：连续两次 Generate/Refresh（不刷新页面）后，状态词必须保持中文，不得回流英文
+5. non-zh + Trans OFF：不刷新页面，连续两次 Generate/Refresh 后立即观察，状态词必须保持中文，不得回流英文
 6. non-zh + Trans ON：placeholder（lat/lon/name）应翻译为目标语言；aria-label（关闭/数据状态）应翻译
 7. non-zh + Trans OFF：placeholder 与 aria-label 必须回滚中文（不刷新页面连续操作两次也要稳定）
 8. non-zh + Trans ON：数据状态区域（太阳风/Bt/Bz/拉取中/精度）不应被单一“数据状态”覆盖
-8. 可选证据：控制台执行 window.AC_DEBUG=true，触发状态词变化，观察输出字段 sysLang/sysIsZh/transOn/sourceTag
+9. 可选证据：控制台执行 window.AC_DEBUG=true，触发状态词变化，观察输出字段 sysLang/sysIsZh/transOn/sourceTag
 
 ## Rollback plan
 - 回滚本次提交或切回上一个版本分支

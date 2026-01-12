@@ -68,7 +68,11 @@ const setStatusText = (t, statusKey) => {
   if(el){
     const fromKey = statusKey && STATUS_LABELS[statusKey];
     const zhText = fromKey ? fromKey.zh : text;
-    const enText = fromKey ? fromKey.en : (STATUS_TEXT_EN_MAP[zhText] || "");
+    let enText = fromKey ? fromKey.en : (STATUS_TEXT_EN_MAP[zhText] || "");
+    if(!fromKey && !enText && zhText.startsWith("已获取当前位置")){
+      const m = zhText.match(/精度约\s*(\d+)\s*m/);
+      enText = m ? `Location acquired (accuracy ~ ${m[1]}m)` : "Location acquired";
+    }
 
     let sourceTag = "fallback";
     if(enText){
@@ -111,8 +115,8 @@ const setStatusText = (t, statusKey) => {
   if(uiReady() && typeof window.UI.setStatusText === "function"){
     try{ window.UI.setStatusText(t); }catch(_){ /* ignore */ }
   }
-  if(!sysIsZh && transOn){
-    window.AC_TRANS.applyTranslation?.();
+  if(!isSystemZh()){
+    window.AC_TRANS?.applyTranslation?.();
   }
 };
 
@@ -255,6 +259,9 @@ const STATUS_TEXT_EN_MAP = {
   "⚠️ 磁纬过低：已停止生成": "⚠️ MLAT too low: generation stopped",
   "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）": "⚠️ Solar wind source unavailable: entered weak mode (conservative)",
   "⚠️ 数据可信度提醒": "⚠️ Data reliability notice",
+  "📍 无法获取定位": "📍 Unable to get location",
+  "📍 定位失败": "📍 Location failed",
+  "已获取当前位置": "Location acquired",
   "已生成。": "Generated.",
   "生成失败：请打开控制台查看错误。": "Generation failed: check console for details.",
 };
@@ -289,7 +296,7 @@ const statusSpanHTML = (key, extraAttrs = "") => {
   const textEn = statusTextByKey(key, false);
   const textZh = statusTextByKey(key, true);
   const textEsc = escapeHTML(textEn || "");
-  const initialText = isSystemZh() ? textZh : textEn;
+  const initialText = (isSystemZh() || window.AC_TRANS?.isOn?.() !== true) ? textZh : textEn;
   const initialEsc = escapeHTML(initialText || "");
   const keyEsc = escapeHTML(String(key || ""));
   const attrs = extraAttrs ? " " + String(extraAttrs).trim() : "";
@@ -2422,7 +2429,7 @@ function fillCurrentLocation(){
         if(card) card.className = `dayCard ${lab.cls}`;
       });
 
-      if(window.AC_TRANS?.isOn?.()) window.AC_TRANS.applyTranslation?.();
+      if(!isSystemZh()) window.AC_TRANS?.applyTranslation?.();
     }catch(err){
       console.error("[AuroraCapture] run error:", err);
       setStatusText("生成失败：请打开控制台查看错误。", null);
