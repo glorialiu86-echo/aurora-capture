@@ -5,6 +5,7 @@
 - 中文系统或 Trans OFF 时，状态词强制写回中文 textContent
 - 非中文且 Trans ON 时，状态词显示英文母本并保留翻译输入
 - trans.js 在中文系统与 Trans OFF 分支强制回写状态词中文
+- trans.js 对 data-i18n-attr 元素仅做属性翻译，避免容器 textContent 覆盖
 - index.html 版本号 0336 更新为 0337（缓存与页脚展示）
 
 ## Files touched
@@ -35,6 +36,7 @@
 5. non-zh + Trans OFF：连续两次 Generate/Refresh（不刷新页面）后，状态词必须保持中文，不得回流英文
 6. non-zh + Trans ON：placeholder（lat/lon/name）应翻译为目标语言；aria-label（关闭/数据状态）应翻译
 7. non-zh + Trans OFF：placeholder 与 aria-label 必须回滚中文（不刷新页面连续操作两次也要稳定）
+8. non-zh + Trans ON：数据状态区域（太阳风/Bt/Bz/拉取中/精度）不应被单一“数据状态”覆盖
 8. 可选证据：控制台执行 window.AC_DEBUG=true，触发状态词变化，观察输出字段 sysLang/sysIsZh/transOn/sourceTag
 
 ## Rollback plan

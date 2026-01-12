@@ -214,7 +214,8 @@
   const restoreOriginal = (elements) => {
     elements.forEach((el) => {
       const original = el.getAttribute("data-i18n");
-      if(original != null) el.textContent = original;
+      const hasI18nAttr = el.hasAttribute("data-i18n-attr");
+      if(original != null && !hasI18nAttr) el.textContent = original;
       const origPlaceholder = el.getAttribute("data-orig-placeholder");
       if(origPlaceholder != null) el.setAttribute("placeholder", origPlaceholder);
       const attrName = el.getAttribute("data-i18n-attr");
@@ -302,9 +303,10 @@
 
     for(const el of elements){
       if(el.id === GEO_HINT_ID) continue;
+      const attrName = String(el.getAttribute("data-i18n-attr") || "").trim();
       const source = String(el.getAttribute("data-i18n") || "").trim();
       const statusEl = isStatusElement(el);
-      if(source){
+      if(source && !attrName){
         if(statusEl && preferredIsZh){
           el.textContent = source;
         }else{
@@ -349,7 +351,6 @@
           }
         }
       }
-      const attrName = String(el.getAttribute("data-i18n-attr") || "").trim();
       if(attrName && source){
         if(!canTranslate){
           setTranslatedAttr(el, attrName, source);
@@ -358,7 +359,7 @@
           if(cache[key]){
             setTranslatedAttr(el, attrName, cache[key]);
           }else{
-            pendingBySource.zh.push({ el, source, key, attrName });
+            pendingBySource.zh.push({ el, source, key, attrName: attrName });
           }
         }
       }
@@ -380,6 +381,7 @@
         if(translated){
           cache[item.key] = translated;
           if(item.attrName){
+            // attr-only write-back
             setTranslatedAttr(item.el, item.attrName, translated);
           }else{
             item.el.textContent = translated;
