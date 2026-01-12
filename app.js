@@ -89,6 +89,13 @@ const setStatusText = (t, statusKey) => {
       sourceTag = enText ? "en" : "fallback";
       el.textContent = enText || zhText || "";
     }
+    if(isSystemZh() || window.AC_TRANS?.isOn?.() !== true){
+      const zh = el.getAttribute("data-zh");
+      if(zh){
+        el.textContent = zh;
+        sourceTag = "zh";
+      }
+    }
     if(window.AC_DEBUG === true){
       try{
         console.debug("[AC][status]", {

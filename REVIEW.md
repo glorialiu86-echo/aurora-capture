@@ -32,7 +32,8 @@
    - non-zh + Trans ON：状态词为英文母本或目标语言（翻译输入为 data-i18n），其他 UI 允许翻译
    - non-zh + Trans OFF：状态词为中文（#statusText 与 [data-status-key]），其他 UI 不翻译
 4. 每条矩阵断言下，连续两次 Generate/Refresh，不刷新页面，状态词保持正确语言
-5. 可选证据：控制台执行 window.AC_DEBUG=true，触发状态词变化，观察输出字段 sysLang/sysIsZh/transOn/sourceTag
+5. non-zh + Trans OFF：连续两次 Generate/Refresh（不刷新页面）后，状态词必须保持中文，不得回流英文
+6. 可选证据：控制台执行 window.AC_DEBUG=true，触发状态词变化，观察输出字段 sysLang/sysIsZh/transOn/sourceTag
 
 ## Rollback plan
 - 回滚本次提交或切回上一个版本分支
