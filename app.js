@@ -2434,6 +2434,8 @@ function fillCurrentLocation(){
       renderFavorites();
     });
 
+    window.AC_SUPABASE?.selfCheck?.();
+
     // Alert modal close buttons
     document.getElementById("alertClose")?.addEventListener("click", closeAlertOverlay);
     document.getElementById("alertOk")?.addEventListener("click", closeAlertOverlay);

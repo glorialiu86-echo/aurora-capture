@@ -1,29 +1,27 @@
 # Review Summary
 
 ## What changed
-- Updated split-state button copy for clearer labels (refresh location/save address/generate prediction)
-- Added new i18n mappings for the split-state button labels
-- Bumped cache/version tokens in index.html from 0325 to 0326
+- Added Supabase JS SDK loading and a minimal client initializer wrapper (for Magic Link login only)
+- Added runtime config example + gitignore rule for local config.js
+- Added a self-check call that logs getSession() status on page load
 
 ## Files touched
-- Modified: index.html, app.js, trans.js, REVIEW.md
-- Added:
+- Modified: index.html, app.js, .gitignore, REVIEW.md
+- Added: supabaseClient.js, config.example.js
 - Deleted:
 
 ## Behavior impact
-- What user-visible behavior changed: Only the split-state button text changed after a successful geolocation
-- What explicitly did NOT change: Initial-state button copy, prediction flow, favorites/login logic, and layout behavior
+- What user-visible behavior changed: None (console-only self-check)
+- What explicitly did NOT change: Prediction flow, favorites UI/logic, and button state machine
 
 ## Risk assessment
-- Possible failure modes: Inconsistent label if translation toggle fails
-- Performance / cost / quota impact: None
-- Deployment or environment risks: Low (static asset version bump only)
+- Possible failure modes: Missing config.js or SDK load leads to console warnings only
+- Performance / cost / quota impact: One extra SDK script load; no network calls beyond SDK load
+- Deployment or environment risks: Low; config.js remains local and gitignored
 
 ## How to test
-1. Fresh device: confirm buttons show “📍 获取当前位置” and “✍️ 生成即时预测”
-2. Get location once: buttons switch to “📍 刷新定位 / ⭐ 收藏地址 / ✍️ 生成预测”
-3. Refresh page: split-state labels persist
-4. Toggle translation: split-state labels still translate
+1. Create `config.js` from `config.example.js` with valid Supabase values
+2. Open the page and check console for `[AC Supabase] session:`
 
 ## Rollback plan
 - Revert the commit on `staging`
