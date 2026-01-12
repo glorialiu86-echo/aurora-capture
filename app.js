@@ -470,6 +470,7 @@ const closeLoginModal = () => {
 };
 
 const openFavModal = () => {
+  captureModalTrigger();
   const modal = $("favModal");
   if(!modal) return;
   modal.classList.remove("hidden");
@@ -481,14 +482,37 @@ const openFavModal = () => {
 const closeFavModal = () => {
   const modal = $("favModal");
   if(!modal) return;
+  try{
+    if(modal.contains(document.activeElement)) document.activeElement.blur();
+  }catch(_){ /* ignore */ }
   modal.classList.add("hidden");
   modal.setAttribute("aria-hidden", "true");
+  restoreModalTrigger();
 };
 
 let favEditMode = "create";
 let favEditItem = null;
 let returnToFavList = false;
+let lastModalTriggerEl = null;
+
+const captureModalTrigger = () => {
+  try{
+    const el = document.activeElement;
+    if(!el) return;
+    if(typeof el.focus !== "function") return;
+    lastModalTriggerEl = el;
+  }catch(_){ /* ignore */ }
+};
+
+const restoreModalTrigger = () => {
+  try{
+    if(!lastModalTriggerEl) return;
+    if(!document.contains(lastModalTriggerEl)) return;
+    lastModalTriggerEl.focus();
+  }catch(_){ /* ignore */ }
+};
 const openFavEditModal = (mode, item, shouldReturn) => {
+  captureModalTrigger();
   favEditMode = mode || "create";
   favEditItem = item || null;
   returnToFavList = !!shouldReturn;
@@ -518,6 +542,9 @@ const openFavEditModal = (mode, item, shouldReturn) => {
 const closeFavEditModal = () => {
   const modal = $("favEditModal");
   if(!modal) return;
+  try{
+    if(modal.contains(document.activeElement)) document.activeElement.blur();
+  }catch(_){ /* ignore */ }
   modal.classList.add("hidden");
   modal.setAttribute("aria-hidden", "true");
   if(returnToFavList){
@@ -525,6 +552,7 @@ const closeFavEditModal = () => {
     openFavModal();
   }
   returnToFavList = false;
+  restoreModalTrigger();
 };
 
 const renderFavorites = () => {
@@ -2371,16 +2399,73 @@ function fillCurrentLocation(){
       });
     });
 
-    $("btnFavs")?.addEventListener("click", () => {
-      const openList = () => {
-        renderFavorites();
+    $("btnFavs")?.addEventListener("click", async () => {
+      const openList = async () => {
+        const sess = await window.AC_SUPABASE?.getSession?.();
+        const session = sess?.session || null;
+        if(!session){
+          const row = $("favLogoutRow");
+          if(row) row.classList.add("hidden");
+          closeFavModal();
+          openLoginModal(null);
+          return;
+        }
+        const userId = session.user?.id || null;
+        if(!userId){
+          const row = $("favLogoutRow");
+          if(row) row.classList.add("hidden");
+          closeFavModal();
+          openLoginModal(null);
+          return;
+        }
+        window.AC_AUTH = { loggedIn: true, userId };
+        const row = $("favLogoutRow");
+        if(row) row.classList.remove("hidden");
         openFavModal();
+        const listEl = $("favList");
+        if(listEl) listEl.innerHTML = "";
+        const emptyEl = $("favEmpty");
+        if(emptyEl) emptyEl.classList.add("hidden");
+        const res = await window.AC_SUPABASE?.listFavorites?.(userId);
+        const items = Array.isArray(res?.data) ? res.data : [];
+        listEl.innerHTML = "";
+        if(!items.length){
+          if(emptyEl) emptyEl.classList.remove("hidden");
+          return;
+        }
+        items.forEach((item) => {
+          const rowItem = document.createElement("div");
+          rowItem.className = "favItem";
+          rowItem.setAttribute("role", "button");
+          rowItem.tabIndex = 0;
+
+          const main = document.createElement("div");
+          main.className = "favMain";
+          main.textContent = item.name || "—";
+
+          const sub = document.createElement("div");
+          sub.className = "favSub";
+          sub.textContent = `${formatCoord(item.lat, 2)}, ${formatCoord(item.lon, 2)}`;
+
+          rowItem.addEventListener("click", () => {
+            const lat = normalizeCoord(item.lat);
+            const lon = normalizeCoord(item.lon);
+            if(isValidCoords(lat, lon)){
+              applyCoordsToInputs(lat, lon);
+              coordsProvider.set(lat, lon);
+            }
+            closeFavModal();
+          });
+
+          rowItem.appendChild(main);
+          rowItem.appendChild(sub);
+          listEl.appendChild(rowItem);
+        });
+        if(window.AC_TRANS?.isOn?.()){
+          window.AC_TRANS.applyTranslation?.();
+        }
       };
-      if(!authProvider.isLoggedIn()){
-        openLoginModal(openList);
-        return;
-      }
-      openList();
+      await openList();
     });
 
     $("btnLoginConfirm")?.addEventListener("click", () => {
@@ -2431,16 +2516,18 @@ function fillCurrentLocation(){
       const t = e.target;
       if(t && t.getAttribute && t.getAttribute("data-close") === "1") closeFavModal();
     });
-    $("btnLogout")?.addEventListener("click", () => {
-      window.AC_SUPABASE?.signOut?.().finally(() => {
-        window.AC_AUTH = { loggedIn: false, userId: null };
-        const row = $("favLogoutRow");
-        if(row) row.classList.add("hidden");
-        const listEl = $("favList");
-        if(listEl) listEl.innerHTML = "";
-        const emptyEl = $("favEmpty");
-        if(emptyEl) emptyEl.classList.remove("hidden");
-      });
+    $("btnLogout")?.addEventListener("click", async () => {
+      const res = await window.AC_SUPABASE?.signOut?.();
+      if(!res || res.ok !== true) return;
+      window.AC_AUTH = { loggedIn: false, userId: null };
+      const row = $("favLogoutRow");
+      if(row) row.classList.add("hidden");
+      const listEl = $("favList");
+      if(listEl) listEl.innerHTML = "";
+      const emptyEl = $("favEmpty");
+      if(emptyEl) emptyEl.classList.add("hidden");
+      closeFavModal();
+      openLoginModal(null);
     });
 
     $("btnFavEditClose")?.addEventListener("click", closeFavEditModal);
@@ -2495,6 +2582,13 @@ function fillCurrentLocation(){
       };
       const row = $("favLogoutRow");
       if(row) row.classList.toggle("hidden", !loggedIn);
+      if(!loggedIn){
+        const listEl = $("favList");
+        if(listEl) listEl.innerHTML = "";
+        const emptyEl = $("favEmpty");
+        if(emptyEl) emptyEl.classList.add("hidden");
+        closeFavModal();
+      }
     });
 
     // Alert modal close buttons

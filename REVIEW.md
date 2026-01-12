@@ -1,9 +1,10 @@
 # Review Summary
 
 ## What changed
-- Toggled favorites modal logout row visibility based on auth session state
-- Added logout click handler to sign out and return to logged-out state
-- Bumped cache/version tokens in index.html from 0329 to 0330
+- Added minimal focus handling for favorites modals to prevent aria-hidden warnings
+- Restored focus to the trigger button after closing favorites modals
+- Fixed logout → favorites modal state to avoid stale session UI
+- Bumped cache/version tokens in index.html from 0330 to 0331
 
 ## Files touched
 - Modified: app.js, REVIEW.md
@@ -11,17 +12,17 @@
 - Deleted:
 
 ## Behavior impact
-- What user-visible behavior changed: “退出登录” link now appears when logged in and hides after sign out
-- What explicitly did NOT change: Prediction flow, favorites UI structure, and button state machine
+- What user-visible behavior changed: Focus returns to the trigger after closing favorites modals; logout keeps favorites modal in logged-out state
+- What explicitly did NOT change: Prediction flow, modal structure, and button state machine
 
 ## Risk assessment
-- Possible failure modes: Auth state not received results in logout link staying hidden
+- Possible failure modes: Focus fallback to body if trigger is missing
 - Performance / cost / quota impact: None
-- Deployment or environment risks: Low; client-side UI toggle only
+- Deployment or environment risks: Low; client-side focus handling only
 
 ## How to test
-1. Log in and open favorites modal → confirm “退出登录” appears at the bottom
-2. Click “退出登录” → modal immediately returns to logged-out state and link disappears
+1. Open favorites modal and close it → no aria-hidden warning; focus returns to the trigger
+2. Open favorites edit modal and close it → no aria-hidden warning; focus returns to the trigger
 
 ## Rollback plan
 - Revert the commit on `staging`
