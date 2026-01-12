@@ -91,6 +91,57 @@ Before writing **any code**, the agent must:
 
 ---
 
+## 4.1 Large File Protocol (Mandatory for files > 800 lines)
+
+For any file exceeding **800 lines** (e.g. `app.js`), the following rules are mandatory:
+
+### A. No Full-File Scans
+- ❌ Do NOT read, summarize, or reason about the entire file.
+- ❌ Do NOT output the full file or large continuous sections.
+- All modifications MUST be localized via explicit anchors.
+
+### B. Anchor-Based Editing Only
+- All changes MUST be made relative to **explicit anchors**, such as:
+  - Function names (e.g. `bootstrap()`)
+  - Event handlers (e.g. `btnLoginConfirm` click handler)
+  - Clearly identifiable IDs or selectors
+- Modifications are restricted to **within ~30–80 lines around the anchor**.
+- If an anchor cannot be confidently located:
+  - STOP
+  - Report: `anchor not found` + the closest matching symbol
+  - Do NOT guess or refactor.
+
+### C. One Anchor per Step
+- Each execution step may modify **only one anchor**.
+- Multi-anchor changes MUST be split into multiple steps.
+- The agent must STOP after completing one anchor and wait for confirmation.
+
+### D. Output Restrictions (Anti-Disconnect)
+- Allowed outputs only:
+  1. `git status -sb`
+  2. `git diff --stat`
+  3. `git diff -U5 <file>` limited to the modified anchor block(s)
+- ❌ No full files
+- ❌ No long explanations
+- ❌ No redundant summaries
+
+### E. Review-by-Evidence (No Global Self-Verification)
+- For large files, **evidence-based review** replaces full consistency scans.
+- Evidence consists of:
+  - File list (`git diff --stat`)
+  - Anchor-local diffs (`git diff -U5`)
+  - REVIEW.md alignment
+- ❌ Do NOT perform whole-file re-reads to "ensure safety".
+
+### F. Commit / Push Separation
+- For large files:
+  - ❌ The agent must NOT commit or push by default.
+  - The agent provides diffs or patch instructions only.
+  - Commit / push is performed by the human unless explicitly approved.
+
+Violation of this protocol is treated as a **scope and workflow violation**.
+---
+
 ## 5. Scope Control
 - Only modify files explicitly approved by the user
 - If a better solution exists:
