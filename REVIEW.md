@@ -1,10 +1,11 @@
 # Review Summary
 
 ## What changed
-- Added minimal focus handling for favorites modals to prevent aria-hidden warnings
-- Restored focus to the trigger button after closing favorites modals
-- Fixed logout → favorites modal state to avoid stale session UI
-- Bumped cache/version tokens in index.html from 0330 to 0331
+- Enforced favorites modal data source split: logged-in uses cloud only; logged-out never reads prior user data
+- Normalized favorites items to {id,name,lat,lon} and skipped missing-id rows (console warn)
+- Restored rename/delete actions for logged-in favorites list
+- Invalidated local favorites cache on auth login state change
+- Bumped cache/version tokens in index.html from 0331 to 0332
 
 ## Files touched
 - Modified: app.js, REVIEW.md
@@ -12,17 +13,18 @@
 - Deleted:
 
 ## Behavior impact
-- What user-visible behavior changed: Focus returns to the trigger after closing favorites modals; logout keeps favorites modal in logged-out state
+- What user-visible behavior changed: Logged-in favorites show only cloud data with rename/delete; logged-out favorites show no prior user data
 - What explicitly did NOT change: Prediction flow, modal structure, and button state machine
 
 ## Risk assessment
-- Possible failure modes: Focus fallback to body if trigger is missing
+- Possible failure modes: Missing id in cloud data hides those rows (warned in console)
 - Performance / cost / quota impact: None
 - Deployment or environment risks: Low; client-side focus handling only
 
 ## How to test
-1. Open favorites modal and close it → no aria-hidden warning; focus returns to the trigger
-2. Open favorites edit modal and close it → no aria-hidden warning; focus returns to the trigger
+1. Log in and open favorites modal → list count matches Supabase favorites for that user
+2. Clear localStorage `ac_favorites` and reopen → list count unchanged (cloud-only)
+3. Log out and open favorites modal → no prior user data shown
 
 ## Rollback plan
 - Revert the commit on `staging`

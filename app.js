@@ -2427,7 +2427,19 @@ function fillCurrentLocation(){
         const emptyEl = $("favEmpty");
         if(emptyEl) emptyEl.classList.add("hidden");
         const res = await window.AC_SUPABASE?.listFavorites?.(userId);
-        const items = Array.isArray(res?.data) ? res.data : [];
+        const rawItems = Array.isArray(res?.data) ? res.data : [];
+        const items = rawItems.map((it) => ({
+          id: it?.id ?? null,
+          name: it?.name ?? "",
+          lat: it?.lat,
+          lon: it?.lon
+        })).filter((it) => {
+          if(!it.id){
+            try{ console.warn("[AuroraCapture] favorite missing id, skipped:", it); }catch(_){}
+            return false;
+          }
+          return true;
+        });
         listEl.innerHTML = "";
         if(!items.length){
           if(emptyEl) emptyEl.classList.remove("hidden");
@@ -2447,6 +2459,36 @@ function fillCurrentLocation(){
           sub.className = "favSub";
           sub.textContent = `${formatCoord(item.lat, 2)}, ${formatCoord(item.lon, 2)}`;
 
+          const actions = document.createElement("div");
+          actions.className = "favActions";
+
+          const renameBtn = document.createElement("button");
+          renameBtn.className = "btn secondary";
+          renameBtn.type = "button";
+          renameBtn.textContent = "重命名";
+          renameBtn.setAttribute("data-i18n", "重命名");
+
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn secondary";
+          delBtn.type = "button";
+          delBtn.textContent = "删除";
+          delBtn.setAttribute("data-i18n", "删除");
+
+          renameBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            closeFavModal();
+            openFavEditModal("rename", item, true);
+          });
+
+          delBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            await window.AC_SUPABASE?.deleteFavorite?.(item.id, userId);
+            await openList();
+          });
+
+          actions.appendChild(renameBtn);
+          actions.appendChild(delBtn);
+
           rowItem.addEventListener("click", () => {
             const lat = normalizeCoord(item.lat);
             const lon = normalizeCoord(item.lon);
@@ -2459,6 +2501,7 @@ function fillCurrentLocation(){
 
           rowItem.appendChild(main);
           rowItem.appendChild(sub);
+          rowItem.appendChild(actions);
           listEl.appendChild(rowItem);
         });
         if(window.AC_TRANS?.isOn?.()){
@@ -2582,7 +2625,9 @@ function fillCurrentLocation(){
       };
       const row = $("favLogoutRow");
       if(row) row.classList.toggle("hidden", !loggedIn);
-      if(!loggedIn){
+      if(loggedIn){
+        try{ storageProvider.set(FAV_KEY, []); }catch(_){ /* ignore */ }
+      }else{
         const listEl = $("favList");
         if(listEl) listEl.innerHTML = "";
         const emptyEl = $("favEmpty");
