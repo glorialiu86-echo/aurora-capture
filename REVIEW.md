@@ -5,6 +5,7 @@
 - Updated client config loading to prefer local config.js override when present
 - Removed direct config.js script include to avoid 404 noise
 - Public config only includes SUPABASE_URL + SUPABASE_PUBLISHABLE_KEY (sb_publishable_); sb_secret_ is forbidden in frontend/repo/docs
+- Bumped cache/version tokens in index.html from 0326 to 0327
 
 ## Files touched
 - Modified: index.html, supabaseClient.js, config.example.js, REVIEW.md
