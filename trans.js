@@ -81,19 +81,11 @@
     return raw.replace(/_/g, "-");
   };
 
-  const getSystemLang = () => {
-    const list = Array.isArray(navigator.languages) ? navigator.languages : [];
-    const raw = list.length ? list[0] : (navigator.language || "en");
-    return normalizeTag(raw);
-  };
-
+  const getSystemLang = () => normalizeTag(navigator.language || "en");
   const isSystemZh = () => getSystemLang().startsWith("zh");
+  const isSystemEn = () => getSystemLang().startsWith("en");
 
-  const getPreferredLang = () => {
-    const list = Array.isArray(navigator.languages) ? navigator.languages : [];
-    const raw = list.length ? list[0] : (navigator.language || "en");
-    return normalizeTag(raw);
-  };
+  const getPreferredLang = () => getSystemLang();
 
   const getStoredState = () => {
     try{
@@ -225,6 +217,13 @@
       if(original != null) el.textContent = original;
     });
   };
+  const forceStatusZh = () => {
+    const items = Array.from(document.querySelectorAll("#statusText, [data-status-key]"));
+    items.forEach((el) => {
+      const zh = el.getAttribute && el.getAttribute("data-zh");
+      if(zh) el.textContent = zh;
+    });
+  };
 
   const resolveFixedText = (source, target) => {
     if(!source) return null;
@@ -262,12 +261,14 @@
     if(isSystemZh()){
       restoreOriginal(elements);
       applyGeoHintRule("zh", "off");
+      forceStatusZh();
       return;
     }
 
     if(currentState !== "on"){
       restoreOriginal(elements);
       applyGeoHintRule("zh", "off");
+      forceStatusZh();
       return;
     }
 

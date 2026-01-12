@@ -62,14 +62,15 @@ const SW_PLACEHOLDER_HTML = `
 const setStatusText = (t, statusKey) => {
   const el = document.getElementById("statusText");
   const text = (t == null ? "" : String(t));
-  const sysLang = getUiLang();
-  const sysIsZh = sysLang.startsWith("zh");
+  const sysLang = getSystemLang();
+  const sysIsZh = isSystemZh();
   const transOn = window.AC_TRANS?.isOn?.() === true;
   if(el){
     const fromKey = statusKey && STATUS_LABELS[statusKey];
     const zhText = fromKey ? fromKey.zh : text;
     const enText = fromKey ? fromKey.en : (STATUS_TEXT_EN_MAP[zhText] || "");
 
+    let sourceTag = "fallback";
     if(enText){
       el.setAttribute("data-i18n", enText);
     }else{
@@ -82,9 +83,22 @@ const setStatusText = (t, statusKey) => {
     }
 
     if(sysIsZh || !transOn){
+      sourceTag = "zh";
       el.textContent = zhText || "";
     }else{
+      sourceTag = enText ? "en" : "fallback";
       el.textContent = enText || zhText || "";
+    }
+    if(window.AC_DEBUG === true){
+      try{
+        console.debug("[AC][status]", {
+          sysLang,
+          sysIsZh,
+          transOn,
+          hasStatusKey: !!statusKey,
+          sourceTag,
+        });
+      }catch(_){ /* ignore */ }
     }
   }
   if(uiReady() && typeof window.UI.setStatusText === "function"){
@@ -238,6 +252,16 @@ const STATUS_TEXT_EN_MAP = {
   "生成失败：请打开控制台查看错误。": "Generation failed: check console for details.",
 };
 
+const normalizeTag = (tag) => {
+  const raw = String(tag || "").trim().toLowerCase();
+  if(!raw) return "";
+  return raw.replace(/_/g, "-");
+};
+
+const getSystemLang = () => normalizeTag(navigator.language || "en");
+const isSystemZh = () => getSystemLang().startsWith("zh");
+const isSystemEn = () => getSystemLang().startsWith("en");
+
 const getUiLang = () => {
   const list = Array.isArray(navigator.languages) ? navigator.languages : [];
   const raw = list.length ? list[0] : (navigator.language || "en");
@@ -258,9 +282,11 @@ const statusSpanHTML = (key, extraAttrs = "") => {
   const textEn = statusTextByKey(key, false);
   const textZh = statusTextByKey(key, true);
   const textEsc = escapeHTML(textEn || "");
+  const initialText = isSystemZh() ? textZh : textEn;
+  const initialEsc = escapeHTML(initialText || "");
   const keyEsc = escapeHTML(String(key || ""));
   const attrs = extraAttrs ? " " + String(extraAttrs).trim() : "";
-  return `<span data-status-key="${keyEsc}" data-i18n="${textEsc}" data-zh="${escapeHTML(textZh || "")}"${attrs}>${textEsc}</span>`;
+  return `<span data-status-key="${keyEsc}" data-i18n="${textEsc}" data-zh="${escapeHTML(textZh || "")}"${attrs}>${initialEsc}</span>`;
 };
 
 const renderChart = (labels, vals, cols) => {

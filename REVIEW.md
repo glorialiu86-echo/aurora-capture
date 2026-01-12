@@ -4,7 +4,8 @@
 - setStatusText 统一维护 data-i18n 英文母本与 data-zh 中文母本
 - 中文系统或 Trans OFF 时，状态词强制写回中文 textContent
 - 非中文且 Trans ON 时，状态词显示英文母本并保留翻译输入
-- index.html 版本号 0335 更新为 0336（缓存与页脚展示）
+- trans.js 在中文系统与 Trans OFF 分支强制回写状态词中文
+- index.html 版本号 0336 更新为 0337（缓存与页脚展示）
 
 ## Files touched
 - Modified: app.js, index.html, REVIEW.md
@@ -23,10 +24,15 @@
 - 部署或环境风险：仅涉及缓存版本变化
 
 ## How to test
-1. 将系统语言设置为中文，分别切换 Trans ON/OFF，观察状态词始终为中文
-2. 将系统语言设置为英文，Trans ON 观察状态词为英文母本，Trans OFF 观察状态词强制为中文
-3. 将系统语言设置为非中非英，Trans ON 观察状态词以英文母本作为翻译输入，Trans OFF 观察状态词为中文
-4. 打开页面，确认资源 URL 与页脚版本号显示为 0336
+1. 无痕窗口打开页面，确认资源 URL 与页脚版本号显示为 0337
+2. 强刷页面（hard reload / 清缓存），再次确认资源 URL 与页脚版本号为 0337
+3. 语言策略验收矩阵（系统语言以 navigator.language 判定）：
+   - zh + Trans OFF：状态词为中文（#statusText 与 [data-status-key]），其他 UI 不翻译
+   - zh + Trans ON：状态词为中文（#statusText 与 [data-status-key]），其他 UI 不翻译
+   - non-zh + Trans ON：状态词为英文母本或目标语言（翻译输入为 data-i18n），其他 UI 允许翻译
+   - non-zh + Trans OFF：状态词为中文（#statusText 与 [data-status-key]），其他 UI 不翻译
+4. 每条矩阵断言下，连续两次 Generate/Refresh，不刷新页面，状态词保持正确语言
+5. 可选证据：控制台执行 window.AC_DEBUG=true，触发状态词变化，观察输出字段 sysLang/sysIsZh/transOn/sourceTag
 
 ## Rollback plan
 - 回滚本次提交或切回上一个版本分支
