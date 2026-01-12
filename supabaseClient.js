@@ -150,10 +150,12 @@
   const updateFavoriteName = async (id, userId, name) => {
     const cli = await init();
     if(!cli) return { ok: false, error: "unavailable" };
+    const idValue = Number(id);
+    const safeId = Number.isFinite(idValue) ? idValue : id;
     const { error } = await cli
       .from("favorites")
       .update({ name })
-      .eq("id", id)
+      .eq("id", safeId)
       .eq("user_id", userId);
     if(error) return { ok: false, error };
     return { ok: true, error: null };
