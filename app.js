@@ -2431,6 +2431,17 @@ function fillCurrentLocation(){
       const t = e.target;
       if(t && t.getAttribute && t.getAttribute("data-close") === "1") closeFavModal();
     });
+    $("btnLogout")?.addEventListener("click", () => {
+      window.AC_SUPABASE?.signOut?.().finally(() => {
+        window.AC_AUTH = { loggedIn: false, userId: null };
+        const row = $("favLogoutRow");
+        if(row) row.classList.add("hidden");
+        const listEl = $("favList");
+        if(listEl) listEl.innerHTML = "";
+        const emptyEl = $("favEmpty");
+        if(emptyEl) emptyEl.classList.remove("hidden");
+      });
+    });
 
     $("btnFavEditClose")?.addEventListener("click", closeFavEditModal);
     $("btnFavEditCancel")?.addEventListener("click", closeFavEditModal);
@@ -2477,10 +2488,13 @@ function fillCurrentLocation(){
 
     window.AC_SUPABASE?.selfCheck?.();
     window.AC_SUPABASE?.onAuthStateChange?.((evt, session) => {
+      const loggedIn = !!session?.user;
       window.AC_AUTH = {
-        loggedIn: !!session?.user,
+        loggedIn,
         userId: session?.user?.id || null
       };
+      const row = $("favLogoutRow");
+      if(row) row.classList.toggle("hidden", !loggedIn);
     });
 
     // Alert modal close buttons
