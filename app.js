@@ -70,33 +70,21 @@ const setStatusText = (t, statusKey) => {
     const zhText = fromKey ? fromKey.zh : text;
     const enText = fromKey ? fromKey.en : (STATUS_TEXT_EN_MAP[zhText] || "");
 
-    if(sysIsZh){
+    if(enText){
+      el.setAttribute("data-i18n", enText);
+    }else{
       el.removeAttribute("data-i18n");
-      if(zhText){
-        el.setAttribute("data-zh", zhText);
-      }else{
-        el.removeAttribute("data-zh");
-      }
+    }
+    if(zhText){
+      el.setAttribute("data-zh", zhText);
+    }else{
+      el.removeAttribute("data-zh");
+    }
+
+    if(sysIsZh || !transOn){
       el.textContent = zhText || "";
     }else{
-      if(enText){
-        el.setAttribute("data-i18n", enText);
-      }else{
-        el.removeAttribute("data-i18n");
-      }
-      if(zhText){
-        el.setAttribute("data-zh", zhText);
-      }else{
-        el.removeAttribute("data-zh");
-      }
-
-      if(!transOn){
-        el.textContent = zhText || "";
-      }else if(sysLang.startsWith("en")){
-        el.textContent = enText || zhText || "";
-      }else{
-        el.textContent = enText || zhText || "";
-      }
+      el.textContent = enText || zhText || "";
     }
   }
   if(uiReady() && typeof window.UI.setStatusText === "function"){

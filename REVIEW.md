@@ -1,29 +1,35 @@
 # Review Summary
 
 ## What changed
-- 版本号从 0334 升级到 0335（仅更新 index.html 既有位置）
-- 纳入本次提交的 AGENTS.md 变更
+- setStatusText 统一维护 data-i18n 英文母本与 data-zh 中文母本
+- 中文系统或 Trans OFF 时，状态词强制写回中文 textContent
+- 非中文且 Trans ON 时，状态词显示英文母本并保留翻译输入
+- index.html 版本号 0335 更新为 0336（缓存与页脚展示）
 
 ## Files touched
-- Modified: index.html, AGENTS.md, REVIEW.md
+- Modified: app.js, index.html, REVIEW.md
 - Added:
 - Deleted:
 
 ## Behavior impact
-- 资源缓存版本号更新，页面底部版本文案同步更新
-- 功能行为未变
+- 中文系统无论 Trans ON/OFF，状态词始终中文
+- 非中文系统：Trans ON 显示英文母本并可走翻译链路；Trans OFF 强制中文
+- 更新静态资源缓存版本号与页脚显示版本号
+- 未改动预测、翻译主流程与其他 UI 行为
 
 ## Risk assessment
-- Possible failure modes: 版本号漏改导致缓存未更新
-- Performance / cost / quota impact: 无
-- Deployment or environment risks: 无
+- 可能的失败模式：data-zh 为空时状态词为空
+- 性能/成本/配额影响：无
+- 部署或环境风险：仅涉及缓存版本变化
 
 ## How to test
-1. 打开页面并强制刷新 → 资源 URL 的 ?v=0335 生效，页脚版本显示 v3.0.0335
-2. 正常浏览与生成流程 → 页面功能不受影响
+1. 将系统语言设置为中文，分别切换 Trans ON/OFF，观察状态词始终为中文
+2. 将系统语言设置为英文，Trans ON 观察状态词为英文母本，Trans OFF 观察状态词强制为中文
+3. 将系统语言设置为非中非英，Trans ON 观察状态词以英文母本作为翻译输入，Trans OFF 观察状态词为中文
+4. 打开页面，确认资源 URL 与页脚版本号显示为 0336
 
 ## Rollback plan
-- 回退本次提交或切回上一版 `staging`
+- 回滚本次提交或切回上一个版本分支
 
 ## Open questions / follow-ups
-- None
+- 暂无
