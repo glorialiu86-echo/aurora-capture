@@ -1,35 +1,34 @@
 # Review Summary
 
 ## What changed
-- Enforced logged-in favorites to use cloud-only listFavorites and skip local data
-- Create now uses user-provided name when present, with lat/lon fallback only when empty
-- Rename save re-fetches cloud data without clearing list to avoid empty-state flicker
-- Delete remains serialized and re-fetches cloud data after completion
-- Bumped cache/version tokens in index.html from 0333 to 0334
+- 强制中文系统短路翻译：zh* 环境下不触发翻译管线，状态文案保持中文
+- 状态文案源稳定化：status 元素 data-i18n 固定英文母本、data-zh 固定中文母本，展示文本按规则动态渲染
+- Trans OFF 回滚修复：关闭翻译后状态文本回中文，避免英文锁死/污染回滚源
+- 调整 setStatusText 调用点传入 statusKey 或 null，非 key 场景使用英文母本映射
 
 ## Files touched
-- Modified: app.js, REVIEW.md
+- Modified: app.js, trans.js, REVIEW.md
 - Added:
 - Deleted:
 
 ## Behavior impact
-- What user-visible behavior changed: Logged-in favorites show only cloud data with rename/delete; logged-out favorites show no prior user data
-- What explicitly did NOT change: Prediction flow, modal structure, and button state machine
+- 中文系统：Trans ON/OFF 均保持全站中文，不走翻译流程
+- 英文系统：Trans ON 显示英文；Trans OFF 状态文本回到中文且不再锁死
+- 其他语言：Trans ON 从英文母本翻译为目标语言；Trans OFF 回中文
+- 未改变预测逻辑、数据获取与渲染结构
 
 ## Risk assessment
-- Possible failure modes: Missing id in cloud data hides those rows (warned in console)
-- Performance / cost / quota impact: None
-- Deployment or environment risks: Low; client-side focus handling only
+- Possible failure modes: 非 key 状态文案若缺少英文母本映射，可能在非中文系统下回退为中文显示
+- Performance / cost / quota impact: 翻译调用频次与性能不变；中文系统短路可减少翻译调用
+- Deployment or environment risks: 无
 
 ## How to test
-1. Log in and open favorites modal → list count matches Supabase favorites for that user
-2. Clear localStorage `ac_favorites` and reopen → list and names unchanged (cloud-only)
-3. Create a favorite with a custom name → Supabase name is non-null and equals the input
-4. Rename a favorite → no empty-state flicker; reopen modal shows new name
-5. Rapidly delete → no lingering rows; list stays in sync with Supabase
+1. iOS/OS 中文环境无痕打开 → Trans ON/OFF 来回切换 + Generate/Refresh 多次 → 全站始终中文（状态词/结论分级/按钮等不出现英文）
+2. iOS/OS 英文环境无痕打开（默认 ON）→ 状态/结论为英文；切 Trans OFF → 全站回中文；连续 Generate/Refresh 两次 → 状态不回英文
+3. iOS/OS 其他语言（如日/法）无痕打开（默认 ON）→ 状态为目标语言且来源为英文母本翻译；切 OFF → 全站中文；再切 ON → 恢复目标语言且不漂移
 
 ## Rollback plan
-- Revert the commit on `staging`
+- 回退本次提交或切回上一版 `staging`
 
 ## Open questions / follow-ups
-- None
+- “已获取当前位置 …” 当前未覆盖英文母本映射，若需更完整英文化可补充映射

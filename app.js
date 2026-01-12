@@ -59,21 +59,50 @@ const SW_PLACEHOLDER_HTML = `
   </div>
 `;
 // --- status / cache / format helpers (must work even when UI.js is not ready) ---
-const setStatusText = (t) => {
+const setStatusText = (t, statusKey) => {
   const el = document.getElementById("statusText");
   const text = (t == null ? "" : String(t));
+  const sysLang = getUiLang();
+  const sysIsZh = sysLang.startsWith("zh");
+  const transOn = window.AC_TRANS?.isOn?.() === true;
   if(el){
-    el.textContent = text;
-    if(text){
-      el.setAttribute("data-i18n", text);
-    }else{
+    const fromKey = statusKey && STATUS_LABELS[statusKey];
+    const zhText = fromKey ? fromKey.zh : text;
+    const enText = fromKey ? fromKey.en : (STATUS_TEXT_EN_MAP[zhText] || "");
+
+    if(sysIsZh){
       el.removeAttribute("data-i18n");
+      if(zhText){
+        el.setAttribute("data-zh", zhText);
+      }else{
+        el.removeAttribute("data-zh");
+      }
+      el.textContent = zhText || "";
+    }else{
+      if(enText){
+        el.setAttribute("data-i18n", enText);
+      }else{
+        el.removeAttribute("data-i18n");
+      }
+      if(zhText){
+        el.setAttribute("data-zh", zhText);
+      }else{
+        el.removeAttribute("data-zh");
+      }
+
+      if(!transOn){
+        el.textContent = zhText || "";
+      }else if(sysLang.startsWith("en")){
+        el.textContent = enText || zhText || "";
+      }else{
+        el.textContent = enText || zhText || "";
+      }
     }
   }
   if(uiReady() && typeof window.UI.setStatusText === "function"){
     try{ window.UI.setStatusText(t); }catch(_){ /* ignore */ }
   }
-  if(window.AC_TRANS?.isOn?.()){
+  if(!sysIsZh && transOn){
     window.AC_TRANS.applyTranslation?.();
   }
 };
@@ -205,6 +234,22 @@ const STATUS_LABELS = {
   STRONGLY_RECOMMENDED: { zh: "强烈推荐", en: "strongly recommended" },
 };
 
+const STATUS_TEXT_EN_MAP = {
+  "📍 正在获取当前位置…": "Getting current location…",
+  "⚠️ 定位返回无效坐标": "⚠️ Invalid location returned",
+  "⚠️ 定位处理异常": "⚠️ Location error",
+  "⚠️ 无法获取定位": "⚠️ Unable to get location",
+  "请先输入有效经纬度。": "Please enter valid coordinates.",
+  "⚠️ 经纬度超出范围": "⚠️ Coordinates out of range",
+  "关键计算模块未加载（SunCalc）。": "Core calculation module not loaded (SunCalc).",
+  "拉取数据中…": "Fetching data…",
+  "⚠️ 磁纬过低：已停止生成": "⚠️ MLAT too low: generation stopped",
+  "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）": "⚠️ Solar wind source unavailable: entered weak mode (conservative)",
+  "⚠️ 数据可信度提醒": "⚠️ Data reliability notice",
+  "已生成。": "Generated.",
+  "生成失败：请打开控制台查看错误。": "Generation failed: check console for details.",
+};
+
 const getUiLang = () => {
   const list = Array.isArray(navigator.languages) ? navigator.languages : [];
   const raw = list.length ? list[0] : (navigator.language || "en");
@@ -213,19 +258,21 @@ const getUiLang = () => {
 
 const isZhLang = () => getUiLang().startsWith("zh");
 
-const statusTextByKey = (key) => {
+const statusTextByKey = (key, preferZh = false) => {
   if(!key) return "";
   const item = STATUS_LABELS[key];
   if(!item) return "";
-  return isZhLang() ? item.zh : item.en;
+  if(preferZh) return item.zh;
+  return item.en;
 };
 
 const statusSpanHTML = (key, extraAttrs = "") => {
-  const text = statusTextByKey(key);
-  const textEsc = escapeHTML(text || "");
+  const textEn = statusTextByKey(key, false);
+  const textZh = statusTextByKey(key, true);
+  const textEsc = escapeHTML(textEn || "");
   const keyEsc = escapeHTML(String(key || ""));
   const attrs = extraAttrs ? " " + String(extraAttrs).trim() : "";
-  return `<span data-status-key="${keyEsc}" data-i18n="${textEsc}"${attrs}>${textEsc}</span>`;
+  return `<span data-status-key="${keyEsc}" data-i18n="${textEsc}" data-zh="${escapeHTML(textZh || "")}"${attrs}>${textEsc}</span>`;
 };
 
 const renderChart = (labels, vals, cols) => {
@@ -1045,7 +1092,7 @@ function fillCurrentLocation(){
       return;
     }
 
-    setStatusText("📍 正在获取当前位置…");
+    setStatusText("📍 正在获取当前位置…", null);
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -1056,7 +1103,7 @@ function fillCurrentLocation(){
           const accuracy = coords ? Number(coords.accuracy) : NaN;
 
           if(!Number.isFinite(latitude) || !Number.isFinite(longitude)){
-            setStatusText("⚠️ 定位返回无效坐标");
+            setStatusText("⚠️ 定位返回无效坐标", null);
             openAlertOverlayFull(
               "📍 定位失败",
               `<span data-i18n="定位返回的经纬度无效，请重试或手动输入。">定位返回的经纬度无效，请重试或手动输入。</span>`,
@@ -1072,11 +1119,11 @@ function fillCurrentLocation(){
           updateActionRow(true);
 
           const accTxt = Number.isFinite(accuracy) ? `（精度约 ${Math.round(accuracy)}m）` : "";
-          setStatusText(`已获取当前位置 ${accTxt}`);
+          setStatusText(`已获取当前位置 ${accTxt}`, null);
           flashGeoButtonSuccess();
         }catch(e){
           console.error("[AuroraCapture] geolocation success handler error:", e);
-          setStatusText("⚠️ 定位处理异常");
+          setStatusText("⚠️ 定位处理异常", null);
           openAlertOverlayFull(
             "📍 定位失败",
             `<span data-i18n="定位成功返回，但处理坐标时发生异常。请重试或手动输入。">定位成功返回，但处理坐标时发生异常。请重试或手动输入。</span>`,
@@ -1092,7 +1139,7 @@ function fillCurrentLocation(){
         else if(code === 2) reason = "暂时无法获取定位（信号弱/系统未开启定位服务）。";
         else if(code === 3) reason = "获取定位超时，请稍后重试。";
 
-        setStatusText("⚠️ 无法获取定位");
+        setStatusText("⚠️ 无法获取定位", null);
         openAlertOverlayFull(
           "📍 无法获取定位",
           `<span data-i18n="${reason}">${reason}</span>`,
@@ -1107,7 +1154,7 @@ function fillCurrentLocation(){
     );
   }catch(e){
     console.error("[AuroraCapture] geolocation error:", e);
-    setStatusText("⚠️ 无法获取定位");
+    setStatusText("⚠️ 无法获取定位", null);
     openAlertOverlayFull(
       "📍 无法获取定位",
       `<span data-i18n="获取定位时发生异常，请重试或手动输入。">获取定位时发生异常，请重试或手动输入。</span>`,
@@ -1506,7 +1553,7 @@ function fillCurrentLocation(){
       const lon = Number($("lon")?.value);
 
       if(!Number.isFinite(lat) || !Number.isFinite(lon)){
-        setStatusText("请先输入有效经纬度。");
+        setStatusText("请先输入有效经纬度。", null);
         openAlertOverlayFull(
           "⚠️ 经纬度输入无效",
           `<span data-i18n="请输入数字格式的纬度/经度。">请输入数字格式的纬度/经度。</span><br>` +
@@ -1520,7 +1567,7 @@ function fillCurrentLocation(){
 
       // Range guard (hard)
       if(lat < -90 || lat > 90 || lon < -180 || lon > 180){
-        setStatusText("⚠️ 经纬度超出范围");
+        setStatusText("⚠️ 经纬度超出范围", null);
         openAlertOverlayFull(
           "⚠️ 经纬度超出范围",
           `<span data-i18n="你输入的是：">你输入的是：</span><b>Latitude ${lat}</b>，<b>Longitude ${lon}</b>。<br>` +
@@ -1532,13 +1579,13 @@ function fillCurrentLocation(){
         return;
       }
       if(!window.SunCalc){
-        setStatusText("关键计算模块未加载（SunCalc）。");
+        setStatusText("关键计算模块未加载（SunCalc）。", null);
         return;
       }
 
       const baseDate = now();
 
-      setStatusText("拉取数据中…");
+      setStatusText("拉取数据中…", null);
       setStatusDots([
         { level:"warn", text:"太阳风 …" },
         { level:"warn", text:"KP …" },
@@ -1622,7 +1669,7 @@ function fillCurrentLocation(){
           { level:"ok", text:"云量 —" },
           { level:"ok", text:"OVATION —" },
         ]);
-        setStatusText("⚠️ 磁纬过低：已停止生成");
+        setStatusText("⚠️ 磁纬过低：已停止生成", null);
         return;
       }
 
@@ -1857,7 +1904,7 @@ function fillCurrentLocation(){
       
       // OUTAGE 不硬停：提示 + 弱模式/降权
       if (rt.status === "OUTAGE") {
-        setStatusText("⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）");
+        setStatusText("⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）", null);
       }
       // NOAA 缺字段：强提示弹窗 + 页面状态文案（甩锅 NOAA + 保守估算）
       const hasMissing = missingKeys.length > 0;
@@ -1866,7 +1913,7 @@ function fillCurrentLocation(){
         const missCN = missingKeys.map(k => (k==="v"?"V":k==="n"?"N":k==="bt"?"Bt":k==="bz"?"Bz":k)).join("、");
 
         // 数据可信度提醒：右侧可点击查看详情（不自动强弹）
-        setStatusText("⚠️ 数据可信度提醒");
+        setStatusText("⚠️ 数据可信度提醒", null);
 
         const warnHtml = `
           <div><span data-i18n="NOAA 数据口径变动或部分数据缺失：">NOAA 数据口径变动或部分数据缺失：</span><b>${escapeHTML(missCN)}</b></div>
@@ -1883,7 +1930,7 @@ function fillCurrentLocation(){
           };
         }
       }else{
-        setStatusText("已生成。");
+        setStatusText("已生成。", null);
         const st = document.getElementById("statusText");
         if(st){
           st.classList.remove("warn");
@@ -2341,7 +2388,7 @@ function fillCurrentLocation(){
       if(window.AC_TRANS?.isOn?.()) window.AC_TRANS.applyTranslation?.();
     }catch(err){
       console.error("[AuroraCapture] run error:", err);
-      setStatusText("生成失败：请打开控制台查看错误。");
+      setStatusText("生成失败：请打开控制台查看错误。", null);
     }
   }
 

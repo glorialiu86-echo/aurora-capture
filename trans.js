@@ -81,6 +81,14 @@
     return raw.replace(/_/g, "-");
   };
 
+  const getSystemLang = () => {
+    const list = Array.isArray(navigator.languages) ? navigator.languages : [];
+    const raw = list.length ? list[0] : (navigator.language || "en");
+    return normalizeTag(raw);
+  };
+
+  const isSystemZh = () => getSystemLang().startsWith("zh");
+
   const getPreferredLang = () => {
     const list = Array.isArray(navigator.languages) ? navigator.languages : [];
     const raw = list.length ? list[0] : (navigator.language || "en");
@@ -250,6 +258,12 @@
   const applyTranslation = async () => {
     const myJob = ++jobId;
     const elements = Array.from(document.querySelectorAll("[data-i18n]"));
+
+    if(isSystemZh()){
+      restoreOriginal(elements);
+      applyGeoHintRule("zh", "off");
+      return;
+    }
 
     if(currentState !== "on"){
       restoreOriginal(elements);
