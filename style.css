@@ -288,7 +288,7 @@ input{
 input::placeholder{color:rgba(255,255,255,.35)}
 
 .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-.actions{margin-top:10px}
+.actions{margin-top:10px; flex-wrap:nowrap}
 /* actions 行：按钮并列，提示独占下一行 */
 .actions .hint{flex: 0 0 100%;}
 .hint{color:var(--muted2); font-size:12px}
@@ -308,15 +308,18 @@ input::placeholder{color:rgba(255,255,255,.35)}
   border-color: rgba(91,124,255,.35);
 }
 .btn.primary:hover{filter:brightness(1.04)}
-/* actions：只保留两枚按钮（获取位置 / 生成预测），同高同重量 */
+/* actions：两/三枚按钮同高同重量，移动端保持单行 */
 .actions .btn{
   font-size: 14px;
   height: 44px;
-  padding: 0 16px;
+  padding: 0 14px;
   border-radius: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 /* 次级按钮（仍然要有重量感，但不抢主按钮） */
@@ -332,11 +335,12 @@ input::placeholder{color:rgba(255,255,255,.35)}
   letter-spacing: .2px;
 }
 
-/* 移动端：两按钮尽量并列，不够就自然换行 */
+/* 移动端：保持单行 */
 @media (max-width: 520px){
-  #btnGeo.btn.secondary,
-  #btnRun.btn.primary{
-    flex: 1 1 auto;
+  .actions{ gap: 8px; }
+  .actions .btn{
+    font-size: 12px;
+    padding: 0 10px;
   }
 }
 .btn.ghost{
@@ -1151,6 +1155,80 @@ canvas{width:100% !important; height:100% !important}
   line-height: 1.7;
 }
 .modalBody p{margin: 10px 0}
+.modalCard.modalCompact{
+  width: min(520px, 92vw);
+}
+.modalFoot{
+  display:flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.modalFoot .btn{
+  flex: 1 1 0;
+  height: 42px;
+}
+.emptyText{
+  color: rgba(255,255,255,.6);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.favList{
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+.favItem{
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.18);
+  border-radius: 14px;
+  padding: 12px;
+  cursor: pointer;
+}
+.favMain{
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,.92);
+}
+.favSub{
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(255,255,255,.55);
+}
+.favActions{
+  display:flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.favActions .btn{
+  flex: 1 1 0;
+  height: 34px;
+  font-size: 12px;
+  padding: 0 10px;
+}
+.kvRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.10);
+  margin-bottom: 10px;
+}
+.kvLabel{
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+}
+.kvValue{
+  font-size: 12px;
+  color: rgba(255,255,255,.85);
+}
+.formError{
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(255,120,120,.9);
+}
 
 /* 3小时云量：评分+明细换行（明细更小） */
 .cloudDetail{
@@ -1459,9 +1537,13 @@ section > .fullWidthStack {
 
   /* 顶部按钮已移到 actions，不再需要为 header 的 btnAbout 做布局兜底 */
 
-  /* actions：两按钮尽量并列，空间不够就自然换行 */
-  .actions{ gap: 10px; }
-  .actions .btn{ height: 44px; }
+  /* actions：保持单行展示 */
+  .actions{ gap: 8px; }
+  .actions .btn{
+    height: 44px;
+    font-size: 12px;
+    padding: 0 10px;
+  }
   .actions .btn.ghost{ border-radius: 14px; height: 44px; }
   .actions .hint{ margin-top: 2px; }
 }

@@ -273,6 +273,324 @@ const initAbout = () => { if (uiReady() && typeof window.UI.initAbout === "funct
      }
    }
 
+// ---------- auth + favorites (local-only stub with providers) ----------
+const storageProvider = (() => {
+  const get = (key) => {
+    try{
+      const raw = localStorage.getItem(String(key));
+      return raw ? JSON.parse(raw) : null;
+    }catch(_){
+      return null;
+    }
+  };
+  const set = (key, value) => {
+    try{ localStorage.setItem(String(key), JSON.stringify(value)); }catch(_){ /* ignore */ }
+  };
+  const remove = (key) => {
+    try{ localStorage.removeItem(String(key)); }catch(_){ /* ignore */ }
+  };
+  return { get, set, remove };
+})();
+
+const AUTH_KEY = "ac_auth_stub";
+const FAV_KEY = "ac_favorites";
+const COORD_KEY = "ac_last_coords";
+const GEO_USED_KEY = "ac_has_used_geo";
+
+const authProvider = (() => {
+  const getState = () => storageProvider.get(AUTH_KEY) || { loggedIn: false };
+  const setState = (state) => storageProvider.set(AUTH_KEY, state);
+  const isLoggedIn = () => !!getState().loggedIn;
+  const login = () => {
+    setState({ loggedIn: true, ts: Date.now() });
+    return true;
+  };
+  const logout = () => {
+    storageProvider.remove(AUTH_KEY);
+  };
+  return { isLoggedIn, login, logout };
+})();
+
+const normalizeCoord = (v) => {
+  const n = Number(v);
+  if(!Number.isFinite(n)) return NaN;
+  return Math.round(n * 1e5) / 1e5;
+};
+
+const isValidCoords = (lat, lon) => {
+  if(!Number.isFinite(lat) || !Number.isFinite(lon)) return false;
+  if(lat < -90 || lat > 90) return false;
+  if(lon < -180 || lon > 180) return false;
+  return true;
+};
+
+const coordsProvider = (() => {
+  const get = () => {
+    const saved = storageProvider.get(COORD_KEY);
+    if(!saved || typeof saved !== "object") return null;
+    const lat = Number(saved.lat);
+    const lon = Number(saved.lon);
+    if(!isValidCoords(lat, lon)) return null;
+    return { lat, lon };
+  };
+  const set = (lat, lon) => {
+    if(!isValidCoords(lat, lon)) return;
+    storageProvider.set(COORD_KEY, { lat, lon, ts: Date.now() });
+  };
+  return { get, set };
+})();
+
+const geoUsageProvider = (() => {
+  const get = () => {
+    const raw = storageProvider.get(GEO_USED_KEY);
+    return !!raw;
+  };
+  const set = () => {
+    storageProvider.set(GEO_USED_KEY, true);
+  };
+  return { get, set };
+})();
+
+const favoritesProvider = (() => {
+  const list = () => {
+    const raw = storageProvider.get(FAV_KEY);
+    return Array.isArray(raw) ? raw : [];
+  };
+  const save = (items) => {
+    storageProvider.set(FAV_KEY, items);
+  };
+  const add = (item) => {
+    const items = list();
+    const exists = items.some((it) => Number(it.lat) === Number(item.lat) && Number(it.lon) === Number(item.lon));
+    if(exists){
+      return { ok: false, reason: "duplicate" };
+    }
+    items.unshift(item);
+    save(items);
+    return { ok: true };
+  };
+  const rename = (createdAt, name) => {
+    const items = list();
+    const idx = items.findIndex((it) => Number(it.created_at) === Number(createdAt));
+    if(idx < 0) return { ok: false, reason: "missing" };
+    items[idx].name = name;
+    save(items);
+    return { ok: true };
+  };
+  const remove = (createdAt) => {
+    const items = list().filter((it) => Number(it.created_at) !== Number(createdAt));
+    save(items);
+    return { ok: true };
+  };
+  return { list, add, rename, remove };
+})();
+
+const formatCoord = (v, digits) => {
+  const n = Number(v);
+  if(!Number.isFinite(n)) return "—";
+  return n.toFixed(digits);
+};
+
+const updateActionRow = (hasUsedGeo) => {
+  const row = $("actionRow");
+  const btnGeo = $("btnGeo");
+  const btnFav = $("btnFav");
+  if(row) row.classList.toggle("split", !!hasUsedGeo);
+  if(btnFav) btnFav.classList.toggle("hidden", !hasUsedGeo);
+  if(btnGeo){
+    const label = hasUsedGeo ? "📍 获取" : "📍 获取当前位置";
+    btnGeo.textContent = label;
+    btnGeo.setAttribute("data-i18n", label);
+  }
+  if(window.AC_TRANS?.isOn?.()){
+    window.AC_TRANS.applyTranslation?.();
+  }
+};
+
+const applyCoordsToInputs = (lat, lon) => {
+  const latEl = $("lat");
+  const lonEl = $("lon");
+  if(latEl) latEl.value = Number(lat).toFixed(5);
+  if(lonEl) lonEl.value = Number(lon).toFixed(5);
+};
+
+const syncCoordsFromInputs = () => {
+  const lat = normalizeCoord($("lat")?.value);
+  const lon = normalizeCoord($("lon")?.value);
+  if(isValidCoords(lat, lon)){
+    coordsProvider.set(lat, lon);
+  }
+};
+
+const setFormError = (el, msg) => {
+  if(!el) return;
+  if(!msg){
+    el.classList.add("hidden");
+    el.textContent = "";
+    el.removeAttribute("data-i18n");
+    return;
+  }
+  el.textContent = msg;
+  el.setAttribute("data-i18n", msg);
+  el.classList.remove("hidden");
+  if(window.AC_TRANS?.isOn?.()){
+    window.AC_TRANS.applyTranslation?.();
+  }
+};
+
+let pendingLoginAction = null;
+const openLoginModal = (afterLogin) => {
+  pendingLoginAction = typeof afterLogin === "function" ? afterLogin : null;
+  const modal = $("loginModal");
+  if(!modal) return;
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+  if(window.AC_TRANS?.isOn?.()){
+    window.AC_TRANS.applyTranslation?.();
+  }
+};
+const closeLoginModal = () => {
+  const modal = $("loginModal");
+  if(!modal) return;
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+};
+
+const openFavModal = () => {
+  const modal = $("favModal");
+  if(!modal) return;
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+  if(window.AC_TRANS?.isOn?.()){
+    window.AC_TRANS.applyTranslation?.();
+  }
+};
+const closeFavModal = () => {
+  const modal = $("favModal");
+  if(!modal) return;
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+};
+
+let favEditMode = "create";
+let favEditItem = null;
+let returnToFavList = false;
+const openFavEditModal = (mode, item, shouldReturn) => {
+  favEditMode = mode || "create";
+  favEditItem = item || null;
+  returnToFavList = !!shouldReturn;
+  const modal = $("favEditModal");
+  if(!modal) return;
+
+  const coordsEl = $("favEditCoords");
+  const nameEl = $("favEditName");
+  const errEl = $("favEditError");
+
+  if(coordsEl){
+    const lat = item ? Number(item.lat) : normalizeCoord($("lat")?.value);
+    const lon = item ? Number(item.lon) : normalizeCoord($("lon")?.value);
+    coordsEl.textContent = `${formatCoord(lat, 5)}, ${formatCoord(lon, 5)}`;
+  }
+  if(nameEl){
+    nameEl.value = item && item.name ? String(item.name) : "";
+  }
+  setFormError(errEl, "");
+
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+  if(window.AC_TRANS?.isOn?.()){
+    window.AC_TRANS.applyTranslation?.();
+  }
+};
+const closeFavEditModal = () => {
+  const modal = $("favEditModal");
+  if(!modal) return;
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+  if(returnToFavList){
+    renderFavorites();
+    openFavModal();
+  }
+  returnToFavList = false;
+};
+
+const renderFavorites = () => {
+  const listEl = $("favList");
+  const emptyEl = $("favEmpty");
+  if(!listEl || !emptyEl) return;
+  const items = favoritesProvider.list();
+  listEl.innerHTML = "";
+  if(!items.length){
+    emptyEl.classList.remove("hidden");
+    return;
+  }
+  emptyEl.classList.add("hidden");
+
+  items.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "favItem";
+    row.setAttribute("role", "button");
+    row.tabIndex = 0;
+
+    const main = document.createElement("div");
+    main.className = "favMain";
+    main.textContent = item.name || "—";
+
+    const sub = document.createElement("div");
+    sub.className = "favSub";
+    sub.textContent = `${formatCoord(item.lat, 2)}, ${formatCoord(item.lon, 2)}`;
+
+    const actions = document.createElement("div");
+    actions.className = "favActions";
+
+    const renameBtn = document.createElement("button");
+    renameBtn.className = "btn secondary";
+    renameBtn.type = "button";
+    renameBtn.textContent = "重命名";
+    renameBtn.setAttribute("data-i18n", "重命名");
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn secondary";
+    delBtn.type = "button";
+    delBtn.textContent = "删除";
+    delBtn.setAttribute("data-i18n", "删除");
+
+    renameBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeFavModal();
+      openFavEditModal("rename", item, true);
+    });
+
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      favoritesProvider.remove(item.created_at);
+      renderFavorites();
+    });
+
+    actions.appendChild(renameBtn);
+    actions.appendChild(delBtn);
+
+    row.addEventListener("click", () => {
+      const lat = normalizeCoord(item.lat);
+      const lon = normalizeCoord(item.lon);
+      if(isValidCoords(lat, lon)){
+        applyCoordsToInputs(lat, lon);
+        coordsProvider.set(lat, lon);
+      }
+      closeFavModal();
+    });
+
+    row.appendChild(main);
+    row.appendChild(sub);
+    row.appendChild(actions);
+    listEl.appendChild(row);
+  });
+
+  if(window.AC_TRANS?.isOn?.()){
+    window.AC_TRANS.applyTranslation?.();
+  }
+};
+
    // --- MLAT gating (hard stop + strong warning) ---
 
    const MLAT_HARD_STOP = 40;   // |MLAT| < 40° : always impossible
@@ -707,10 +1025,10 @@ function fillCurrentLocation(){
           }
 
           // Fill inputs (keep enough precision for users; 5 decimals ≈ 1.1m lat)
-          const latEl = $("lat");
-          const lonEl = $("lon");
-          if(latEl) latEl.value = latitude.toFixed(5);
-          if(lonEl) lonEl.value = longitude.toFixed(5);
+          applyCoordsToInputs(latitude, longitude);
+          coordsProvider.set(normalizeCoord(latitude), normalizeCoord(longitude));
+          geoUsageProvider.set();
+          updateActionRow(true);
 
           const accTxt = Number.isFinite(accuracy) ? `（精度约 ${Math.round(accuracy)}m）` : "";
           setStatusText(`已获取当前位置 ${accTxt}`);
@@ -1991,8 +2309,12 @@ function fillCurrentLocation(){
     initTabs();
     initAbout();
 
-    if($("lat") && !$("lat").value) $("lat").value = "53.47";
-    if($("lon") && !$("lon").value) $("lon").value = "122.35";
+    const savedCoords = coordsProvider.get();
+    if(savedCoords){
+      applyCoordsToInputs(savedCoords.lat, savedCoords.lon);
+    }
+
+    updateActionRow(geoUsageProvider.get());
 
     // Ensure placeholder layout is consistent before any run()
     safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
@@ -2002,6 +2324,102 @@ function fillCurrentLocation(){
     $("btnGeo")?.addEventListener("click", fillCurrentLocation);
     $("btnAbout")?.addEventListener("click", () => {
       if(window.AC_TRANS?.isOn?.()) window.AC_TRANS.applyTranslation?.();
+    });
+
+    $("lat")?.addEventListener("input", syncCoordsFromInputs);
+    $("lon")?.addEventListener("input", syncCoordsFromInputs);
+
+    $("btnFav")?.addEventListener("click", () => {
+      const openEdit = () => openFavEditModal("create", null, false);
+      if(!authProvider.isLoggedIn()){
+        openLoginModal(openEdit);
+        return;
+      }
+      openEdit();
+    });
+
+    $("btnFavs")?.addEventListener("click", () => {
+      const openList = () => {
+        renderFavorites();
+        openFavModal();
+      };
+      if(!authProvider.isLoggedIn()){
+        openLoginModal(openList);
+        return;
+      }
+      openList();
+    });
+
+    $("btnLoginConfirm")?.addEventListener("click", () => {
+      authProvider.login();
+      closeLoginModal();
+      const next = pendingLoginAction;
+      pendingLoginAction = null;
+      if(typeof next === "function") next();
+    });
+    $("btnLoginCancel")?.addEventListener("click", () => {
+      pendingLoginAction = null;
+      closeLoginModal();
+    });
+    $("btnLoginClose")?.addEventListener("click", () => {
+      pendingLoginAction = null;
+      closeLoginModal();
+    });
+    $("loginModal")?.addEventListener("click", (e) => {
+      const t = e.target;
+      if(t && t.getAttribute && t.getAttribute("data-close") === "1"){
+        pendingLoginAction = null;
+        closeLoginModal();
+      }
+    });
+
+    $("btnFavClose")?.addEventListener("click", closeFavModal);
+    $("favModal")?.addEventListener("click", (e) => {
+      const t = e.target;
+      if(t && t.getAttribute && t.getAttribute("data-close") === "1") closeFavModal();
+    });
+
+    $("btnFavEditClose")?.addEventListener("click", closeFavEditModal);
+    $("btnFavEditCancel")?.addEventListener("click", closeFavEditModal);
+    $("favEditModal")?.addEventListener("click", (e) => {
+      const t = e.target;
+      if(t && t.getAttribute && t.getAttribute("data-close") === "1") closeFavEditModal();
+    });
+
+    $("btnFavEditSave")?.addEventListener("click", () => {
+      const nameEl = $("favEditName");
+      const errEl = $("favEditError");
+      const rawName = nameEl ? String(nameEl.value || "").trim() : "";
+      if(!rawName){
+        setFormError(errEl, "请输入地点名称。");
+        return;
+      }
+      const name = rawName.slice(0, 40);
+
+      if(favEditMode === "rename" && favEditItem){
+        favoritesProvider.rename(favEditItem.created_at, name);
+        closeFavEditModal();
+        return;
+      }
+
+      const lat = normalizeCoord($("lat")?.value);
+      const lon = normalizeCoord($("lon")?.value);
+      if(!isValidCoords(lat, lon)){
+        setFormError(errEl, "经纬度无效，无法收藏。");
+        return;
+      }
+      const result = favoritesProvider.add({
+        lat,
+        lon,
+        name,
+        created_at: Date.now()
+      });
+      if(!result.ok && result.reason === "duplicate"){
+        setFormError(errEl, "该地点已在收藏中，如需修改请先删除后重建。");
+        return;
+      }
+      closeFavEditModal();
+      renderFavorites();
     });
 
     // Alert modal close buttons

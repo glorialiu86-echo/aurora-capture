@@ -10,7 +10,7 @@
   <!-- Description for link preview -->
   <meta name="description" content="现在要不要出门追光？一键给出观测窗口">
   <meta property="og:description" content="现在要不要出门追光？一键给出观测窗口">
-  <link rel="stylesheet" href="./style.css?v=0324" />
+  <link rel="stylesheet" href="./style.css?v=0325" />
   <!-- Cloudflare Web Analytics -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
     data-cf-beacon='{"token": "59484bc0fc184370b53fb05c90bd213a"}'></script>
@@ -28,7 +28,7 @@
 
       var link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "./staging.css?v=0324";
+      link.href = "./staging.css?v=0325";
       document.head.appendChild(link);
 
       var bar = document.createElement("div");
@@ -63,6 +63,7 @@
       </div>
 
       <div class="headRight">
+        <button id="btnFavs" type="button" class="topLink" aria-label="收藏夹" data-i18n="🌟 收藏夹">🌟 收藏夹</button>
         <button id="btnAbout" type="button" class="topLink" aria-label="工具介绍" data-i18n="📖 工具介绍">📖 工具介绍</button>
         <button id="btnTrans" type="button" class="btnTrans" aria-label="Trans Toggle">Trans OFF</button>
       </div>
@@ -80,8 +81,9 @@
         </label>
       </div>
 
-      <div class="row actions">
+      <div class="row actions" id="actionRow">
         <button id="btnGeo" type="button" class="btn secondary" data-i18n="📍 获取当前位置">📍 获取当前位置</button>
+        <button id="btnFav" type="button" class="btn secondary hidden" data-i18n="⭐ 收藏">⭐ 收藏</button>
         <button id="btnRun" type="button" class="btn primary" data-i18n="✍️ 生成即时预测">✍️ 生成即时预测</button>
       </div>
 
@@ -295,7 +297,7 @@
     </section>
 
     <footer class="foot">
-      佑酱已吐血更新到版本号：v3.0.0324
+      佑酱已吐血更新到版本号：v3.0.0325
       <br>数据源：NOAA SWPC（实时太阳风、OVATION nowcast、Kp 预报）与 Open-Meteo 云量预报。磁纬（MLAT）当前为估算（偶极近似）；若接入 AACGMv2 换算服务，将自动切换为真实 AACGMv2。
     </footer>
   </div>
@@ -391,6 +393,66 @@
     </div>
   </div>
 
+  <!-- 登录提示 Modal -->
+  <div id="loginModal" class="modal hidden" aria-hidden="true">
+    <div class="modalMask" data-close="1"></div>
+    <div class="modalCard modalCompact" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <div class="modalHead">
+        <div id="loginTitle" class="modalTitle" data-i18n="需要登录">需要登录</div>
+        <button id="btnLoginClose" class="btn icon" type="button" aria-label="关闭">✕</button>
+      </div>
+      <div class="modalBody">
+        <p data-i18n="为了跨设备保存收藏位置，需要登录一次。">为了跨设备保存收藏位置，需要登录一次。</p>
+        <p data-i18n="登录后，你收藏的地点就可以在不同设备上使用啦 🌟">登录后，你收藏的地点就可以在不同设备上使用啦 🌟</p>
+      </div>
+      <div class="modalFoot">
+        <button id="btnLoginConfirm" class="btn primary" type="button" data-i18n="登录 / 注册">登录 / 注册</button>
+        <button id="btnLoginCancel" class="btn secondary" type="button" data-i18n="取消">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 收藏夹 Modal -->
+  <div id="favModal" class="modal hidden" aria-hidden="true">
+    <div class="modalMask" data-close="1"></div>
+    <div class="modalCard modalCompact" role="dialog" aria-modal="true" aria-labelledby="favTitle">
+      <div class="modalHead">
+        <div id="favTitle" class="modalTitle" data-i18n="🌟 收藏夹">🌟 收藏夹</div>
+        <button id="btnFavClose" class="btn icon" type="button" aria-label="关闭">✕</button>
+      </div>
+      <div class="modalBody">
+        <div id="favEmpty" class="emptyText" data-i18n="还没有收藏的地点。先生成或输入一个地点，再点击 ⭐ 收藏">还没有收藏的地点。先生成或输入一个地点，再点击 ⭐ 收藏</div>
+        <div id="favList" class="favList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 收藏编辑 Modal -->
+  <div id="favEditModal" class="modal hidden" aria-hidden="true">
+    <div class="modalMask" data-close="1"></div>
+    <div class="modalCard modalCompact" role="dialog" aria-modal="true" aria-labelledby="favEditTitle">
+      <div class="modalHead">
+        <div id="favEditTitle" class="modalTitle" data-i18n="收藏地点">收藏地点</div>
+        <button id="btnFavEditClose" class="btn icon" type="button" aria-label="关闭">✕</button>
+      </div>
+      <div class="modalBody">
+        <div class="kvRow">
+          <div class="kvLabel" data-i18n="当前坐标">当前坐标</div>
+          <div class="kvValue" id="favEditCoords">—</div>
+        </div>
+        <label class="field">
+          <span class="label" data-i18n="地点名称">地点名称</span>
+          <input id="favEditName" type="text" maxlength="40" placeholder="地点名称" />
+        </label>
+        <div class="formError hidden" id="favEditError">—</div>
+      </div>
+      <div class="modalFoot">
+        <button id="btnFavEditSave" class="btn primary" type="button" data-i18n="保存">保存</button>
+        <button id="btnFavEditCancel" class="btn secondary" type="button" data-i18n="取消">取消</button>
+      </div>
+    </div>
+  </div>
+
   <!-- NOAA 强提示弹窗（数据缺失时弹出，必须手动关闭） -->
   <div class="alertOverlay" id="alertOverlay" aria-hidden="true">
     <div class="alertCard" role="dialog" aria-modal="true" aria-labelledby="alertTitle">
@@ -422,11 +484,11 @@
     };
   </script>
   <!-- your modules -->
-  <script defer src="./adapter.js?v=0324"></script>
-  <script defer src="./ui.js?v=0324"></script>
-  <script defer src="./trans.js?v=0324"></script>
-  <script defer src="./model.js?v=0324"></script>
-  <script defer src="./app.js?v=0324"></script>
+  <script defer src="./adapter.js?v=0325"></script>
+  <script defer src="./ui.js?v=0325"></script>
+  <script defer src="./trans.js?v=0325"></script>
+  <script defer src="./model.js?v=0325"></script>
+  <script defer src="./app.js?v=0325"></script>
   
 </body>
 </html>
