@@ -93,12 +93,25 @@ Before writing **any code**, the agent must:
 
 ## 4.1 Large File Protocol (Mandatory for files > 800 lines)
 
-For any file exceeding **800 lines** (e.g. `app.js`), the following rules are mandatory:
+### Anti-Disconnect Priority (High)
+When connection instability or reconnecting is observed:
+- The agent must prioritize minimal IO and minimal output over completeness.
+- The agent must NOT re-read large files unless explicitly instructed.
+- The agent must switch to "low-output mode" automatically.
 
 ### A. No Full-File Scans
 - ❌ Do NOT read, summarize, or reason about the entire file.
 - ❌ Do NOT output the full file or large continuous sections.
-- All modifications MUST be localized via explicit anchors.
+- All modifications MUST be localized via explicit anchors such as:
+  - Function names (e.g. `bootstrap()`)
+  - Event handlers (e.g. `btnLoginConfirm` click handler)
+  - Clearly identifiable IDs or selectors
+- Modifications are restricted to **within ~30–80 lines around the anchor**.
+- If an anchor cannot be confidently located:
+  - STOP
+  - Report: `anchor not found` + the closest matching symbol
+  - Do NOT guess or refactor.
+- Re-reading the same large file multiple times due to reconnect is explicitly forbidden.
 
 ### B. Anchor-Based Editing Only
 - All changes MUST be made relative to **explicit anchors**, such as:
@@ -115,15 +128,19 @@ For any file exceeding **800 lines** (e.g. `app.js`), the following rules are ma
 - Each execution step may modify **only one anchor**.
 - Multi-anchor changes MUST be split into multiple steps.
 - The agent must STOP after completing one anchor and wait for confirmation.
+- If reconnecting occurs, the agent must STOP after the current anchor and wait for user confirmation.
 
 ### D. Output Restrictions (Anti-Disconnect)
-- Allowed outputs only:
-  1. `git status -sb`
-  2. `git diff --stat`
-  3. `git diff -U5 <file>` limited to the modified anchor block(s)
-- ❌ No full files
-- ❌ No long explanations
-- ❌ No redundant summaries
+- Default to "low-output mode" once reconnecting or stream interruption is detected.
+- Allowed outputs in low-output mode:
+  1. Anchor-local diffs only (±20 lines)
+  2. Short bullet summaries (max 5 bullets)
+  3. File list or commit hash (no inline diffs)
+- Explicitly forbidden in low-output mode:
+  - Full files
+  - Multi-anchor diffs
+  - REVIEW.md full text
+  - Re-reading or summarizing large files
 
 ### E. Review-by-Evidence (No Global Self-Verification)
 - For large files, **evidence-based review** replaces full consistency scans.
