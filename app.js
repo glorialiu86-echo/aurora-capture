@@ -469,18 +469,33 @@ const updateActionRow = (hasUsedGeo) => {
   if(btnFav) btnFav.classList.toggle("hidden", !split);
   if(btnGeo){
     const label = split ? "📍 刷新定位" : "📍 获取当前位置";
-    btnGeo.textContent = label;
+    const i18n = btnGeo.getAttribute("data-i18n");
+    if(!btnGeo.dataset.labelOriginal){
+      btnGeo.dataset.labelOriginal = i18n || label;
+      btnGeo.dataset.labelOriginalI18n = i18n || label;
+    }
     btnGeo.setAttribute("data-i18n", label);
+    btnGeo.textContent = label;
   }
   if(btnFav){
     const label = split ? "⭐ 收藏地址" : "⭐ 收藏";
-    btnFav.textContent = label;
+    const i18n = btnFav.getAttribute("data-i18n");
+    if(!btnFav.dataset.labelOriginal){
+      btnFav.dataset.labelOriginal = i18n || label;
+      btnFav.dataset.labelOriginalI18n = i18n || label;
+    }
     btnFav.setAttribute("data-i18n", label);
+    btnFav.textContent = label;
   }
   if(btnRun){
     const label = split ? "✍️ 生成预测" : "✍️ 生成即时预测";
-    btnRun.textContent = label;
+    const i18n = btnRun.getAttribute("data-i18n");
+    if(!btnRun.dataset.labelOriginal){
+      btnRun.dataset.labelOriginal = i18n || label;
+      btnRun.dataset.labelOriginalI18n = i18n || label;
+    }
     btnRun.setAttribute("data-i18n", label);
+    btnRun.textContent = label;
   }
   if(window.AC_TRANS?.isOn?.()){
     window.AC_TRANS.applyTranslation?.();
@@ -510,8 +525,8 @@ const setFormError = (el, msg) => {
     el.removeAttribute("data-i18n");
     return;
   }
-  el.textContent = msg;
   el.setAttribute("data-i18n", msg);
+  el.textContent = msg;
   el.classList.remove("hidden");
   if(window.AC_TRANS?.isOn?.()){
     window.AC_TRANS.applyTranslation?.();
@@ -728,12 +743,12 @@ const renderFavorites = () => {
        const title = document.getElementById("alertTitle");
        const note  = document.getElementById("alertNote");
        if(title && titleText){
-         title.textContent = titleText;
          title.setAttribute("data-i18n", titleText);
+         title.textContent = titleText;
        }
        if(note && noteText){
-         note.textContent = noteText;
          note.setAttribute("data-i18n", noteText);
+         note.textContent = noteText;
        }
        openAlertOverlay(html);
        if(window.AC_TRANS?.isOn?.()) window.AC_TRANS.applyTranslation?.();
@@ -1075,8 +1090,9 @@ function flashGeoButtonSuccess(){
 
   // remember original label once
   if(!btn.dataset.labelOriginal){
-    btn.dataset.labelOriginal = btn.textContent || "📍获取位置";
-    btn.dataset.labelOriginalI18n = btn.getAttribute("data-i18n") || btn.dataset.labelOriginal;
+    const i18n = btn.getAttribute("data-i18n");
+    btn.dataset.labelOriginal = i18n || btn.textContent || "📍获取位置";
+    btn.dataset.labelOriginalI18n = i18n || btn.dataset.labelOriginal;
   }
 
   // clear pending reset if user clicks again

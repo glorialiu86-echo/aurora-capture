@@ -26,8 +26,8 @@
     "不可观测": "unobservable",
     "拉取数据中…": "Fetching data…",
     "等待生成。": "Waiting…",
-    "📍 正在获取当前位置…": "Getting current location…",
-    "📍 无法获取定位": "Unable to get location",
+    "📍 正在获取当前位置…": "📍 Getting current location…",
+    "📍 无法获取定位": "📍 Unable to get location",
     "⚠️ 数据可信度提醒": "⚠️ Data reliability notice",
     "⚠️ 磁纬过低：已停止生成": "⚠️ MLAT too low: generation stopped",
     "磁纬过低，已停止生成": "MLAT too low. Generation stopped",
@@ -38,13 +38,13 @@
     "⚠️ 无法获取定位": "⚠️ Unable to get location",
     "⚠️ 定位处理异常": "⚠️ Location error",
     "⚠️ 定位返回无效坐标": "⚠️ Invalid location returned",
-    "🌟 收藏夹": "Favorites",
-    "⭐ 收藏": "Save",
-    "⭐ 收藏地址": "Save address",
-    "📍 获取当前位置": "Get current location",
-    "📍 获取": "Get",
-    "📍 刷新定位": "Refresh location",
-    "✍️ 生成预测": "Generate prediction",
+    "🌟 收藏夹": "🌟 Favorites",
+    "⭐ 收藏": "⭐ Save",
+    "⭐ 收藏地址": "⭐ Save address",
+    "📍 获取当前位置": "📍 Get current location",
+    "📍 获取": "📍 Get",
+    "📍 刷新定位": "📍 Refresh location",
+    "✍️ 生成预测": "✍️ Generate prediction",
     "需要登录": "Login required",
     "登录 / 注册": "Login / Sign up",
     "取消": "Cancel",
@@ -215,7 +215,22 @@
     elements.forEach((el) => {
       const original = el.getAttribute("data-i18n");
       if(original != null) el.textContent = original;
+      const origPlaceholder = el.getAttribute("data-orig-placeholder");
+      if(origPlaceholder != null) el.setAttribute("placeholder", origPlaceholder);
+      const attrName = el.getAttribute("data-i18n-attr");
+      if(attrName){
+        const origAttr = el.getAttribute(`data-orig-attr-${attrName}`);
+        if(origAttr != null) el.setAttribute(attrName, origAttr);
+      }
     });
+  };
+  const setTranslatedAttr = (el, attrName, value) => {
+    const key = attrName === "placeholder" ? "data-orig-placeholder" : `data-orig-attr-${attrName}`;
+    if(el.getAttribute(key) == null){
+      const original = el.getAttribute(attrName);
+      if(original != null) el.setAttribute(key, original);
+    }
+    if(value != null) el.setAttribute(attrName, value);
   };
   const forceStatusZh = () => {
     const items = Array.from(document.querySelectorAll("#statusText, [data-status-key]"));
@@ -256,7 +271,7 @@
 
   const applyTranslation = async () => {
     const myJob = ++jobId;
-    const elements = Array.from(document.querySelectorAll("[data-i18n]"));
+    const elements = Array.from(document.querySelectorAll("[data-i18n], [data-i18n-placeholder], [data-i18n-attr]"));
 
     if(isSystemZh()){
       restoreOriginal(elements);
@@ -288,32 +303,65 @@
     for(const el of elements){
       if(el.id === GEO_HINT_ID) continue;
       const source = String(el.getAttribute("data-i18n") || "").trim();
-      if(!source){
-        continue;
-      }
       const statusEl = isStatusElement(el);
-      if(statusEl && preferredIsZh){
-        el.textContent = source;
-        continue;
-      }
-      if(!statusEl){
-        const fixed = resolveFixedText(source, target);
-        if(fixed != null){
-          el.textContent = fixed;
-          continue;
+      if(source){
+        if(statusEl && preferredIsZh){
+          el.textContent = source;
+        }else{
+          if(!statusEl){
+            const fixed = resolveFixedText(source, target);
+            if(fixed != null){
+              el.textContent = fixed;
+            }else if(!canTranslate){
+              el.textContent = source;
+            }else{
+              const sourceLang = statusEl ? "en" : "zh";
+              const key = `${target}::${sourceLang}::text::${source}`;
+              if(cache[key]){
+                el.textContent = cache[key];
+              }else{
+                pendingBySource[sourceLang].push({ el, source, key });
+              }
+            }
+          }else if(!canTranslate){
+            el.textContent = source;
+          }else{
+            const sourceLang = "en";
+            const key = `${target}::${sourceLang}::text::${source}`;
+            if(cache[key]){
+              el.textContent = cache[key];
+            }else{
+              pendingBySource[sourceLang].push({ el, source, key });
+            }
+          }
         }
       }
-      if(!canTranslate){
-        el.textContent = source;
-        continue;
+      const placeholderSource = String(el.getAttribute("data-i18n-placeholder") || "").trim();
+      if(placeholderSource){
+        if(!canTranslate){
+          setTranslatedAttr(el, "placeholder", placeholderSource);
+        }else{
+          const key = `${target}::zh::placeholder::${placeholderSource}`;
+          if(cache[key]){
+            setTranslatedAttr(el, "placeholder", cache[key]);
+          }else{
+            pendingBySource.zh.push({ el, source: placeholderSource, key, attrName: "placeholder" });
+          }
+        }
       }
-      const sourceLang = statusEl ? "en" : "zh";
-      const key = `${target}::${sourceLang}::${source}`;
-      if(cache[key]){
-        el.textContent = cache[key];
-        continue;
+      const attrName = String(el.getAttribute("data-i18n-attr") || "").trim();
+      if(attrName && source){
+        if(!canTranslate){
+          setTranslatedAttr(el, attrName, source);
+        }else{
+          const key = `${target}::zh::${attrName}::${source}`;
+          if(cache[key]){
+            setTranslatedAttr(el, attrName, cache[key]);
+          }else{
+            pendingBySource.zh.push({ el, source, key, attrName });
+          }
+        }
       }
-      pendingBySource[sourceLang].push({ el, source, key });
     }
 
     const sourceBuckets = Object.keys(pendingBySource).filter((k) => pendingBySource[k].length);
@@ -331,7 +379,11 @@
         const translated = translatedList[i] || "";
         if(translated){
           cache[item.key] = translated;
-          item.el.textContent = translated;
+          if(item.attrName){
+            setTranslatedAttr(item.el, item.attrName, translated);
+          }else{
+            item.el.textContent = translated;
+          }
         }
       }
     }

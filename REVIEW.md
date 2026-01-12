@@ -33,10 +33,22 @@
    - non-zh + Trans OFF：状态词为中文（#statusText 与 [data-status-key]），其他 UI 不翻译
 4. 每条矩阵断言下，连续两次 Generate/Refresh，不刷新页面，状态词保持正确语言
 5. non-zh + Trans OFF：连续两次 Generate/Refresh（不刷新页面）后，状态词必须保持中文，不得回流英文
-6. 可选证据：控制台执行 window.AC_DEBUG=true，触发状态词变化，观察输出字段 sysLang/sysIsZh/transOn/sourceTag
+6. non-zh + Trans ON：placeholder（lat/lon/name）应翻译为目标语言；aria-label（关闭/数据状态）应翻译
+7. non-zh + Trans OFF：placeholder 与 aria-label 必须回滚中文（不刷新页面连续操作两次也要稳定）
+8. 可选证据：控制台执行 window.AC_DEBUG=true，触发状态词变化，观察输出字段 sysLang/sysIsZh/transOn/sourceTag
 
 ## Rollback plan
 - 回滚本次提交或切回上一个版本分支
 
 ## Open questions / follow-ups
-- 暂无
+- 未翻译文案清单（待补齐）
+- Type: runtime:setStatusText | Anchor: setStatusText() | Example: “📍 正在获取当前位置…”, “⚠️ 无法获取定位”
+- Type: runtime:alertOverlay | Anchor: openAlertOverlayFull() | Example: “📍 无法获取定位”, “定位返回的经纬度无效，请重试或手动输入。” ✅
+- Type: runtime:buttonText | Anchor: flashGeoButtonSuccess() | Example: “已获取 ✓”, “📍 获取当前位置” ✅
+- Type: runtime:buttonText | Anchor: updateActionRow() | Example: “📍 刷新定位”, “✍️ 生成预测” ✅
+- Type: runtime:setStatusText | Anchor: fillCurrentLocation() | Example: “⚠️ 定位处理异常”, “📍 定位失败”
+- Type: runtime:setFormError | Anchor: setFormError() | Example: “请输入正确的邮箱。”, “该地点已在收藏中，如需修改请先删除后重建。” ✅
+- Type: static:domText | Anchor: .label (纬度/经度) | Example: “纬度 Latitude”, “经度 Longitude” ✅
+- Type: static:domText | Anchor: #favEmpty | Example: “还没有收藏的地点。先生成或输入一个地点，再点击 ⭐ 收藏”
+- Type: attr:i18n | Anchor: #lat/#lon | Example: placeholder “例如 53.47”, “例如 122.35” ✅
+- Type: attr:i18n | Anchor: [aria-label="关闭"] | Example: aria-label “关闭” ✅
