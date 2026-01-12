@@ -2370,7 +2370,7 @@ function fillCurrentLocation(){
     $("lat")?.addEventListener("input", syncCoordsFromInputs);
     $("lon")?.addEventListener("input", syncCoordsFromInputs);
 
-    $("btnFav")?.addEventListener("click", () => {
+    $("btnFav")?.addEventListener("click", async () => {
       const openEdit = () => openFavEditModal("create", null, false);
       if(!window.AC_AUTH?.loggedIn){
         openLoginModal(openEdit);
@@ -2387,19 +2387,152 @@ function fillCurrentLocation(){
         openFavEditModal("create", null, false);
         return;
       }
-      window.AC_SUPABASE?.createFavorite?.({
+      const defaultName = `${formatCoord(lat, 2)}, ${formatCoord(lon, 2)}`;
+      const res = await window.AC_SUPABASE?.createFavorite?.({
         user_id: userId,
-        name: "—",
+        name: defaultName,
         lat,
         lon
-      }).then(() => {
-        openFavEditModal("create", null, false);
-      }).catch(() => {
-        openFavEditModal("create", null, false);
       });
+      if(res && res.ok){
+        const listEl = $("favList");
+        const emptyEl = $("favEmpty");
+        if(listEl) listEl.innerHTML = "";
+        if(emptyEl) emptyEl.classList.add("hidden");
+        const listRes = await window.AC_SUPABASE?.listFavorites?.(userId);
+        const rawItems = Array.isArray(listRes?.data) ? listRes.data : [];
+        const items = rawItems.map((it) => ({
+          id: it?.id ?? null,
+          name: it?.name ?? "",
+          lat: it?.lat,
+          lon: it?.lon
+        })).filter((it) => {
+          if(!it.id){
+            try{ console.warn("[AuroraCapture] favorite missing id, skipped:", it); }catch(_){}
+            return false;
+          }
+          return true;
+        });
+        listEl.innerHTML = "";
+        if(!items.length){
+          if(emptyEl) emptyEl.classList.remove("hidden");
+        }else{
+          items.forEach((item) => {
+            const rowItem = document.createElement("div");
+            rowItem.className = "favItem";
+            rowItem.setAttribute("role", "button");
+            rowItem.tabIndex = 0;
+
+            const main = document.createElement("div");
+            main.className = "favMain";
+            main.textContent = item.name || "—";
+
+            const sub = document.createElement("div");
+            sub.className = "favSub";
+            sub.textContent = `${formatCoord(item.lat, 2)}, ${formatCoord(item.lon, 2)}`;
+
+            const actions = document.createElement("div");
+            actions.className = "favActions";
+
+            const renameBtn = document.createElement("button");
+            renameBtn.className = "btn secondary";
+            renameBtn.type = "button";
+            renameBtn.textContent = "重命名";
+            renameBtn.setAttribute("data-i18n", "重命名");
+
+            const delBtn = document.createElement("button");
+            delBtn.className = "btn secondary";
+            delBtn.type = "button";
+            delBtn.textContent = "删除";
+            delBtn.setAttribute("data-i18n", "删除");
+
+            renameBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              closeFavModal();
+              openFavEditModal("rename", item, true);
+            });
+
+            delBtn.addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await window.AC_SUPABASE?.deleteFavorite?.(item.id, userId);
+              if(emptyEl) emptyEl.classList.add("hidden");
+              listEl.innerHTML = "";
+              const nextRes = await window.AC_SUPABASE?.listFavorites?.(userId);
+              const nextItems = Array.isArray(nextRes?.data) ? nextRes.data : [];
+              const normalized = nextItems.map((it) => ({
+                id: it?.id ?? null,
+                name: it?.name ?? "",
+                lat: it?.lat,
+                lon: it?.lon
+              })).filter((it) => {
+                if(!it.id){
+                  try{ console.warn("[AuroraCapture] favorite missing id, skipped:", it); }catch(_){}
+                  return false;
+                }
+                return true;
+              });
+              if(!normalized.length){
+                if(emptyEl) emptyEl.classList.remove("hidden");
+              }else{
+                normalized.forEach((it) => {
+                  const row = document.createElement("div");
+                  row.className = "favItem";
+                  row.setAttribute("role", "button");
+                  row.tabIndex = 0;
+
+                  const m = document.createElement("div");
+                  m.className = "favMain";
+                  m.textContent = it.name || "—";
+
+                  const s = document.createElement("div");
+                  s.className = "favSub";
+                  s.textContent = `${formatCoord(it.lat, 2)}, ${formatCoord(it.lon, 2)}`;
+
+                  row.addEventListener("click", () => {
+                    const nLat = normalizeCoord(it.lat);
+                    const nLon = normalizeCoord(it.lon);
+                    if(isValidCoords(nLat, nLon)){
+                      applyCoordsToInputs(nLat, nLon);
+                      coordsProvider.set(nLat, nLon);
+                    }
+                    closeFavModal();
+                  });
+
+                  row.appendChild(m);
+                  row.appendChild(s);
+                  listEl.appendChild(row);
+                });
+              }
+            });
+
+            actions.appendChild(renameBtn);
+            actions.appendChild(delBtn);
+
+            rowItem.addEventListener("click", () => {
+              const nLat = normalizeCoord(item.lat);
+              const nLon = normalizeCoord(item.lon);
+              if(isValidCoords(nLat, nLon)){
+                applyCoordsToInputs(nLat, nLon);
+                coordsProvider.set(nLat, nLon);
+              }
+              closeFavModal();
+            });
+
+            rowItem.appendChild(main);
+            rowItem.appendChild(sub);
+            rowItem.appendChild(actions);
+            listEl.appendChild(rowItem);
+          });
+        }
+        if(window.AC_TRANS?.isOn?.()){
+          window.AC_TRANS.applyTranslation?.();
+        }
+      }
+      openFavEditModal("create", null, false);
     });
 
     $("btnFavs")?.addEventListener("click", async () => {
+      let actionBusy = false;
       const openList = async () => {
         const sess = await window.AC_SUPABASE?.getSession?.();
         const session = sess?.session || null;
@@ -2423,9 +2556,97 @@ function fillCurrentLocation(){
         if(row) row.classList.remove("hidden");
         openFavModal();
         const listEl = $("favList");
-        if(listEl) listEl.innerHTML = "";
         const emptyEl = $("favEmpty");
+        if(listEl) listEl.innerHTML = "";
         if(emptyEl) emptyEl.classList.add("hidden");
+        const renderItems = (items) => {
+          if(listEl) listEl.innerHTML = "";
+          if(!items.length){
+            if(emptyEl) emptyEl.classList.remove("hidden");
+            return;
+          }
+          items.forEach((item) => {
+            const rowItem = document.createElement("div");
+            rowItem.className = "favItem";
+            rowItem.setAttribute("role", "button");
+            rowItem.tabIndex = 0;
+
+            const main = document.createElement("div");
+            main.className = "favMain";
+            main.textContent = item.name || "—";
+
+            const sub = document.createElement("div");
+            sub.className = "favSub";
+            sub.textContent = `${formatCoord(item.lat, 2)}, ${formatCoord(item.lon, 2)}`;
+
+            const actions = document.createElement("div");
+            actions.className = "favActions";
+
+            const renameBtn = document.createElement("button");
+            renameBtn.className = "btn secondary";
+            renameBtn.type = "button";
+            renameBtn.textContent = "重命名";
+            renameBtn.setAttribute("data-i18n", "重命名");
+
+            const delBtn = document.createElement("button");
+            delBtn.className = "btn secondary";
+            delBtn.type = "button";
+            delBtn.textContent = "删除";
+            delBtn.setAttribute("data-i18n", "删除");
+
+            renameBtn.addEventListener("click", async (e) => {
+              e.stopPropagation();
+              if(actionBusy) return;
+              actionBusy = true;
+              closeFavModal();
+              openFavEditModal("rename", item, true);
+              actionBusy = false;
+            });
+
+            delBtn.addEventListener("click", async (e) => {
+              e.stopPropagation();
+              if(actionBusy) return;
+              actionBusy = true;
+              const delRes = await window.AC_SUPABASE?.deleteFavorite?.(item.id, userId);
+              if(delRes && delRes.ok){
+                const nextRes = await window.AC_SUPABASE?.listFavorites?.(userId);
+                const nextRaw = Array.isArray(nextRes?.data) ? nextRes.data : [];
+                const nextItems = nextRaw.map((it) => ({
+                  id: it?.id ?? null,
+                  name: it?.name ?? "",
+                  lat: it?.lat,
+                  lon: it?.lon
+                })).filter((it) => {
+                  if(!it.id){
+                    try{ console.warn("[AuroraCapture] favorite missing id, skipped:", it); }catch(_){}
+                    return false;
+                  }
+                  return true;
+                });
+                renderItems(nextItems);
+              }
+              actionBusy = false;
+            });
+
+            actions.appendChild(renameBtn);
+            actions.appendChild(delBtn);
+
+            rowItem.addEventListener("click", () => {
+              const lat = normalizeCoord(item.lat);
+              const lon = normalizeCoord(item.lon);
+              if(isValidCoords(lat, lon)){
+                applyCoordsToInputs(lat, lon);
+                coordsProvider.set(lat, lon);
+              }
+              closeFavModal();
+            });
+
+            rowItem.appendChild(main);
+            rowItem.appendChild(sub);
+            rowItem.appendChild(actions);
+            listEl.appendChild(rowItem);
+          });
+        };
         const res = await window.AC_SUPABASE?.listFavorites?.(userId);
         const rawItems = Array.isArray(res?.data) ? res.data : [];
         const items = rawItems.map((it) => ({
@@ -2440,70 +2661,7 @@ function fillCurrentLocation(){
           }
           return true;
         });
-        listEl.innerHTML = "";
-        if(!items.length){
-          if(emptyEl) emptyEl.classList.remove("hidden");
-          return;
-        }
-        items.forEach((item) => {
-          const rowItem = document.createElement("div");
-          rowItem.className = "favItem";
-          rowItem.setAttribute("role", "button");
-          rowItem.tabIndex = 0;
-
-          const main = document.createElement("div");
-          main.className = "favMain";
-          main.textContent = item.name || "—";
-
-          const sub = document.createElement("div");
-          sub.className = "favSub";
-          sub.textContent = `${formatCoord(item.lat, 2)}, ${formatCoord(item.lon, 2)}`;
-
-          const actions = document.createElement("div");
-          actions.className = "favActions";
-
-          const renameBtn = document.createElement("button");
-          renameBtn.className = "btn secondary";
-          renameBtn.type = "button";
-          renameBtn.textContent = "重命名";
-          renameBtn.setAttribute("data-i18n", "重命名");
-
-          const delBtn = document.createElement("button");
-          delBtn.className = "btn secondary";
-          delBtn.type = "button";
-          delBtn.textContent = "删除";
-          delBtn.setAttribute("data-i18n", "删除");
-
-          renameBtn.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            closeFavModal();
-            openFavEditModal("rename", item, true);
-          });
-
-          delBtn.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            await window.AC_SUPABASE?.deleteFavorite?.(item.id, userId);
-            await openList();
-          });
-
-          actions.appendChild(renameBtn);
-          actions.appendChild(delBtn);
-
-          rowItem.addEventListener("click", () => {
-            const lat = normalizeCoord(item.lat);
-            const lon = normalizeCoord(item.lon);
-            if(isValidCoords(lat, lon)){
-              applyCoordsToInputs(lat, lon);
-              coordsProvider.set(lat, lon);
-            }
-            closeFavModal();
-          });
-
-          rowItem.appendChild(main);
-          rowItem.appendChild(sub);
-          rowItem.appendChild(actions);
-          listEl.appendChild(rowItem);
-        });
+        renderItems(items);
         if(window.AC_TRANS?.isOn?.()){
           window.AC_TRANS.applyTranslation?.();
         }
@@ -2580,18 +2738,164 @@ function fillCurrentLocation(){
       if(t && t.getAttribute && t.getAttribute("data-close") === "1") closeFavEditModal();
     });
 
-    $("btnFavEditSave")?.addEventListener("click", () => {
+    $("btnFavEditSave")?.addEventListener("click", async () => {
       const nameEl = $("favEditName");
       const errEl = $("favEditError");
+      const btn = $("btnFavEditSave");
+      if(btn && btn.dataset.busy === "1") return;
+      if(btn) btn.dataset.busy = "1";
       const rawName = nameEl ? String(nameEl.value || "").trim() : "";
       if(!rawName){
         setFormError(errEl, "请输入地点名称。");
+        if(btn) btn.dataset.busy = "0";
         return;
       }
       const name = rawName.slice(0, 40);
 
       if(favEditMode === "rename" && favEditItem){
-        favoritesProvider.rename(favEditItem.created_at, name);
+        const userId = window.AC_AUTH?.userId || null;
+        if(!userId || !favEditItem.id){
+          if(btn) btn.dataset.busy = "0";
+          closeFavEditModal();
+          return;
+        }
+        const res = await window.AC_SUPABASE?.updateFavoriteName?.(favEditItem.id, userId, name);
+        if(res && res.ok){
+          const listEl = $("favList");
+          const emptyEl = $("favEmpty");
+          if(listEl) listEl.innerHTML = "";
+          if(emptyEl) emptyEl.classList.add("hidden");
+          const listRes = await window.AC_SUPABASE?.listFavorites?.(userId);
+          const rawItems = Array.isArray(listRes?.data) ? listRes.data : [];
+          const items = rawItems.map((it) => ({
+            id: it?.id ?? null,
+            name: it?.name ?? "",
+            lat: it?.lat,
+            lon: it?.lon
+          })).filter((it) => {
+            if(!it.id){
+              try{ console.warn("[AuroraCapture] favorite missing id, skipped:", it); }catch(_){}
+              return false;
+            }
+            return true;
+          });
+          if(!items.length){
+            if(emptyEl) emptyEl.classList.remove("hidden");
+          }else{
+            items.forEach((item) => {
+              const rowItem = document.createElement("div");
+              rowItem.className = "favItem";
+              rowItem.setAttribute("role", "button");
+              rowItem.tabIndex = 0;
+
+              const main = document.createElement("div");
+              main.className = "favMain";
+              main.textContent = item.name || "—";
+
+              const sub = document.createElement("div");
+              sub.className = "favSub";
+              sub.textContent = `${formatCoord(item.lat, 2)}, ${formatCoord(item.lon, 2)}`;
+
+              const actions = document.createElement("div");
+              actions.className = "favActions";
+
+              const renameBtn = document.createElement("button");
+              renameBtn.className = "btn secondary";
+              renameBtn.type = "button";
+              renameBtn.textContent = "重命名";
+              renameBtn.setAttribute("data-i18n", "重命名");
+
+              const delBtn = document.createElement("button");
+              delBtn.className = "btn secondary";
+              delBtn.type = "button";
+              delBtn.textContent = "删除";
+              delBtn.setAttribute("data-i18n", "删除");
+
+              renameBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                closeFavModal();
+                openFavEditModal("rename", item, true);
+              });
+
+              delBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                if(btn && btn.dataset.busy === "1") return;
+                if(btn) btn.dataset.busy = "1";
+                await window.AC_SUPABASE?.deleteFavorite?.(item.id, userId);
+                const nextRes = await window.AC_SUPABASE?.listFavorites?.(userId);
+                const nextRaw = Array.isArray(nextRes?.data) ? nextRes.data : [];
+                const nextItems = nextRaw.map((it) => ({
+                  id: it?.id ?? null,
+                  name: it?.name ?? "",
+                  lat: it?.lat,
+                  lon: it?.lon
+                })).filter((it) => {
+                  if(!it.id){
+                    try{ console.warn("[AuroraCapture] favorite missing id, skipped:", it); }catch(_){}
+                    return false;
+                  }
+                  return true;
+                });
+                if(listEl) listEl.innerHTML = "";
+                if(!nextItems.length){
+                  if(emptyEl) emptyEl.classList.remove("hidden");
+                }else{
+                  nextItems.forEach((it) => {
+                    const row = document.createElement("div");
+                    row.className = "favItem";
+                    row.setAttribute("role", "button");
+                    row.tabIndex = 0;
+
+                    const m = document.createElement("div");
+                    m.className = "favMain";
+                    m.textContent = it.name || "—";
+
+                    const s = document.createElement("div");
+                    s.className = "favSub";
+                    s.textContent = `${formatCoord(it.lat, 2)}, ${formatCoord(it.lon, 2)}`;
+
+                    row.addEventListener("click", () => {
+                      const nLat = normalizeCoord(it.lat);
+                      const nLon = normalizeCoord(it.lon);
+                      if(isValidCoords(nLat, nLon)){
+                        applyCoordsToInputs(nLat, nLon);
+                        coordsProvider.set(nLat, nLon);
+                      }
+                      closeFavModal();
+                    });
+
+                  row.appendChild(m);
+                  row.appendChild(s);
+                  listEl.appendChild(row);
+                });
+                }
+                if(btn) btn.dataset.busy = "0";
+              });
+
+              actions.appendChild(renameBtn);
+              actions.appendChild(delBtn);
+
+              rowItem.addEventListener("click", () => {
+                const nLat = normalizeCoord(item.lat);
+                const nLon = normalizeCoord(item.lon);
+                if(isValidCoords(nLat, nLon)){
+                  applyCoordsToInputs(nLat, nLon);
+                  coordsProvider.set(nLat, nLon);
+                }
+                closeFavModal();
+              });
+
+              rowItem.appendChild(main);
+              rowItem.appendChild(sub);
+              rowItem.appendChild(actions);
+              listEl.appendChild(rowItem);
+            });
+          }
+          if(window.AC_TRANS?.isOn?.()){
+            window.AC_TRANS.applyTranslation?.();
+          }
+        }
+        if(btn) btn.dataset.busy = "0";
         closeFavEditModal();
         return;
       }
@@ -2602,6 +2906,11 @@ function fillCurrentLocation(){
         setFormError(errEl, "经纬度无效，无法收藏。");
         return;
       }
+      if(window.AC_AUTH?.loggedIn){
+        if(btn) btn.dataset.busy = "0";
+        closeFavEditModal();
+        return;
+      }
       const result = favoritesProvider.add({
         lat,
         lon,
@@ -2610,8 +2919,10 @@ function fillCurrentLocation(){
       });
       if(!result.ok && result.reason === "duplicate"){
         setFormError(errEl, "该地点已在收藏中，如需修改请先删除后重建。");
+        if(btn) btn.dataset.busy = "0";
         return;
       }
+      if(btn) btn.dataset.busy = "0";
       closeFavEditModal();
       renderFavorites();
     });

@@ -132,9 +132,15 @@
   const createFavorite = async (payload) => {
     const cli = await init();
     if(!cli) return { ok: false, data: null, error: "unavailable" };
+    const row = {
+      user_id: payload?.user_id ?? null,
+      name: payload?.name ?? null,
+      lat: payload?.lat ?? null,
+      lon: payload?.lon ?? null
+    };
     const { data, error } = await cli
       .from("favorites")
-      .insert(payload)
+      .insert(row)
       .select("id,user_id,name,lat,lon,created_at")
       .single();
     if(error) return { ok: false, data: null, error };

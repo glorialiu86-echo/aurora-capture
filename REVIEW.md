@@ -3,9 +3,10 @@
 ## What changed
 - Enforced favorites modal data source split: logged-in uses cloud only; logged-out never reads prior user data
 - Normalized favorites items to {id,name,lat,lon} and skipped missing-id rows (console warn)
-- Restored rename/delete actions for logged-in favorites list
+- Serialized delete actions and re-fetch after delete to avoid UI/DB mismatch
 - Invalidated local favorites cache on auth login state change
-- Bumped cache/version tokens in index.html from 0331 to 0332
+- Bumped cache/version tokens in index.html from 0332 to 0333
+- Ensured create uses non-empty name and logged-in avoids local favorites writes
 
 ## Files touched
 - Modified: app.js, REVIEW.md
@@ -24,7 +25,9 @@
 ## How to test
 1. Log in and open favorites modal → list count matches Supabase favorites for that user
 2. Clear localStorage `ac_favorites` and reopen → list count unchanged (cloud-only)
-3. Log out and open favorites modal → no prior user data shown
+3. Create a favorite → Supabase name is non-null and list updates after refresh
+4. Rapidly delete → no lingering rows; list stays in sync with Supabase
+5. Log out and open favorites modal → no prior user data shown
 
 ## Rollback plan
 - Revert the commit on `staging`
