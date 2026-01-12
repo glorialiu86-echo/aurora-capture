@@ -395,12 +395,24 @@ const updateActionRow = (hasUsedGeo) => {
   const row = $("actionRow");
   const btnGeo = $("btnGeo");
   const btnFav = $("btnFav");
-  if(row) row.classList.toggle("split", !!hasUsedGeo);
-  if(btnFav) btnFav.classList.toggle("hidden", !hasUsedGeo);
+  const btnRun = $("btnRun");
+  const split = !!hasUsedGeo;
+  if(row) row.classList.toggle("split", split);
+  if(btnFav) btnFav.classList.toggle("hidden", !split);
   if(btnGeo){
-    const label = hasUsedGeo ? "📍 获取" : "📍 获取当前位置";
+    const label = split ? "📍 刷新定位" : "📍 获取当前位置";
     btnGeo.textContent = label;
     btnGeo.setAttribute("data-i18n", label);
+  }
+  if(btnFav){
+    const label = split ? "⭐ 收藏地址" : "⭐ 收藏";
+    btnFav.textContent = label;
+    btnFav.setAttribute("data-i18n", label);
+  }
+  if(btnRun){
+    const label = split ? "✍️ 生成预测" : "✍️ 生成即时预测";
+    btnRun.textContent = label;
+    btnRun.setAttribute("data-i18n", label);
   }
   if(window.AC_TRANS?.isOn?.()){
     window.AC_TRANS.applyTranslation?.();
