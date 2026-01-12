@@ -172,7 +172,7 @@ Violation of this protocol is treated as a **scope and workflow violation**.
 - User instructions may be in Chinese
 - Code, APIs, comments, and identifiers must be in English
 - Markdown documentation must be clear, concise, and factual
-- 语言规则：默认简体中文；仅在用户明确要求时使用英文！
+- 语言规则：默认简体中文；仅在用户明确要求时使用英文。
 
 ## 6.1 Versioning Rule (Mandatory)
 - 每次 **commit + push**（无论是否部署到 production），都必须同步更新项目版本号。
