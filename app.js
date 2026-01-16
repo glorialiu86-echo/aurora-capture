@@ -2616,12 +2616,7 @@ function fillCurrentLocation(){
       }
       const btn = $("btnLoginConfirm");
       if(btn) btn.disabled = true;
-      const origin = window.location.origin;
-      const path = window.location.pathname || "/";
-      const isStaging = path.includes("aurora-capture-staging");
-      const redirectTo = isStaging
-        ? `${origin}/aurora-capture-staging/`
-        : `${origin}/aurora-capture/`;
+      const redirectTo = "https://www.auroracapture.com";
       window.AC_SUPABASE?.sendMagicLink?.(email, redirectTo).then((res) => {
         if(!res || res.ok !== true){
           setFormError($("loginError"), "登录暂不可用");

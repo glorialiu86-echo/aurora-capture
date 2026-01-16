@@ -201,4 +201,54 @@ Violation of this protocol is treated as a **scope and workflow violation**.
 4. User reviews `REVIEW.md`
 5. Only then: commit / push (if approved)
 
+## Review Output Contract（强制）
+
+本仓库的所有代码修改，必须产出**人类可读、可决策**的 REVIEW.md。
+REVIEW.md 的目标读者是「项目 Owner（人类）」，不是工具或代理。
+
+任何未按以下结构更新 REVIEW.md 的提交，视为 **未完成任务**，不得合并或部署。
+
+---
+
+### REVIEW.md 强制结构（顺序不可变）
+
+#### 0. 本次变更一句话
+- 用一句话说明“你改了什么”
+- ≤ 25 字，禁止技术流水账
+
+#### 1. 改动范围（Scope）
+**1.1 改了什么**
+- 文件列表
+- 每个文件一句话说明改动点
+
+**1.2 明确没改什么（Hard No）**
+- 明确列出本次未触碰的模块 / 流程
+- 例如：预测流程、Auth 状态机、翻译规则、Modal 结构等
+
+#### 2. 行为变化（Behavior Change）
+用 Before / After 描述用户可感知变化（3–8 条）：
+- Before：……
+  After：……
+
+禁止只写实现细节。
+
+#### 3. 风险与护栏（Risk & Guardrails）
+最多 5 条，每条必须包含：
+- 风险是什么
+- 在什么条件下触发
+- 已采取的护栏 / 降级策略
+
+不确定的地方必须标注 **Unverified**。
+
+#### 4. 验收清单（Acceptance Checklist）
+- 必须是人类可以逐条操作的 Pass / Fail 清单
+- 与本次改动无关的项必须标注 Not in scope
+
+#### 5. 回滚方案（Rollback）
+- 一句话说明如何回滚（revert 哪个 commit / tag）
+
+### 输出要求
+- 每次任务完成后，必须在回复中 **贴出本次更新的 REVIEW.md 全文**
+- 只说“已更新 REVIEW.md”视为未完成
+
 Anything outside this flow is invalid.
