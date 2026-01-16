@@ -1,30 +1,34 @@
 # Review Summary
 
 ## What changed
-- 页脚版本号更新至 v3.0.0342，并在同一行追加备案许可证编号文案
-- 静态资源与脚本引用的缓存版本号统一更新为 0342
+- 将页面中的反馈邮箱地址替换为 maintainer@auroracapture.com
+- 将 index.html 中现有版本号从 0342 统一更新为 0343
 
 ## Files touched
-- Modified: index.html, REVIEW.md
+- Modified: index.html
 - Added:
 - Deleted:
 
 ## Behavior impact
-- 页脚新增备案许可证编号文本展示
-- 静态资源缓存版本号更新
-- 其他业务逻辑与功能不变
+- 页面展示与邮件链接指向的新维护邮箱地址
+- 静态资源与页脚版本号更新为 v3.0.0343，用于缓存刷新
+- 明确未改变：页面结构、样式与业务逻辑
 
 ## Risk assessment
-- 可能的失败模式：版本号漏改导致缓存未刷新
-- 性能/成本/配额影响：无
-- 部署或环境风险：无
+- 可能的失败模式：若仍有遗漏旧邮箱，部分链接指向旧地址
+- 可能的失败模式：若有漏改版本号，缓存刷新不一致
+- Performance / cost / quota impact：无
+- Deployment or environment risks：无
 
 ## How to test
-1. 打开页面，确认页脚显示“佑酱已吐血更新到版本号：v3.0.0342 备案许可证编号：沪ICP备2026001760号”
-2. 查看静态资源 URL 查询参数均为 0342（如 style.css、app.js）
+1. 打开页面并滚动到包含联系方式的位置
+2. 点击邮箱链接并确认邮件客户端地址为 maintainer@auroracapture.com
+3. 观察页面展示的邮箱文本为 maintainer@auroracapture.com
+4. 打开开发者工具，确认静态资源 URL 携带 v=0343
+5. 查看页脚版本号为 v3.0.0343
 
 ## Rollback plan
-- 回滚本次提交或切回上一个版本分支
+- 回滚该提交或将邮箱地址与版本号改回原值
 
 ## Open questions / follow-ups
 - 无
