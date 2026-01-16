@@ -1,56 +1,30 @@
 # Review Summary
 
 ## What changed
-- setStatusText 统一维护 data-i18n 英文母本与 data-zh 中文母本
-- 中文系统或 Trans OFF 时，状态词强制写回中文 textContent
-- 非中文且 Trans ON 时，状态词显示英文母本并保留翻译输入
-- trans.js 在中文系统与 Trans OFF 分支强制回写状态词中文
-- trans.js 对 data-i18n-attr 元素仅做属性翻译，避免容器 textContent 覆盖
-- index.html 版本号 0336 更新为 0337（缓存与页脚展示）
+- 页脚版本号更新至 v3.0.0342，并在同一行追加备案许可证编号文案
+- 静态资源与脚本引用的缓存版本号统一更新为 0342
 
 ## Files touched
-- Modified: app.js, index.html, REVIEW.md
+- Modified: index.html, REVIEW.md
 - Added:
 - Deleted:
 
 ## Behavior impact
-- 中文系统无论 Trans ON/OFF，状态词始终中文
-- 非中文系统：Trans ON 显示英文母本并可走翻译链路；Trans OFF 强制中文
-- 更新静态资源缓存版本号与页脚显示版本号
-- 未改动预测、翻译主流程与其他 UI 行为
+- 页脚新增备案许可证编号文本展示
+- 静态资源缓存版本号更新
+- 其他业务逻辑与功能不变
 
 ## Risk assessment
-- 可能的失败模式：data-zh 缺失时可能回退到英文母本或空串（取决于调用点）
+- 可能的失败模式：版本号漏改导致缓存未刷新
 - 性能/成本/配额影响：无
-- 部署或环境风险：仅涉及缓存版本变化
+- 部署或环境风险：无
 
 ## How to test
-1. 无痕窗口打开页面，确认资源 URL 与页脚版本号显示为 0337
-2. 强刷页面（hard reload / 清缓存），再次确认资源 URL 与页脚版本号为 0337
-3. 语言策略验收矩阵（系统语言以 navigator.language 判定）：
-   - zh + Trans OFF：状态词为中文（#statusText 与 [data-status-key]），其他 UI 不翻译
-   - zh + Trans ON：状态词为中文（#statusText 与 [data-status-key]），其他 UI 不翻译
-   - non-zh + Trans ON：状态词为英文母本或目标语言（翻译输入为 data-i18n），其他 UI 允许翻译
-   - non-zh + Trans OFF：状态词为中文（#statusText 与 [data-status-key]），其他 UI 不翻译
-4. 每条矩阵断言下，连续两次 Generate/Refresh，不刷新页面，状态词保持正确语言
-5. non-zh + Trans OFF：不刷新页面，连续两次 Generate/Refresh 后立即观察，状态词必须保持中文，不得回流英文
-6. non-zh + Trans ON：placeholder（lat/lon/name）应翻译为目标语言；aria-label（关闭/数据状态）应翻译
-7. non-zh + Trans OFF：placeholder 与 aria-label 必须回滚中文（不刷新页面连续操作两次也要稳定）
-8. non-zh + Trans ON：数据状态区域（太阳风/Bt/Bz/拉取中/精度）不应被单一“数据状态”覆盖
-9. 可选证据：控制台执行 window.AC_DEBUG=true，触发状态词变化，观察输出字段 sysLang/sysIsZh/transOn/sourceTag
+1. 打开页面，确认页脚显示“佑酱已吐血更新到版本号：v3.0.0342 备案许可证编号：沪ICP备2026001760号”
+2. 查看静态资源 URL 查询参数均为 0342（如 style.css、app.js）
 
 ## Rollback plan
 - 回滚本次提交或切回上一个版本分支
 
 ## Open questions / follow-ups
-- 未翻译文案清单（待补齐）
-- Type: runtime:setStatusText | Anchor: setStatusText() | Example: “📍 正在获取当前位置…”, “⚠️ 无法获取定位”
-- Type: runtime:alertOverlay | Anchor: openAlertOverlayFull() | Example: “📍 无法获取定位”, “定位返回的经纬度无效，请重试或手动输入。” ✅
-- Type: runtime:buttonText | Anchor: flashGeoButtonSuccess() | Example: “已获取 ✓”, “📍 获取当前位置” ✅
-- Type: runtime:buttonText | Anchor: updateActionRow() | Example: “📍 刷新定位”, “✍️ 生成预测” ✅
-- Type: runtime:setStatusText | Anchor: fillCurrentLocation() | Example: “⚠️ 定位处理异常”, “📍 定位失败”
-- Type: runtime:setFormError | Anchor: setFormError() | Example: “请输入正确的邮箱。”, “该地点已在收藏中，如需修改请先删除后重建。” ✅
-- Type: static:domText | Anchor: .label (纬度/经度) | Example: “纬度 Latitude”, “经度 Longitude” ✅
-- Type: static:domText | Anchor: #favEmpty | Example: “还没有收藏的地点。先生成或输入一个地点，再点击 ⭐ 收藏”
-- Type: attr:i18n | Anchor: #lat/#lon | Example: placeholder “例如 53.47”, “例如 122.35” ✅
-- Type: attr:i18n | Anchor: [aria-label="关闭"] | Example: aria-label “关闭” ✅
+- 无
