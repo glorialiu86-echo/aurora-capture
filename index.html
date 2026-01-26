@@ -485,12 +485,6 @@
       aacgmEndpoint: ""
     };
   </script>
-  <!-- Trans config (optional): set apiBase to your Worker origin, e.g., https://xxx.workers.dev -->
-  <script>
-    window.TRANS_CONFIG = window.TRANS_CONFIG || {
-      apiBase: "https://aurora-capture-trans.glorialiu86.workers.dev"
-    };
-  </script>
   <!-- public config -->
   <script defer src="config.public.jsC45"></script>
   <!-- Supabase SDK -->
@@ -499,7 +493,7 @@
   <!-- your modules -->
   <script defer src="./adapter.jsC45"></script>
   <script defer src="./ui.jsC45"></script>
-  <script defer src="./trans.jsC45"></script>
+  <script defer type="module" src="./trans.jsC45"></script>
   <script defer src="./model.jsC45"></script>
   <script defer src="./app.jsC45"></script>
   

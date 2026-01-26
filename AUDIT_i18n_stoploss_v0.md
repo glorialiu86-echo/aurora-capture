@@ -2353,3 +2353,55 @@ const statusSpanHTML = (key, extraAttrs = "") => {
 2534:          window.AC_TRANS.applyTranslation?.();
 2705:          window.AC_TRANS.applyTranslation?.();
 ```
+
+
+## 9) 第2轮 A 阶段：静态英文映射生成
+- 新增文件：`translations_en.js`
+- 导出：`export const TRANSLATIONS_EN = { ... }`
+- 统计：
+  - 总条目数：200
+  - 成功映射数：200
+  - 缺 zh：0
+  - 缺 en：0
+  - en 为空：0
+  - 多行块解析失败：0
+  - 重复 zh key：0
+
+### 9.1 异常条目（可定位片段）
+#### 缺 zh
+(无)
+
+#### 缺 en
+(无)
+
+#### en 为空
+(无)
+
+#### 多行块解析失败
+(无)
+
+#### 重复 zh key（保留首次）
+(无)
+
+
+## 10) 第2轮 B 阶段（B1-B3）：接入静态映射 + 二态切换
+- 接入位置：`trans.js` 通过 `import { TRANSLATIONS_EN } from "./translations_en.js"` 使用静态映射。
+- 入口与触发：
+  - 初始化：`trans.js` 的 `init()` 内调用 `applyTrans(currentState)`
+  - 点击开关：`btnTrans` click -> `applyTrans(currentState)`
+  - 对外暴露：`window.AC_TRANS.applyTrans(state)`
+
+### 10.1 可翻译节点集合与缓存策略
+- 基础集合：`[data-zh]` 叶子节点。
+- 兼容现有标注：对 `data-i18n` 元素，仅当 `textContent.trim() === data-i18n.trim()` 时才缓存 `data-zh`。
+- 自动缓存（止血优先）：遍历 `body *` 的叶子节点（排除 `script/style/noscript`），若 `textContent.trim()` 命中 `TRANSLATIONS_EN` key，则设置 `data-zh`。
+- 说明：仅缓存中文原文，不做翻译请求，不触发系统语言检测。
+
+### 10.2 统计输出（运行时）
+- `applyTrans` 每次执行输出：
+  - `totalTranslatableNodes`
+  - `totalKeysUsed`
+  - `missingCount`
+  - `missingKeys`（完整数组）
+- 统计对象挂载：`window.AC_TRANS_STATS`
+- 当前未执行浏览器统计（需在本地页面切换 Trans 查看控制台）。
