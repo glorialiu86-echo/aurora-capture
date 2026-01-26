@@ -2444,3 +2444,11 @@ const statusSpanHTML = (key, extraAttrs = "") => {
 - 发现：`index.html` 动态注入 `./staging.cssC45`
 - 处理：确认 `staging.css` 存在，修正为 `./staging.css?v=0343`
 - 说明：不引入新缓存机制，仅回到既定 `?v=0343`
+
+
+## 14) 版本号一致性修复（footer + 缓存参数）
+- staging.css 动态注入：已为 `./staging.css?v=0343`（保持不变）
+- footer 版本号修复：
+  - 修复前：`版本号：C45`
+  - 修复后：`版本号：v5.0.0343`
+- 说明：与 `?v=0343` 缓存参数保持一致。

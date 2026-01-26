@@ -35,3 +35,5 @@
 i18n static mapping verified on staging: 97 keys used, 0 missing at runtime.
 
 staging.css injection fixed to use ?v=0343.
+
+fix version display to match cache param (?v=0343)
