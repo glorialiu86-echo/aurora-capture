@@ -62,61 +62,20 @@ const SW_PLACEHOLDER_HTML = `
 const setStatusText = (t, statusKey) => {
   const el = document.getElementById("statusText");
   const text = (t == null ? "" : String(t));
-  const sysLang = getSystemLang();
-  const sysIsZh = isSystemZh();
-  const transOn = window.AC_TRANS?.isOn?.() === true;
   if(el){
     const fromKey = statusKey && STATUS_LABELS[statusKey];
     const zhText = fromKey ? fromKey.zh : text;
-    let enText = fromKey ? fromKey.en : (STATUS_TEXT_EN_MAP[zhText] || "");
-    if(!fromKey && !enText && zhText.startsWith("已获取当前位置")){
-      const m = zhText.match(/精度约\s*(\d+)\s*m/);
-      enText = m ? `Location acquired (accuracy ~ ${m[1]}m)` : "Location acquired";
-    }
-
-    let sourceTag = "fallback";
-    if(enText){
-      el.setAttribute("data-i18n", enText);
-    }else{
-      el.removeAttribute("data-i18n");
-    }
     if(zhText){
+      el.setAttribute("data-i18n", zhText);
       el.setAttribute("data-zh", zhText);
     }else{
+      el.removeAttribute("data-i18n");
       el.removeAttribute("data-zh");
     }
-
-    if(sysIsZh || !transOn){
-      sourceTag = "zh";
-      el.textContent = zhText || "";
-    }else{
-      sourceTag = enText ? "en" : "fallback";
-      el.textContent = enText || zhText || "";
-    }
-    if(isSystemZh() || window.AC_TRANS?.isOn?.() !== true){
-      const zh = el.getAttribute("data-zh");
-      if(zh){
-        el.textContent = zh;
-        sourceTag = "zh";
-      }
-    }
-    if(window.AC_DEBUG === true){
-      try{
-        console.debug("[AC][status]", {
-          sysLang,
-          sysIsZh,
-          transOn,
-          hasStatusKey: !!statusKey,
-          sourceTag,
-        });
-      }catch(_){ /* ignore */ }
-    }
+    el.textContent = zhText || "";
   }
   if(uiReady() && typeof window.UI.setStatusText === "function"){
     try{ window.UI.setStatusText(t); }catch(_){ /* ignore */ }
-  }
-  if(!isSystemZh()){
-    window.AC_TRANS?.applyTranslation?.();
   }
 };
 
@@ -152,9 +111,6 @@ const setStatusDots = (items) => {
     return `<div class="dot ${lvl}">${renderDotText(txt)}</div>`;
   }).join("");
 
-  if(window.AC_TRANS?.isOn?.()){
-    window.AC_TRANS.applyTranslation?.();
-  }
 };
 
 const cacheSet = (k, v) => {
@@ -266,24 +222,6 @@ const STATUS_TEXT_EN_MAP = {
   "生成失败：请打开控制台查看错误。": "Generation failed: check console for details.",
 };
 
-const normalizeTag = (tag) => {
-  const raw = String(tag || "").trim().toLowerCase();
-  if(!raw) return "";
-  return raw.replace(/_/g, "-");
-};
-
-const getSystemLang = () => normalizeTag(navigator.language || "en");
-const isSystemZh = () => getSystemLang().startsWith("zh");
-const isSystemEn = () => getSystemLang().startsWith("en");
-
-const getUiLang = () => {
-  const list = Array.isArray(navigator.languages) ? navigator.languages : [];
-  const raw = list.length ? list[0] : (navigator.language || "en");
-  return String(raw || "").trim().toLowerCase().replace(/_/g, "-");
-};
-
-const isZhLang = () => getUiLang().startsWith("zh");
-
 const statusTextByKey = (key, preferZh = false) => {
   if(!key) return "";
   const item = STATUS_LABELS[key];
@@ -296,7 +234,7 @@ const statusSpanHTML = (key, extraAttrs = "") => {
   const textEn = statusTextByKey(key, false);
   const textZh = statusTextByKey(key, true);
   const textEsc = escapeHTML(textEn || "");
-  const initialText = (isSystemZh() || window.AC_TRANS?.isOn?.() !== true) ? textZh : textEn;
+  const initialText = window.AC_TRANS?.isOn?.() === true ? textEn : textZh;
   const initialEsc = escapeHTML(initialText || "");
   const keyEsc = escapeHTML(String(key || ""));
   const attrs = extraAttrs ? " " + String(extraAttrs).trim() : "";
@@ -504,9 +442,6 @@ const updateActionRow = (hasUsedGeo) => {
     btnRun.setAttribute("data-i18n", label);
     btnRun.textContent = label;
   }
-  if(window.AC_TRANS?.isOn?.()){
-    window.AC_TRANS.applyTranslation?.();
-  }
 };
 
 const applyCoordsToInputs = (lat, lon) => {
@@ -535,9 +470,6 @@ const setFormError = (el, msg) => {
   el.setAttribute("data-i18n", msg);
   el.textContent = msg;
   el.classList.remove("hidden");
-  if(window.AC_TRANS?.isOn?.()){
-    window.AC_TRANS.applyTranslation?.();
-  }
 };
 
 let pendingLoginAction = null;
@@ -758,11 +690,9 @@ const renderFavorites = () => {
          note.textContent = noteText;
        }
        openAlertOverlay(html);
-       if(window.AC_TRANS?.isOn?.()) window.AC_TRANS.applyTranslation?.();
      }catch(e){
        console.error("[AuroraCapture] openAlertOverlayFull error:", e);
        openAlertOverlay(html);
-       if(window.AC_TRANS?.isOn?.()) window.AC_TRANS.applyTranslation?.();
      }
    }
 
@@ -2429,7 +2359,6 @@ function fillCurrentLocation(){
         if(card) card.className = `dayCard ${lab.cls}`;
       });
 
-      if(!isSystemZh()) window.AC_TRANS?.applyTranslation?.();
     }catch(err){
       console.error("[AuroraCapture] run error:", err);
       setStatusText("生成失败：请打开控制台查看错误。", null);
