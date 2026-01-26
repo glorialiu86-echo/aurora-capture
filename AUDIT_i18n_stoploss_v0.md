@@ -2427,3 +2427,14 @@ const statusSpanHTML = (key, extraAttrs = "") => {
   - `./model.js?v=0343`
   - `./app.js?v=0343`
 - 验证：待用户强刷后确认 Network 200（本次未执行浏览器验证）。
+
+
+## 12) B4 收尾验证（staging 实测）
+- Trans ON/OFF：可正常切换
+- 资源加载：静态资源 200（无 *C45 / 404）
+- 统计结果（window.AC_TRANS_STATS）：
+  - totalTranslatableNodes: 118
+  - totalKeysUsed: 97
+  - missingCount: 0
+  - missingKeys: []
+- 结论：英文母本覆盖率 100%，运行时无缺失项。
