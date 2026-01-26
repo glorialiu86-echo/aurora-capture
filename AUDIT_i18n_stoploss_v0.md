@@ -2451,3 +2451,74 @@ const statusSpanHTML = (key, extraAttrs = "") => {
 - 时间：2026-01-26 19:06:02
 - 操作者：Codex
 - 约束：未引入新规则，未改变其他条目语义。
+
+
+## 16) B 类复核说明（固定字符串全仓检索）
+- 方法：对 `UI_TEXT_ALIGN_PLAN.md` 的 B 类 canonical zh 逐条执行 `rg -nF` 全仓定位。
+- 复核统计：B_total 36；B1_leak 25；B2_real_gap 0；doc_only 11。
+- 说明：详见 `UI_TEXT_ALIGN_PLAN_B_RECLASS.md`。
+
+
+## 17) model.js 中文对齐预检（A 阶段）
+### 17.1 环境记录
+- 分支：staging
+- HEAD：617dc92edf14d4a34409362f07242615cf597849
+- git status -sb：
+  - M `AUDIT_i18n_stoploss_v0.md`
+  - M `REVIEW.md`
+  - ?? `UI_TEXT_ALIGN_PLAN.md`
+  - ?? `UI_TEXT_ALIGN_PLAN_B_RECLASS.md`
+
+### 17.2 canonical 集合统计
+- trans-zh-en.md `zh:` 条目数：200
+
+### 17.3 model.js 中文候选清单（20 条）
+| 文案 | 行号 | 语境/变量 |
+|---|---|---|
+| 强烈推荐 | 85 | if(s >= 5) return { score:5, key:"STRONGLY_RECOMMENDED", t:"强烈推荐", cls:"g" }; |
+| 值得出门 | 86 | if(s >= 4) return { score:4, key:"WORTH_GOING_OUT", t:"值得出门", cls:"g" }; |
+| 可蹲守 | 87 | if(s >= 3) return { score:3, key:"WAIT_AND_OBSERVE", t:"可蹲守", cls:"b" }; |
+| 低概率 | 88 | if(s >= 2) return { score:2, key:"LOW_PROBABILITY", t:"低概率", cls:"y" }; |
+| 不可观测 | 89 | return { score:1, key:"UNOBSERVABLE", t:"不可观测", cls:"r" }; |
+| 你的位置处于主发生区附近（更容易头顶/高仰角出现）。 | 183 | let hint = "你的位置处于主发生区附近（更容易头顶/高仰角出现）。"; |
+| 你的位置更接近主发生区（更容易头顶/高仰角出现）。 | 189 | hint = "你的位置更接近主发生区（更容易头顶/高仰角出现）。"; |
+| 你在椭圆外缘的可视区：更可能是北向低仰角/高空极光，成败更吃云与天色。 | 197 | hint = "你在椭圆外缘的可视区：更可能是北向低仰角/高空极光，成败更吃云与天色。"; |
+| 你离主发生区较远：更像“赌边缘天边光”，需要更强触发或更长持续。 | 203 | hint = "你离主发生区较远：更像“赌边缘天边光”，需要更强触发或更长持续。"; |
+| 爆发进行中 | 249 | return { stateKey:"IN_OUTBURST", state:"爆发进行中", hint:"离子触发更明确。", score:8.0 }; |
+| 离子触发更明确。 | 249 | return { stateKey:"IN_OUTBURST", state:"爆发进行中", hint:"离子触发更明确。", score:8.0 }; |
+| 爆发概率上升 | 252 | return { stateKey:"OUTBURST_BUILDING", state:"爆发概率上升", hint:"系统更容易发生，但未到持续触发。", score:6.4 }; |
+| 系统更容易发生，但未到持续触发。 | 252 | return { stateKey:"OUTBURST_BUILDING", state:"爆发概率上升", hint:"系统更容易发生，但未到持续触发。", score:6.4 }; |
+| 爆发后衰落期 | 255 | return { stateKey:"OUTBURST_FADING", state:"爆发后衰落期", hint:"刚有过波动，仍可能余震一会儿。", score:5.4 }; |
+| 刚有过波动，仍可能余震一会儿。 | 255 | return { stateKey:"OUTBURST_FADING", state:"爆发后衰落期", hint:"刚有过波动，仍可能余震一会儿。", score:5.4 }; |
+| 静默 | 257 | return { stateKey:"SILENT", state:"静默", hint:"背景不足或触发不清晰。", score:3.0 }; |
+| 背景不足或触发不清晰。 | 257 | return { stateKey:"SILENT", state:"静默", hint:"背景不足或触发不清晰。", score:3.0 }; |
+| 天空被云层遮挡，不利于观测 | 281 | [ObservationBlocker.CLOUD_COVER]: "天空被云层遮挡，不利于观测", |
+| 天色偏亮，微弱极光难以分辨 | 282 | [ObservationBlocker.BRIGHT_SKY]: "天色偏亮，微弱极光难以分辨", |
+| 能量注入弱，难以形成有效极光 | 283 | [ObservationBlocker.LOW_AURORA_CONTRAST]: "能量注入弱，难以形成有效极光", |
+
+### 17.4 对齐判定统计
+- 精确匹配 canonical：19
+- 近似匹配候选：0
+- 未匹配：1（需替换）
+
+### 17.5 替换计划清单（OLD -> NEW）
+- 锚点：评分分级映射（C 值分级）
+  - model.js:88 `低概率` -> canonical `希望不大`（理由：词汇统一到 canonical）
+
+### 17.6 计划锚点列表（按执行顺序）
+1) ObservationBlocker 映射（当前均已对齐，无替换项）
+   - 执行结果：无替换；仅确认无需改动
+2) 位置/椭圆区提示 hint 文案组（当前均已对齐，无替换项）
+   - 执行结果：无替换；仅确认无需改动
+3) 其它 model 层提示组：评分分级映射（含 1 项替换）
+   - 替换：model.js:88 `低概率` -> `希望不大`（canonical 词汇更新）
+   - 自检：
+     - `rg -nF "低概率" model.js` -> 0
+     - `rg -nF "希望不大" model.js` -> 1
+
+### 17.7 验证方式调整（Pages 手动验证）
+- 原因：当前环境无 node/npm，无法本地运行验证脚本
+- 用户需验证：
+  - staging 页面 Trans on/off 是否正常
+  - 控制台 `window.AC_TRANS_STATS.missingCount` 是否为 0
+  - C 值 2 文案是否为“希望不大”（不再出现“低概率”）

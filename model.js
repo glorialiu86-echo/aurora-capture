@@ -85,7 +85,7 @@
     if(s >= 5) return { score:5, key:"STRONGLY_RECOMMENDED", t:"强烈推荐", cls:"g" };
     if(s >= 4) return { score:4, key:"WORTH_GOING_OUT", t:"值得出门", cls:"g" };
     if(s >= 3) return { score:3, key:"WAIT_AND_OBSERVE", t:"可蹲守", cls:"b" };
-    if(s >= 2) return { score:2, key:"LOW_PROBABILITY", t:"低概率", cls:"y" };
+    if(s >= 2) return { score:2, key:"LOW_PROBABILITY", t:"希望不大", cls:"y" };
     return { score:1, key:"UNOBSERVABLE", t:"不可观测", cls:"r" };
   }
 
