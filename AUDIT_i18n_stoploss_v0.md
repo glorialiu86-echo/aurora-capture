@@ -2438,3 +2438,9 @@ const statusSpanHTML = (key, extraAttrs = "") => {
   - missingCount: 0
   - missingKeys: []
 - 结论：英文母本覆盖率 100%，运行时无缺失项。
+
+
+## 13) 加载层修复：staging.css 动态注入版本号
+- 发现：`index.html` 动态注入 `./staging.cssC45`
+- 处理：确认 `staging.css` 存在，修正为 `./staging.css?v=0343`
+- 说明：不引入新缓存机制，仅回到既定 `?v=0343`
