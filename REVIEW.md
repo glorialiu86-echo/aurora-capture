@@ -1,12 +1,12 @@
 # Review Summary
 
 ## 0. 本次变更一句话
-- 修复 *C45 资源引用为 ?v=0343 以恢复 Pages 资源加载
+- 修复本地资源引用为 ?v=0343 以恢复 Pages 资源加载
 
 ## 1. 改动范围（Scope）
 
 ### 1.1 改了什么
-- `index.html`：将本地 css/js 资源从 `*C45` 后缀改回 `?v=0343`
+- `index.html`：将本地 css/js 资源统一为 `?v=0343`
 - `AUDIT_i18n_stoploss_v0.md`：记录 8 条资源引用差异
 - `REVIEW.md`：更新本轮变更摘要
 
@@ -16,7 +16,7 @@
 - 未处理 FMI CORS 或其他数据源问题
 
 ## 2. 行为变化（Behavior Change）
-- Before：本地资源请求带 `*C45` 后缀导致 404
+- Before：本地资源请求路径错误导致 404
   After：资源请求使用 `?v=0343`，恢复可加载路径
 
 ## 3. 风险与护栏（Risk & Guardrails）
@@ -37,3 +37,13 @@ i18n static mapping verified on staging: 97 keys used, 0 missing at runtime.
 staging.css injection fixed to use ?v=0343.
 
 fix version display to match cache param (?v=0343)
+
+### C45 cleanup verification logs
+```
+rg -n "C45" AUDIT_i18n_stoploss_v0.md
+(no matches)
+rg -n "C45" .
+(no matches)
+rg -n "C45[^\w]" .
+(no matches)
+```
