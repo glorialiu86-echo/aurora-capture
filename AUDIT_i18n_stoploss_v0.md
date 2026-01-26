@@ -2405,3 +2405,25 @@ const statusSpanHTML = (key, extraAttrs = "") => {
   - `missingKeys`（完整数组）
 - 统计对象挂载：`window.AC_TRANS_STATS`
 - 当前未执行浏览器统计（需在本地页面切换 Trans 查看控制台）。
+
+
+## 11) 加载层止血：C45 资源引用修复为 ?v=0343
+- 修复前（文件名后缀 C45）：
+  - `./style.cssC45`
+  - `config.public.jsC45`
+  - `./supabaseClient.jsC45`
+  - `./adapter.jsC45`
+  - `./ui.jsC45`
+  - `./trans.jsC45`
+  - `./model.jsC45`
+  - `./app.jsC45`
+- 修复后（统一 ?v=0343）：
+  - `./style.css?v=0343`
+  - `config.public.js?v=0343`
+  - `./supabaseClient.js?v=0343`
+  - `./adapter.js?v=0343`
+  - `./ui.js?v=0343`
+  - `./trans.js?v=0343`
+  - `./model.js?v=0343`
+  - `./app.js?v=0343`
+- 验证：待用户强刷后确认 Network 200（本次未执行浏览器验证）。

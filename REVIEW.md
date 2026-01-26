@@ -1,32 +1,32 @@
 # Review Summary
 
 ## 0. 本次变更一句话
-- 接入静态英文映射并提供二态切换与缺失统计输出
+- 修复 *C45 资源引用为 ?v=0343 以恢复 Pages 资源加载
 
 ## 1. 改动范围（Scope）
 
 ### 1.1 改了什么
-- `trans.js`：引入 `TRANSLATIONS_EN` 并实现 `applyTrans`（含 missing 统计输出）
-- `index.html`：`trans.js` 脚本改为 module 以支持静态 import
-- `AUDIT_i18n_stoploss_v0.md`：记录可翻译节点策略与统计输出说明
+- `index.html`：将本地 css/js 资源从 `*C45` 后缀改回 `?v=0343`
+- `AUDIT_i18n_stoploss_v0.md`：记录 8 条资源引用差异
+- `REVIEW.md`：更新本轮变更摘要
 
 ### 1.2 明确没改什么（Hard No）
-- 未引入系统语言检测
-- 未新增翻译服务/代理请求
-- 未改动 FMI 相关数据源或 CORS 处理
+- 未修改任何 JS 运行时代码
+- 未改动外链脚本或内联脚本
+- 未处理 FMI CORS 或其他数据源问题
 
 ## 2. 行为变化（Behavior Change）
-- Before：Trans 开关仅切换文本标签，不做中英渲染
-  After：Trans 开关可切换中/英渲染并输出 missing 统计
+- Before：本地资源请求带 `*C45` 后缀导致 404
+  After：资源请求使用 `?v=0343`，恢复可加载路径
 
 ## 3. 风险与护栏（Risk & Guardrails）
-- 风险：当前 missing 可能 > 0
-- 触发条件：切换到英文态时
-- 护栏：控制台输出完整 missing 列表供收敛
+- 风险：如存在缓存/CDN 配置差异，可能仍需强刷
+- 触发条件：浏览器缓存未更新时
+- 护栏：统一回到既定 `?v=0343` 版本参数
 
 ## 4. 验收清单（Acceptance Checklist）
-- [ ] Trans ON/OFF 可切换中英渲染
-- [ ] 控制台输出 totalNodes/totalKeys/missing 统计
+- [ ] 强刷后本地 css/js 资源请求均为 200
+- [ ] window.AC_TRANS 为 object，window.AC_TRANS_STATS 有输出
 - [ ] 与本次改动无关项标记为 Not in scope
 
 ## 5. 回滚方案（Rollback）
