@@ -1,33 +1,32 @@
 # Review Summary
 
 ## 0. 本次变更一句话
-- 对齐 model.js 的 C 值分级中文为 canonical，并补记验证方式
+- 升级 index.html 版本号与缓存参数（0343 → 0344）
 
 ## 1. 改动范围（Scope）
 
 ### 1.1 改了什么
-- `model.js`：将 C 值 2 文案从“低概率”改为 canonical “希望不大”
-- `AUDIT_i18n_stoploss_v0.md`：追加本轮锚点执行记录与 Pages 验证说明
+- `index.html`：将现有版本号与缓存参数统一从 0343 改为 0344
 - `REVIEW.md`：更新本轮变更摘要
 
 ### 1.2 明确没改什么（Hard No）
-- 未修改任何翻译映射逻辑或翻译开关机制
-- 未改动 index.html / app.js / ui.js / trans.js
-- 未变更任何业务逻辑或计算规则
+- 未修改任何 .js 逻辑或业务计算
+- 未改动 trans-zh-en.md / translations_en.js
+- 未引入新的版本机制或字段
 
 ## 2. 行为变化（Behavior Change）
-- Before：C 值 2 文案为“低概率”
-  After：C 值 2 文案为“希望不大”
+- Before：静态资源缓存参数与页脚版本号为 0343
+  After：静态资源缓存参数与页脚版本号为 0344
 
 ## 3. 风险与护栏（Risk & Guardrails）
-- 风险：仅文案层面的对齐误差
-- 触发条件：canonical 文案定义变更未同步
-- 护栏：以 trans-zh-en.md 为唯一 canonical，Pages 手动验证
+- 风险：缓存参数未同步导致部分资源未刷新
+- 触发条件：浏览器缓存命中旧版本
+- 护栏：强刷与版本号核对
 
 ## 4. 验收清单（Acceptance Checklist）
-- [ ] staging 页面 Trans on/off 切换正常
-- [ ] 控制台 `window.AC_TRANS_STATS.missingCount` 为 0
-- [ ] C 值 2 文案显示为“希望不大”
+- [ ] 页面底部版本号显示为 v5.0.0344
+- [ ] 资源请求均带 `?v=0344`
+- [ ] 与本次改动无关项标记为 Not in scope
 
 ## 5. 回滚方案（Rollback）
-- revert 本次提交即可恢复旧文案
+- revert 本次提交即可恢复旧版本号与缓存参数
