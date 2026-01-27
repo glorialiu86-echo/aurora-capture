@@ -192,34 +192,34 @@ const escapeHTML = (s) => {
 };
 
 const STATUS_LABELS = {
-  SILENT: { zh: "静默", en: "stand in silence" },
-  IN_OUTBURST: { zh: "爆发进行中", en: "in outburst" },
-  OUTBURST_BUILDING: { zh: "爆发概率上升", en: "outburst building" },
-  OUTBURST_FADING: { zh: "爆发后衰落期", en: "fading after outburst" },
-  WORTH_GOING_OUT: { zh: "值得出门", en: "worth going out" },
-  WAIT_AND_OBSERVE: { zh: "可蹲守", en: "wait-and-observe" },
+  SILENT: { zh: "静默", en: "Silent" },
+  IN_OUTBURST: { zh: "爆发进行中", en: "Surge in Progress" },
+  OUTBURST_BUILDING: { zh: "爆发概率上升", en: "Surge Building" },
+  OUTBURST_FADING: { zh: "爆发后衰落期", en: "Fading After Surge" },
+  WORTH_GOING_OUT: { zh: "值得出门", en: "Worth Going Out" },
+  WAIT_AND_OBSERVE: { zh: "可蹲守", en: "Standby" },
   LOW_PROBABILITY: { zh: "低概率", en: "low probability" },
-  UNOBSERVABLE: { zh: "不可观测", en: "unobservable" },
-  STRONGLY_RECOMMENDED: { zh: "强烈推荐", en: "strongly recommended" },
+  UNOBSERVABLE: { zh: "不可观测", en: "Unobservable" },
+  STRONGLY_RECOMMENDED: { zh: "强烈推荐", en: "Strongly Recommended" },
 };
 
 const STATUS_TEXT_EN_MAP = {
   "📍 正在获取当前位置…": "Getting current location…",
-  "⚠️ 定位返回无效坐标": "⚠️ Invalid location returned",
-  "⚠️ 定位处理异常": "⚠️ Location error",
-  "⚠️ 无法获取定位": "⚠️ Unable to get location",
+  "⚠️ 定位返回无效坐标": "⚠️ Error: Invalid coordinates returned from location services.",
+  "⚠️ 定位处理异常": "⚠️ Error: Location processing failed.",
+  "⚠️ 无法获取定位": "⚠️ Error: Location acquisition failed.",
   "请先输入有效经纬度。": "Please enter valid coordinates.",
-  "⚠️ 经纬度超出范围": "⚠️ Coordinates out of range",
+  "⚠️ 经纬度超出范围": "⚠️ Error: Coordinates out of range.",
   "关键计算模块未加载（SunCalc）。": "Core calculation module not loaded (SunCalc).",
-  "拉取数据中…": "Fetching data…",
-  "⚠️ 磁纬过低：已停止生成": "⚠️ MLAT too low: generation stopped",
-  "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）": "⚠️ Solar wind source unavailable: entered weak mode (conservative)",
+  "拉取数据中…": "Notice: Fetching data…",
+  "⚠️ 磁纬过低：已停止生成": "⚠️ Warning: MLAT is too low. Forecast generation has been stopped.",
+  "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）": "⚠️ Warning: Solar wind data source unavailable. Entered conservative mode.",
   "⚠️ 数据可信度提醒": "⚠️ Data reliability notice",
   "📍 无法获取定位": "📍 Unable to get location",
   "📍 定位失败": "📍 Location failed",
-  "已获取当前位置": "Location acquired",
+  "已获取当前位置": "Location Acquired",
   "已生成。": "Generated.",
-  "生成失败：请打开控制台查看错误。": "Generation failed: check console for details.",
+  "生成失败：请打开控制台查看错误。": "⚠️ Error: Forecast failed. Check console for details.",
 };
 
 const statusTextByKey = (key, preferZh = false) => {

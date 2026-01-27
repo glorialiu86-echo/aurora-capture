@@ -246,12 +246,12 @@ drwxr-xr-x@  4 glorialiu  staff     128 Jan 18 14:40 workers
 ./app.js:220:  return `${_pad2(x.getHours())}:${_pad2(x.getMinutes())}`;
 ./app.js:228:const escapeHTML = (s) => {
 ./app.js:229:  try{ if(uiReady() && typeof window.UI.escapeHTML === "function") return window.UI.escapeHTML(s); }catch(_){ /* ignore */ }
-./app.js:247:  STRONGLY_RECOMMENDED: { zh: "强烈推荐", en: "strongly recommended" },
+./app.js:247:  STRONGLY_RECOMMENDED: { zh: "强烈推荐", en: "Strongly Recommended" },
 ./app.js:255:  "请先输入有效经纬度。": "Please enter valid coordinates.",
-./app.js:256:  "⚠️ 经纬度超出范围": "⚠️ Coordinates out of range",
+./app.js:256:  "⚠️ 经纬度超出范围": "⚠️ Error: Coordinates out of range.",
 ./app.js:257:  "关键计算模块未加载（SunCalc）。": "Core calculation module not loaded (SunCalc).",
-./app.js:260:  "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）": "⚠️ Solar wind source unavailable: entered weak mode (conservative)",
-./app.js:266:  "生成失败：请打开控制台查看错误。": "Generation failed: check console for details.",
+./app.js:260:  "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）": "⚠️ Warning: Solar wind data source unavailable. Entered conservative mode.",
+./app.js:266:  "生成失败：请打开控制台查看错误。": "⚠️ Error: Forecast failed. Check console for details.",
 ./app.js:275:const getSystemLang = () => normalizeTag(navigator.language || "en");
 ./app.js:276:const isSystemZh = () => getSystemLang().startsWith("zh");
 ./app.js:277:const isSystemEn = () => getSystemLang().startsWith("en");
@@ -815,16 +815,16 @@ drwxr-xr-x@  4 glorialiu  staff     128 Jan 18 14:40 workers
 ./trans.js:4:  const LANGS_KEY = "ac_deepl_langs";
 ./trans.js:6:  const LANGS_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 ./trans.js:7:  const FIXED_I18N_MAP = {
-./trans.js:9:    "月角": "Moon altitude",
+./trans.js:9:    "月角": "Moon elevation",
 ./trans.js:11:    "新鲜度": "Data freshness",
-./trans.js:36:    "⚠️ 经纬度输入无效": "⚠️ Invalid coordinates",
-./trans.js:37:    "⚠️ 经纬度超出范围": "⚠️ Coordinates out of range",
-./trans.js:41:    "🌟 收藏夹": "🌟 Favorites",
-./trans.js:43:    "⭐ 收藏地址": "⭐ Save address",
-./trans.js:46:    "📍 刷新定位": "📍 Refresh location",
+./trans.js:36:    "⚠️ 经纬度输入无效": "⚠️ Error: Invalid coordinates.",
+./trans.js:37:    "⚠️ 经纬度超出范围": "⚠️ Error: Coordinates out of range.",
+./trans.js:41:    "🌟 收藏夹": "🌟 Saved Locations",
+./trans.js:43:    "⭐ 收藏地址": "⭐ Save location",
+./trans.js:46:    "📍 刷新定位": "📍 Re-acquire location",
 ./trans.js:53:    "当前坐标": "Current coordinates",
 ./trans.js:56:    "删除": "Delete",
-./trans.js:58:    "为了跨设备保存收藏位置，需要登录一次。": "To save favorites across devices, please log in once.",
+./trans.js:58:    "为了跨设备保存收藏位置，需要登录一次。": "To save locations across devices, please log in once.",
 ./trans.js:59:    "登录后，你收藏的地点就可以在不同设备上使用啦 🌟": "After logging in, your saved locations will be available across devices 🌟",
 ./trans.js:60:    "经纬度无效，无法收藏。": "Invalid coordinates. Unable to save.",
 ./trans.js:61:    "该地点已在收藏中，如需修改请先删除后重建。": "This location is already saved. Delete it before saving again.",
@@ -874,7 +874,7 @@ drwxr-xr-x@  4 glorialiu  staff     128 Jan 18 14:40 workers
 ./trans.js:244:  const resolveFixedText = (source, target) => {
 ./trans.js:246:    if(Object.prototype.hasOwnProperty.call(FIXED_I18N_MAP, source)){
 ./trans.js:247:      return target.startsWith("zh") ? source : FIXED_I18N_MAP[source];
-./trans.js:251:      const base = FIXED_I18N_MAP["已获取当前位置"] || "Location acquired";
+./trans.js:251:      const base = FIXED_I18N_MAP["已获取当前位置"] || "Location Acquired";
 ./trans.js:264:    const source = String(el.getAttribute("data-i18n") || el.textContent || "").trim();
 ./trans.js:275:    const elements = Array.from(document.querySelectorAll("[data-i18n], [data-i18n-placeholder], [data-i18n-attr]"));
 ./trans.js:278:      restoreOriginal(elements);
@@ -1318,7 +1318,7 @@ drwxr-xr-x@  4 glorialiu  staff     128 Jan 18 14:40 workers
 ./trans-zh-en.md:269:- en: To save locations across devices, please log in once.
 ./trans-zh-en.md:272:- en: After logging in, your saved locations will be available across devices.
 ./trans-zh-en.md:293:- en: Current coordinates
-./trans-zh-en.md:305:- en: This does not mean it is unobservable; it only indicates uncertainty in the model inputs.
+./trans-zh-en.md:305:- en: This does not mean it is Unobservable; it only indicates uncertainty in the model inputs.
 ./trans-zh-en.md:311:- en: Surge in Progress
 ./trans-zh-en.md:314:- en: Surge in Progress
 ./trans-zh-en.md:332:- en: Strongly Recommended

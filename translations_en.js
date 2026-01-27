@@ -61,51 +61,51 @@ export const TRANSLATIONS_EN = {
   "佑酱已吐血更新到版本号：v3.0.0344 ； 备案许可证编号：沪ICP备2026001760号": "Version: v3.0.0344 · ICP filing: 沪ICP备2026001760号",
   "数据源：NOAA SWPC（实时太阳风、OVATION nowcast、Kp 预报）与 Open-Meteo 云量预报。磁纬（MLAT）当前为估算（偶极近似）。": "Data sources: NOAA SWPC (real-time solar wind, OVATION nowcast, Kp forecast) and Open-Meteo cloud forecast. MLAT is currently estimated (dipole approximation).",
   "关闭": "Close",
-  "【Guide｜整篇文案（冻结）】": `  ## How It Works
+  "【Guide｜整篇文案（冻结）】": `## How It Works
 
-  ### How to Use
+### How to Use
 
-  Enter coordinates and Aurora Capture will automatically use your local time and time zone to generate an observing briefing.
+Enter coordinates and Aurora Capture will automatically use your local time and time zone to generate an observing briefing.
 
-  **【Now】**
-  Updated every 10 minutes to answer:
-  “Should I head out now? Is it worth setting up?”
+**【Now】**
+Updated every 10 minutes to answer:
+“Should I head out now? Is it worth setting up?”
 
-  **【Next 3 Hours】**
-  Shows hour-by-hour conditions and highlights the best hour to observe.
-  Also indicates whether auroral activity is building, peaking, or fading, and answers:
-  “Is it worth staying on watch over the next 3 hours?”
+**【Next 3 Hours】**
+Shows hour-by-hour conditions and highlights the best hour to observe.
+Also indicates whether auroral activity is building, peaking, or fading, and answers:
+“Is it worth staying on watch over the next 3 hours?”
 
-  **【Next 3 Days】**
-  Incorporates additional CH and CME information to assess auroral activity on a day-by-day basis.
-  From a broader data perspective, it answers:
-  “Which day in the next 3 days is most worth planning for?”
+**【Next 3 Days】**
+Incorporates additional CH and CME information to assess auroral activity on a day-by-day basis.
+From a broader data perspective, it answers:
+“Which day in the next 3 days is most worth planning for?”
 
-  ### Why Not Just Kp?
+### Why Not Just Kp?
 
-  Kp is a broad, global index designed for monitoring space weather at scale.
+Kp is a broad, global index designed for monitoring space weather at scale.
 
-  It is highly useful for spacecraft operations, power-grid protection, and long-term geomagnetic disturbance assessment.
+It is highly useful for spacecraft operations, power-grid protection, and long-term geomagnetic disturbance assessment.
 
-  But Kp was never designed to serve a ground observer who cares about a specific location and a specific time window.
+But Kp was never designed to serve a ground observer who cares about a specific location and a specific time window.
 
-  For aurora observing and photography, Kp is often too coarse.
+For aurora observing and photography, Kp is often too coarse.
 
-  It does not capture rapid changes in the IMF direction, and it struggles to reflect short-term stability and local responses.
+It does not capture rapid changes in the IMF direction, and it struggles to reflect short-term stability and local responses.
 
-  This is why real-world experience can look like this:
-  Kp seems “perfect” on paper, yet nothing is observable or photographable.
+This is why real-world experience can look like this:
+Kp seems “perfect” on paper, yet nothing is observable or photographable.
 
-  That is how Aurora Capture was born—on a -40°C night in Mohe.
+That is how Aurora Capture was born—on a -40°C night in Mohe.
 
-  The C value (Capture Index) is not meant to replace Kp.
-  It is closer to a “photographability index” built for photographers and chasers.
+The C value (Capture Index) is not meant to replace Kp.
+It is closer to a “photographability index” built for photographers and chasers.
 
-  As a landscape photographer with an engineering background, I started from an observer’s perspective:
-  I model directly from raw solar wind and magnetic-field parameters,
-  and evaluate—on shorter time scales—whether they are forming a window that is friendly for shooting.
+As a landscape photographer with an engineering background, I started from an observer’s perspective:
+I model directly from raw solar wind and magnetic-field parameters,
+and evaluate—on shorter time scales—whether they are forming a window that is friendly for shooting.
 
-  Let’s take a look at what kind of hand Earth is holding right now.
+Let’s take a look at what kind of hand Earth is holding right now.
 `,
   "反馈与建议": "Feedback",
   "报错 / 建议 / 数据异常 请发送邮件至：": "For errors, suggestions, or data issues, please email:",
@@ -124,7 +124,7 @@ export const TRANSLATIONS_EN = {
   "地点名称": "Location name",
   "保存": "Save",
   "知道了": "Got it",
-  "不代表无法观测，仅表示模型输入存在不确定性。": "This does not mean it is unobservable; it only indicates uncertainty in the model inputs.",
+  "不代表无法观测，仅表示模型输入存在不确定性。": "This does not mean it is Unobservable; it only indicates uncertainty in the model inputs.",
   "静默": "Silent",
   "爆发进行中": "Surge in Progress",
   "爆发中": "Surge in Progress",
