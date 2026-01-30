@@ -1340,6 +1340,7 @@ canvas{width:100% !important; height:100% !important}
   color: rgba(255,255,255,.88);
   line-height: 1.55;
   font-size: 14px;
+  white-space: pre-line;
 }
 
 /* NOAA：数据可信度提醒的补充说明 */

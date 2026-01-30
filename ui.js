@@ -7,16 +7,30 @@
   const abs = Math.abs;
 
   function safeText(el, t) { if (el) el.textContent = t; }
-  function safeHTML(el, h) { if (el) el.innerHTML = h; }
+  function safeHTML(el, h) {
+    // HTML injection is disallowed except for About/Footer (handled elsewhere).
+    if (el) el.textContent = (h == null ? "" : String(h));
+  }
+  function _tKey(key){
+    try{
+      const i18n = window.I18N;
+      if(i18n && typeof i18n.t === "function") return i18n.t(key);
+    }catch(_){ /* ignore */ }
+    return String(key || "");
+  }
 
   function setStatusDots(items) {
     const box = $("statusDots");
     if (!box) return;
-    box.innerHTML = "";
-    items.forEach(it => {
+    while (box.firstChild) box.removeChild(box.firstChild);
+    const list = Array.isArray(items) ? items : [];
+    list.forEach(it => {
       const d = document.createElement("div");
       d.className = `dot ${it.level}`;
-      d.textContent = it.text;
+      const label = it.labelKey ? _tKey(it.labelKey) : "";
+      const icon = it.iconKey ? _tKey(it.iconKey) : "";
+      const txt = [label, icon].filter(Boolean).join(" ");
+      d.textContent = txt;
       box.appendChild(d);
     });
   }
@@ -42,11 +56,10 @@
   }
 
   // ---------- status note (short, no details) ----------
-  function statusNote(name, state){
+  function statusNote(labelKey, state){
     // state: "ok" | "warn" | "bad"
-    if(state === "ok") return `${name} ✅`;
-    if(state === "warn") return `${name} ⚠️`;
-    return `${name} ❌`;
+    const iconKey = (state === "ok") ? "DOT_ICON_OK" : (state === "warn" ? "DOT_ICON_WARN" : "DOT_ICON_BAD");
+    return { labelKey, iconKey };
   }
 
   // ---------- time fmt ----------
@@ -138,6 +151,11 @@
   }
 
   function applyLang(lang){
+    const i18n = window.I18N;
+    if(!i18n || typeof i18n.setLang !== "function" || typeof i18n.t !== "function") return;
+
+    i18n.setLang(lang === "en" ? "en" : "zh");
+
     // 1) Header language toggle (CN|EN)
     const lt = $("langToggle");
     if(lt){
@@ -145,82 +163,158 @@
       opts.forEach(b => b.classList.toggle("active", (b.dataset.lang || "cn") === lang));
     }
 
-    // 2) About modal title + body switching (CN experience must remain unchanged by default)
-    const aboutTitle = $("aboutTitle");
-    if(aboutTitle){
-      const cn = aboutTitle.getAttribute("data-cn") || aboutTitle.textContent || "";
-      const en = aboutTitle.getAttribute("data-en") || cn;
-      aboutTitle.textContent = (lang === "en") ? en : cn;
+    // 2) Render brand title (preserve existing dual-span structure)
+    const brandText = i18n.t("HDR_TITLE_BRAND");
+    const enEl = document.querySelector(".brandTitle .brandEn");
+    const cnEl = document.querySelector(".brandTitle .brandCn");
+    if(lang === "en"){
+      if(enEl) enEl.textContent = brandText;
+      if(cnEl) cnEl.textContent = "";
+    }else{
+      if(enEl) enEl.textContent = "";
+      if(cnEl) cnEl.textContent = brandText;
     }
 
-    const cnBody = $("aboutBodyCN");
-    const enBody = $("aboutBodyEN");
-    if(cnBody && enBody){
-      cnBody.classList.toggle("hidden", lang === "en");
-      enBody.classList.toggle("hidden", lang !== "en");
+    // 3) Static UI texts (data-i18n driven)
+    const renderBoldLine = (el, text) => {
+      const b = el.querySelector("b");
+      if(!b){
+        el.textContent = text;
+        return;
+      }
+      const i1 = text.indexOf("：");
+      const i2 = text.indexOf(":");
+      let idx = -1;
+      if(i1 === -1 && i2 === -1) idx = -1;
+      else if(i1 === -1) idx = i2;
+      else if(i2 === -1) idx = i1;
+      else idx = Math.min(i1, i2);
+
+      const left = (idx >= 0) ? text.slice(0, idx) : text;
+      const right = (idx >= 0) ? text.slice(idx) : "";
+      b.textContent = left;
+
+      const toRemove = [];
+      el.childNodes.forEach((n) => { if(n !== b) toRemove.push(n); });
+      toRemove.forEach((n) => n.remove());
+      if(right) el.appendChild(document.createTextNode(right));
+    };
+
+    const renderGeoHintBody = (el) => {
+      if(!el) return;
+      const langKey = i18n.getLang();
+      const raw = i18n.resources?.FORM_GEO_HINT_BODY_MAIN?.[langKey] ?? "";
+      const links = (langKey === "en") ? {
+        link1Text: "Google Maps",
+        link1Url: "",
+        link2Text: "Tencent Maps picker",
+        link2Url: "https://lbs.qq.com/getPoint/"
+      } : {
+        link1Text: "奥维地图",
+        link1Url: "",
+        link2Text: "腾讯地图坐标拾取器",
+        link2Url: "https://lbs.qq.com/getPoint/"
+      };
+
+      el.textContent = "";
+      const parts = String(raw).split(/(\{link1Text\}|\{link2Text\})/g);
+      parts.forEach((part) => {
+        if(part === "{link1Text}"){
+          if(links.link1Url){
+            const a = document.createElement("a");
+            a.href = links.link1Url;
+            a.textContent = links.link1Text;
+            a.target = "_blank";
+            a.rel = "noopener";
+            el.appendChild(a);
+          }else{
+            el.appendChild(document.createTextNode(links.link1Text));
+          }
+          return;
+        }
+        if(part === "{link2Text}"){
+          if(links.link2Url){
+            const a = document.createElement("a");
+            a.href = links.link2Url;
+            a.textContent = links.link2Text;
+            a.target = "_blank";
+            a.rel = "noopener";
+            el.appendChild(a);
+          }else{
+            el.appendChild(document.createTextNode(links.link2Text));
+          }
+          return;
+        }
+        if(part) el.appendChild(document.createTextNode(part));
+      });
+    };
+
+    const renderNode = (el) => {
+      const key = el.getAttribute("data-i18n");
+      const attr = el.getAttribute("data-i18n-attr");
+      const attrKey = el.getAttribute("data-i18n-attr-key");
+
+      if(attr && attrKey){
+        el.setAttribute(attr, i18n.t(attrKey));
+        if(!key) return;
+        if(attrKey === key && (el.childElementCount > 0 || el.tagName === "META" || el.tagName === "IMG" || el.tagName === "INPUT")){
+          return;
+        }
+      }
+      if(!key) return;
+      if(key === "HDR_TITLE_BRAND") return;
+
+      if(key === "FORM_GEO_HINT_BODY_MAIN"){
+        renderGeoHintBody(el);
+        return;
+      }
+      if(key === "T1_SW_CLOUD_LINE"){
+        const dash = i18n.t("UI_PLACEHOLDER_DASH");
+        el.textContent = i18n.t(key, { l: dash, m: dash, h: dash });
+        return;
+      }
+      if(key === "T1_SW_MOON_LINE"){
+        const dash = i18n.t("UI_PLACEHOLDER_DASH");
+        el.textContent = i18n.t(key, { deg: dash });
+        return;
+      }
+
+      const text = i18n.t(key);
+      if(attr){
+        el.setAttribute(attr, text);
+        if(el.tagName === "META" || el.tagName === "IMG" || el.tagName === "INPUT") return;
+        if(el.childElementCount > 0) return;
+      }
+      if(el.tagName === "LI" && el.querySelector("b")){
+        renderBoldLine(el, text);
+        return;
+      }
+      el.textContent = text;
+    };
+
+    document.querySelectorAll("[data-i18n], [data-i18n-attr-key]").forEach(renderNode);
+
+    // 4) About / footer (HTML only for these two keys)
+    const aboutCN = $("aboutBodyCN");
+    const aboutEN = $("aboutBodyEN");
+    // Only HTML injection allowed here: UI_ABOUT_BODY / UI_FOOTER_BLOCK
+    if(aboutCN){
+      aboutCN.innerHTML = i18n.th("UI_ABOUT_BODY");
+      aboutCN.classList.remove("hidden");
+    }
+    if(aboutEN){
+      aboutEN.textContent = "";
+      aboutEN.classList.add("hidden");
+    }
+    const footer = $("footerBlock") || document.querySelector(".foot");
+    if(footer){
+      footer.innerHTML = i18n.th("UI_FOOTER_BLOCK");
     }
 
-    // 3) Static UI texts: buttons / tabs (CN stays exactly as original; EN swaps copy)
-    const setBilingualText = (el, enText) => {
-      if(!el) return;
-      // capture original CN on first run
-      if(!el.getAttribute("data-cn")){
-        el.setAttribute("data-cn", el.textContent || "");
-      }
-      if(enText && !el.getAttribute("data-en")){
-        el.setAttribute("data-en", enText);
-      }
-      const cn = el.getAttribute("data-cn") || (el.textContent || "");
-      const en = el.getAttribute("data-en") || cn;
-      el.textContent = (lang === "en") ? en : cn;
-    };
-
-    const setBilingualHTML = (el, enHTML) => {
-      if(!el) return;
-      if(!el.getAttribute("data-cn")){
-        el.setAttribute("data-cn", el.innerHTML || "");
-      }
-      if(enHTML && !el.getAttribute("data-en")){
-        el.setAttribute("data-en", enHTML);
-      }
-      const cn = el.getAttribute("data-cn") || (el.innerHTML || "");
-      const en = el.getAttribute("data-en") || cn;
-      el.innerHTML = (lang === "en") ? en : cn;
-    };
-
-    // Buttons (be tolerant to id variations)
-    setBilingualText($("btnGeo"), "📍 Get Location");
-    setBilingualText($("btnRun"), "✍️ Run Forecast");
-    setBilingualText($("btnPredict"), "✍️ Run Forecast");
-    setBilingualText($("btnAbout"), "📖 User Guide");
-
-    // Tabs
-    const tabs = Array.from(document.querySelectorAll(".tab"));
-    tabs.forEach(t => {
-      const id = t.dataset.tab || "";
-      if(id === "t1") setBilingualText(t, "1H Precision");
-      else if(id === "t3") setBilingualText(t, "3H Window");
-      else if(id === "t72") setBilingualText(t, "72H Outlook");
-    });
-
-    // Status + geo hint (EN only)
-    setBilingualText($("statusText"), "Ready.");
-    setBilingualText(
-      $("geoHintSummary"),
-      "We recommend using \"Get Location\". You can also enter coordinates manually."
-    );
-    setBilingualHTML(
-      $("geoHintBody"),
-      "Not sure about coordinates? Try: <b>Google Maps</b> (drop a pin and read lat/lon), or Tencent Maps picker: https://lbs.qq.com/getPoint/."
-    );
-
-    // 4) Static blocks added in index.html: unit pill + EN explain cards (CN must remain unchanged)
-    setBilingualText($("unit10m"), "Unit: 10 min");
-
+    // 5) Keep legacy explain-card toggles (structure unchanged)
     const toggleExplainPair = (enId) => {
       const enCard = $(enId);
       if(!enCard) return;
-      // CN card is the immediate previous sibling (we inserted EN card right after CN card)
       const cnCard = enCard.previousElementSibling;
       if(cnCard && cnCard.classList && cnCard.classList.contains("explain")){
         cnCard.classList.toggle("hidden", lang === "en");
@@ -300,14 +394,14 @@
     });
   }
 
-  function showAlertModal(html){
+  function showAlertModalText(text){
     const overlay = $("alertOverlay");
     const body = $("alertBody");
     const btnX = $("alertClose");
     const btnOk = $("alertOk");
     if(!overlay || !body) return;
 
-    safeHTML(body, html);
+    safeText(body, text);
 
     overlay.classList.remove("hidden");
     overlay.setAttribute("aria-hidden", "false");
@@ -391,14 +485,14 @@
       if(!t) throw new Error("empty");
       const j = JSON.parse(t);
       cacheSet("cache_kp", j);
-      return { ok:true, note: statusNote("KP", "ok"), data:j };
+      return { ok:true, note: statusNote("DOT_LABEL_KP", "ok"), data:j };
     }catch(e){
       const c = cacheGet("cache_kp");
       if(c?.value){
         // cache fallback: still usable, but warn
-        return { ok:true, note: statusNote("KP", "warn"), data:c.value };
+        return { ok:true, note: statusNote("DOT_LABEL_KP", "warn"), data:c.value };
       }
-      return { ok:false, note: statusNote("KP", "bad"), data:null };
+      return { ok:false, note: statusNote("DOT_LABEL_KP", "bad"), data:null };
     }
   }
 
@@ -410,13 +504,13 @@
       if(!t) throw new Error("empty");
       const j = JSON.parse(t);
       cacheSet("cache_ovation", j);
-      return { ok:true, note: statusNote("OVATION", "ok"), data:j };
+      return { ok:true, note: statusNote("DOT_LABEL_OVATION", "ok"), data:j };
     }catch(e){
       const c = cacheGet("cache_ovation");
       if(c?.value){
-        return { ok:true, note: statusNote("OVATION", "warn"), data:c.value };
+        return { ok:true, note: statusNote("DOT_LABEL_OVATION", "warn"), data:c.value };
       }
-      return { ok:false, note: statusNote("OVATION", "bad"), data:null };
+      return { ok:false, note: statusNote("DOT_LABEL_OVATION", "bad"), data:null };
     }
   }
 
@@ -429,13 +523,13 @@
       if(!t) throw new Error("empty");
       const j = JSON.parse(t);
       cacheSet(k, { lat, lon, j });
-      return { ok:true, note: statusNote("云量", "ok"), data:j };
+      return { ok:true, note: statusNote("DOT_LABEL_CLOUDS", "ok"), data:j };
     }catch(e){
       const c = cacheGet(k);
       if(c?.value?.j){
-        return { ok:true, note: statusNote("云量", "warn"), data:c.value.j };
+        return { ok:true, note: statusNote("DOT_LABEL_CLOUDS", "warn"), data:c.value.j };
       }
-      return { ok:false, note: statusNote("云量", "bad"), data:null };
+      return { ok:false, note: statusNote("DOT_LABEL_CLOUDS", "bad"), data:null };
     }
   }
 
@@ -472,7 +566,7 @@
     // ui controls
     initTabs,
     initAbout,
-    showAlertModal,
+    showAlertModalText,
     // language
     getLang,
     setLang,

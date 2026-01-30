@@ -38,7 +38,7 @@ const safeHTML = (el, h) => {
   if(!el) return;
   try{
     if(uiReady()) return window.UI.safeHTML(el, h);
-    el.innerHTML = (h == null ? "" : String(h));
+    el.textContent = (h == null ? "" : String(h));
   }catch(_){ /* ignore */ }
 };
 
@@ -72,15 +72,25 @@ const setStatusDots = (items) => {
   if(uiReady() && typeof window.UI.setStatusDots === "function"){
     try{ window.UI.setStatusDots(items); return; }catch(_){ /* fall through */ }
   }
-  // Fallback: render simple text list
+  // Fallback: render text list without innerHTML
   const wrap = document.getElementById("statusDots");
   if(!wrap) return;
+  while(wrap.firstChild) wrap.removeChild(wrap.firstChild);
   const arr = Array.isArray(items) ? items : [];
-  wrap.innerHTML = arr.map(it => {
+  arr.forEach(it => {
     const lvl = (it && it.level) ? String(it.level) : "warn";
-    const txt = (it && it.text) ? String(it.text) : "";
-    return `<span class="dot ${lvl}"></span><span class="dotText">${escapeHTML(txt)}</span>`;
-  }).join(" ");
+    const label = (it && it.labelKey) ? tKey(it.labelKey) : (it && it.text ? String(it.text) : "");
+    const icon = (it && it.iconKey) ? tKey(it.iconKey) : "";
+    const txt = [label, icon].filter(Boolean).join(" ");
+    const dot = document.createElement("span");
+    dot.className = `dot ${lvl}`;
+    const t = document.createElement("span");
+    t.className = "dotText";
+    t.textContent = txt;
+    wrap.appendChild(dot);
+    wrap.appendChild(t);
+    wrap.appendChild(document.createTextNode(" "));
+  });
 };
 
 const cacheSet = (k, v) => {
@@ -116,17 +126,17 @@ const fmtAge = (ms) => {
 
 // --- Simplified status pill helpers ---
 const levelFromNote = (note, okFlag = true) => {
-  const s = String(note || "");
-  if(s.includes("❌")) return "bad";
-  if(s.includes("⚠️")) return "warn";
+  const iconKey = note && typeof note === "object" ? note.iconKey : null;
+  if(iconKey === "DOT_ICON_BAD") return "bad";
+  if(iconKey === "DOT_ICON_WARN") return "warn";
   return okFlag ? "ok" : "bad";
 };
 
 const swPill = (rtStatus) => {
   const st = String(rtStatus || "").toUpperCase();
-  if(st === "OK") return { level: "ok", text: "太阳风 ✅" };
-  if(st === "DEGRADED") return { level: "warn", text: "太阳风 ⚠️" };
-  return { level: "bad", text: "太阳风 ❌" };
+  if(st === "OK") return { level: "ok", labelKey: "DOT_LABEL_SW", iconKey: "DOT_ICON_OK" };
+  if(st === "DEGRADED") return { level: "warn", labelKey: "DOT_LABEL_SW", iconKey: "DOT_ICON_WARN" };
+  return { level: "bad", labelKey: "DOT_LABEL_SW", iconKey: "DOT_ICON_BAD" };
 };
 
 const now = () => {
@@ -161,6 +171,111 @@ const escapeHTML = (s) => {
     .replaceAll("'", "&#39;");
 };
 
+const tKey = (key, params) => {
+  try{
+    const i18n = window.I18N;
+    if(i18n && typeof i18n.t === "function") return i18n.t(key, params);
+  }catch(_){ /* ignore */ }
+  return String(key || "");
+};
+
+const clearEl = (el) => {
+  if(!el) return;
+  while(el.firstChild) el.removeChild(el.firstChild);
+};
+
+const renderHeroLabel = (el, text, color, withPlus) => {
+  if(!el) return;
+  clearEl(el);
+  const wrap = document.createElement("span");
+  wrap.textContent = (text == null ? "" : String(text));
+  wrap.style.color = color || "";
+  if(withPlus){
+    wrap.style.position = "relative";
+    wrap.style.display = "inline-block";
+    wrap.style.paddingRight = "10px";
+    const plus = document.createElement("span");
+    plus.textContent = "+";
+    plus.style.position = "absolute";
+    plus.style.top = "-6px";
+    plus.style.right = "-6px";
+    plus.style.width = "18px";
+    plus.style.height = "18px";
+    plus.style.lineHeight = "18px";
+    plus.style.textAlign = "center";
+    plus.style.borderRadius = "999px";
+    plus.style.border = "1px solid rgba(255,255,255,.22)";
+    plus.style.background = "rgba(255,255,255,.10)";
+    plus.style.fontSize = "12px";
+    plus.style.fontWeight = "700";
+    plus.style.color = "rgba(255,255,255,.88)";
+    wrap.appendChild(plus);
+  }
+  el.appendChild(wrap);
+};
+
+const renderBlockerExplain = (el, score, text) => {
+  if(!el) return;
+  clearEl(el);
+  if(!text) return;
+  const wrap = document.createElement("div");
+  wrap.className = `blockerExplain s${score}`;
+  const inner = document.createElement("div");
+  inner.textContent = String(text);
+  wrap.appendChild(inner);
+  el.appendChild(wrap);
+};
+
+const renderSwPlaceholder = () => {
+  const wrap = $("swLine");
+  if(!wrap) return;
+  const dash = tKey("UI_PLACEHOLDER_DASH");
+  const main = wrap.querySelector(".swMain");
+  const aux = wrap.querySelector(".swAux");
+  if(main){
+    const vals = main.querySelectorAll(".swV");
+    vals.forEach(v => { v.textContent = dash; });
+  }
+  if(aux){
+    const items = aux.querySelectorAll(".swAuxItem");
+    if(items[0]) items[0].textContent = tKey("T1_SW_CLOUD_LINE", { l: dash, m: dash, h: dash });
+    if(items[1]) items[1].textContent = tKey("T1_SW_MOON_LINE", { deg: dash });
+  }
+};
+
+const renderSwLine = (sw, cloudLine, moonLine) => {
+  const wrap = $("swLine");
+  if(!wrap) return;
+  const main = wrap.querySelector(".swMain");
+  const aux = wrap.querySelector(".swAux");
+  if(main){
+    const vals = main.querySelectorAll(".swV");
+    const v = [
+      Number.isFinite(sw?.v) ? sw.v.toFixed(0) : tKey("UI_PLACEHOLDER_DASH"),
+      Number.isFinite(sw?.bt) ? sw.bt.toFixed(1) : tKey("UI_PLACEHOLDER_DASH"),
+      Number.isFinite(sw?.bz) ? sw.bz.toFixed(1) : tKey("UI_PLACEHOLDER_DASH"),
+      Number.isFinite(sw?.n) ? sw.n.toFixed(2) : tKey("UI_PLACEHOLDER_DASH"),
+    ];
+    v.forEach((txt, i) => { if(vals[i]) vals[i].textContent = txt; });
+  }
+  if(aux){
+    const items = aux.querySelectorAll(".swAuxItem");
+    if(items[0] && cloudLine) items[0].textContent = cloudLine;
+    if(items[1] && moonLine) items[1].textContent = moonLine;
+  }
+};
+
+const renderDayBasis = (el, lines) => {
+  if(!el) return;
+  clearEl(el);
+  (lines || []).forEach((line) => {
+    const div = document.createElement("div");
+    div.className = "basisItem";
+    div.textContent = String(line);
+    el.appendChild(div);
+  });
+};
+
 const renderChart = (labels, vals, cols) => {
   try{
     if(uiReady() && typeof window.UI.renderChart === "function") window.UI.renderChart(labels, vals, cols);
@@ -178,20 +293,20 @@ const initTabs = () => { if (uiReady() && typeof window.UI.initTabs === "functio
 const initAbout = () => { if (uiReady() && typeof window.UI.initAbout === "function") { try{ window.UI.initAbout(); }catch(_){ } } };
 const initLangToggle = () => { if (uiReady() && typeof window.UI.initLangToggle === "function") { try{ window.UI.initLangToggle(); }catch(_){ } } };
 
-   const showAlertModal = (html) => { if (uiReady() && typeof window.UI.showAlertModal === "function") window.UI.showAlertModal(html); };
+   const showAlertModalText = (text) => { if (uiReady() && typeof window.UI.showAlertModalText === "function") window.UI.showAlertModalText(text); };
 
    // --- Alert overlay helpers (do not rely on UI.showAlertModal, which may not toggle .show) ---
-   function openAlertOverlay(html){
+   function openAlertOverlayText(text){
      try{
        const body = document.getElementById("alertBody");
-       if(body) body.innerHTML = html;
+       if(body) body.textContent = (text == null ? "" : String(text));
        const overlay = document.getElementById("alertOverlay");
        if(overlay){
          overlay.classList.add("show");
          overlay.setAttribute("aria-hidden", "false");
        }
      }catch(e){
-       console.error("[AuroraCapture] openAlertOverlay error:", e);
+       console.error("[AuroraCapture] openAlertOverlayText error:", e);
      }
    }
 
@@ -230,23 +345,23 @@ const initLangToggle = () => { if (uiReady() && typeof window.UI.initLangToggle 
      return NaN;
    }
 
-   function openAlertOverlayFull(titleText, html, noteText){
+   function openAlertOverlayFull(titleText, text, noteText){
      try{
        const title = document.getElementById("alertTitle");
        const note  = document.getElementById("alertNote");
        if(title && titleText) title.textContent = titleText;
        if(note  && noteText)  note.textContent  = noteText;
-       openAlertOverlay(html);
+       openAlertOverlayText(text);
      }catch(e){
        console.error("[AuroraCapture] openAlertOverlayFull error:", e);
-       openAlertOverlay(html);
+       openAlertOverlayText(text);
      }
    }
 
-   function mlatGateHtml(absM){
+   function mlatGateText(absM){
      return (
-       `当前位置磁纬约 <b>${absM.toFixed(1)}°</b>（|MLAT|，近似值）。<br>` +
-       `当 <b>|MLAT| &lt; ${MLAT_STRONG_WARN}°</b> 时，极光可见性高度依赖<strong>极端磁暴</strong>与<strong>北向开阔地平线</strong>，不适合“常规出门拍”的决策。<br>` +
+       `当前位置磁纬约 ${absM.toFixed(1)}°（|MLAT|，近似值）。\n` +
+       `当 |MLAT| < ${MLAT_STRONG_WARN}° 时，极光可见性高度依赖极端磁暴与北向开阔地平线，不适合“常规出门拍”的决策。\n` +
        `建议：尽量提高磁纬（靠近/进入极光椭圆边缘）再使用本工具。`
      );
    }
@@ -255,11 +370,7 @@ const initLangToggle = () => { if (uiReady() && typeof window.UI.initLangToggle 
      const absM = Math.abs(mlat);
      openAlertOverlayFull(
        "⚠️ 磁纬限制：不可观测",
-       (
-         `当前位置磁纬约 <b>${absM.toFixed(1)}°</b>（|MLAT|，近似值）。<br>` +
-         `当 <b>|MLAT| &lt; ${MLAT_HARD_STOP}°</b> 时，极光几乎不可能到达你的可见范围。<br>` +
-         `这是硬性地理限制：无论 Kp / Bz / 速度如何，都不建议投入等待与拍摄。`
-       ),
+       `当前位置磁纬约 ${absM.toFixed(1)}°（|MLAT|，近似值）。\n当 |MLAT| < ${MLAT_HARD_STOP}° 时，极光几乎不可能到达你的可见范围。\n这是硬性地理限制：无论 Kp / Bz / 速度如何，都不建议投入等待与拍摄。`,
        "这是硬性地理限制，不是数据缺失或模型不确定性。"
      );
    }
@@ -268,7 +379,7 @@ const initLangToggle = () => { if (uiReady() && typeof window.UI.initLangToggle 
      const absM = Math.abs(mlat);
      openAlertOverlayFull(
        "⚠️ 磁纬较低：仅极端事件才可能",
-       mlatGateHtml(absM),
+       mlatGateText(absM),
        "提示：你仍可继续生成，但请把它当作“极端磁暴边缘赌局”。"
      );
    }
@@ -687,7 +798,7 @@ function fillCurrentLocation(){
     if(!navigator.geolocation){
       openAlertOverlayFull(
         "📍 无法获取定位",
-        "当前浏览器不支持定位功能。<br><br>你可以手动输入经纬度。",
+        "当前浏览器不支持定位功能。\n\n你可以手动输入经纬度。",
         "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。"
       );
       return;
@@ -1157,7 +1268,7 @@ function fillCurrentLocation(){
         setStatusText("请先输入有效经纬度。");
         openAlertOverlayFull(
           "⚠️ 经纬度输入无效",
-          "请输入数字格式的纬度/经度。<br>纬度范围：<b>-90° ～ +90°</b>；经度范围：<b>-180° ～ +180°</b>。",
+          "请输入数字格式的纬度/经度。\n纬度范围：-90° ～ +90°；经度范围：-180° ～ +180°。",
           "示例：纬度 53.47，经度 122.35"
         );
         return;
@@ -1168,10 +1279,10 @@ function fillCurrentLocation(){
         setStatusText("⚠️ 经纬度超出范围");
         openAlertOverlayFull(
           "⚠️ 经纬度超出范围",
-          `你输入的是：<b>Latitude ${lat}</b>，<b>Longitude ${lon}</b>。<br>` +
-            `允许范围：<br>` +
-            `纬度（Latitude）：<b>-90° ～ +90°</b><br>` +
-            `经度（Longitude）：<b>-180° ～ +180°</b>` ,
+          `你输入的是：Latitude ${lat}，Longitude ${lon}。\n` +
+            `允许范围：\n` +
+            `纬度（Latitude）：-90° ～ +90°\n` +
+            `经度（Longitude）：-180° ～ +180°` ,
           "请修正后再点击生成。"
         );
         return;
@@ -1185,14 +1296,14 @@ function fillCurrentLocation(){
 
       setStatusText("拉取数据中…");
       setStatusDots([
-        { level:"warn", text:"太阳风 …" },
-        { level:"warn", text:"KP …" },
-        { level:"warn", text:"云量 …" },
-        { level:"warn", text:"OVATION …" },
+        { level:"warn", labelKey:"DOT_LABEL_SW", iconKey:"DOT_ICON_WARN" },
+        { level:"warn", labelKey:"DOT_LABEL_KP", iconKey:"DOT_ICON_WARN" },
+        { level:"warn", labelKey:"DOT_LABEL_CLOUDS", iconKey:"DOT_ICON_WARN" },
+        { level:"warn", labelKey:"DOT_LABEL_OVATION", iconKey:"DOT_ICON_WARN" },
       ]);
 
       // Ensure placeholder layout before any run
-      safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
+      renderSwPlaceholder();
       safeText($("swMeta"), "—");
 
       // 先计算磁纬（用于“硬限制/强警告”门槛；避免误伤北京这类低地理纬度但仍可能事件）
@@ -1215,13 +1326,14 @@ function fillCurrentLocation(){
       if(Number.isFinite(absMlat) && absMlat < MLAT_HARD_STOP){
         showMlatHardStop(mlat);
 
-        safeHTML($("oneHeroLabel"), `<span style="color:${cColor(1)} !important;">${escapeHTML(translateConclusionTextIfEN("不可观测"))}</span>`);
+        renderHeroLabel($("oneHeroLabel"), translateConclusionTextIfEN("不可观测"), cColor(1), false);
         safeText($("oneHeroMeta"), actionNote1h(1, { hardBlock:true }));
-        safeHTML(
+        renderBlockerExplain(
           $("oneBlockers"),
-          `<div class="blockerExplain s1"><div>${escapeHTML(primaryPrefixIfEN() + translateReasonIfEN("磁纬过低，已停止生成"))}</div></div>`
+          1,
+          primaryPrefixIfEN() + translateReasonIfEN("磁纬过低，已停止生成")
         );
-        safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
+        renderSwPlaceholder();
         safeText($("swMeta"), "—");
 
         const labels = ["+10m","+20m","+30m","+40m","+50m","+60m"];
@@ -1256,10 +1368,10 @@ function fillCurrentLocation(){
         });
 
         setStatusDots([
-          { level:"ok", text:"太阳风 —" },
-          { level:"ok", text:"KP —" },
-          { level:"ok", text:"云量 —" },
-          { level:"ok", text:"OVATION —" },
+          { level:"ok", labelKey:"DOT_LABEL_SW", iconKey:"DOT_ICON_OK" },
+          { level:"ok", labelKey:"DOT_LABEL_KP", iconKey:"DOT_ICON_OK" },
+          { level:"ok", labelKey:"DOT_LABEL_CLOUDS", iconKey:"DOT_ICON_OK" },
+          { level:"ok", labelKey:"DOT_LABEL_OVATION", iconKey:"DOT_ICON_OK" },
         ]);
         setStatusText("⚠️ 磁纬过低：已停止生成。 ");
         return;
@@ -1280,11 +1392,14 @@ function fillCurrentLocation(){
       ]);
       
       // 状态点：太阳风来源固定为镜像 + 新鲜度状态
+      const kpNote = kp?.note || { labelKey: "DOT_LABEL_KP", iconKey: "DOT_ICON_WARN" };
+      const cloudsNote = clouds?.note || { labelKey: "DOT_LABEL_CLOUDS", iconKey: "DOT_ICON_WARN" };
+      const ovaNote = ova?.note || { labelKey: "DOT_LABEL_OVATION", iconKey: "DOT_ICON_WARN" };
       setStatusDots([
         swPill(rt?.status),
-        { level: levelFromNote(kp?.note, !!kp?.ok), text: kp?.note || "KP" },
-        { level: levelFromNote(clouds?.note, !!clouds?.ok), text: clouds?.note || "云量" },
-        { level: levelFromNote(ova?.note, !!ova?.ok), text: ova?.note || "OVATION" },
+        { level: levelFromNote(kpNote, !!kp?.ok), labelKey: kpNote.labelKey, iconKey: kpNote.iconKey },
+        { level: levelFromNote(cloudsNote, !!clouds?.ok), labelKey: cloudsNote.labelKey, iconKey: cloudsNote.iconKey },
+        { level: levelFromNote(ovaNote, !!ova?.ok), labelKey: ovaNote.labelKey, iconKey: ovaNote.iconKey },
       ]);
       
       // 统一字段 → 旧模型 sw 结构（最小侵入：不改你后面模型）
@@ -1424,8 +1539,6 @@ function fillCurrentLocation(){
       // (moved baseDate up)
 
     // ✅ always render realtime solar-wind line (otherwise UI stays "—")
-    const fmtNum = (x, d=1) => (Number.isFinite(x) ? x.toFixed(d) : "—");
-
     // 实时云量（当前小时 L/M/H）
     let cloudLine = "";
     try{
@@ -1446,33 +1559,7 @@ function fillCurrentLocation(){
       }
     }catch(_){ moonLine = ""; }
 
-    // 方案二：两行展示
-    // 第一行：V / Bt / Bz / N（尽量不换行；未来你在 style.css 再细调）
-    // 第二行：云量 / 月角（重要但次一级，单独一行更清爽）
-    const kv = (k, v) => (
-      `<span class="swK">${escapeHTML(k)}</span> ` +
-      `<span class="swV">${escapeHTML(v)}</span>`
-    );
-
-    const line1 = [
-      kv("V",  fmtNum(sw.v, 0)),
-      kv("Bt", fmtNum(sw.bt, 1)),
-      kv("Bz", fmtNum(sw.bz, 1)),
-      kv("N",  fmtNum(sw.n, 2)),
-    ].join(" <span class=\"swSep\">｜</span> ");
-
-    const line2Parts = [];
-    if(cloudLine) line2Parts.push(`<span class="swAuxItem">${escapeHTML(cloudLine)}</span>`);
-    if(moonLine)  line2Parts.push(`<span class="swAuxItem">${escapeHTML(moonLine)}</span>`);
-
-    const line2 = line2Parts.length
-      ? `<div class="swAux">${line2Parts.join(" <span class=\"swSep\">｜</span> ")}</div>`
-      : "";
-
-    safeHTML(
-      $("swLine"),
-      `<div class="swMain" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${line1}</div>${line2}`
-    );
+    renderSwLine(sw, cloudLine, moonLine);
       
       // meta: show timestamps + freshness
       const tsText = sw.time_tag ? fmtYMDHM(new Date(sw.time_tag)) : "—";
@@ -1494,16 +1581,13 @@ function fillCurrentLocation(){
         // 数据可信度提醒：右侧可点击查看详情（不自动强弹）
         setStatusText("⚠️ 数据可信度提醒");
 
-        const warnHtml = `
-          <div>NOAA 数据口径变动或部分数据缺失：<b>${escapeHTML(missCN)}</b></div>
-          <div class="mutedLine">当前预测可信度较低，建议谨慎参考。</div>
-        `;
+        const warnText = `NOAA 数据口径变动或部分数据缺失：${missCN}\n当前预测可信度较低，建议谨慎参考。`;
 
         const st = document.getElementById("statusText");
         if(st){
           st.classList.add("warn");
           st.title = "点击查看数据可信度说明";
-          st.onclick = () => openAlertOverlay(warnHtml);
+          st.onclick = () => openAlertOverlayText(warnText);
         }
       }else{
         setStatusText("已生成。");
@@ -1582,11 +1666,8 @@ function fillCurrentLocation(){
       // 1小时标题：整句跟随 C 值颜色（用 inline + !important 防止被 CSS 覆盖）
       const heroAllowPlus = (heroScore >= 2 && heroScore <= 4);
       const heroLabelText = translateConclusionTextIfEN(heroObj.t);
-      const heroLabelInner = `<span style="color:${cColor(heroObj.score)} !important;">${escapeHTML(String(heroLabelText))}</span>`;
-      safeHTML(
-        $("oneHeroLabel"),
-        maybePlusWrap(heroLabelInner, heroAllowPlus)
-      );
+      const withPlus = !!(trendPlus?.on && heroAllowPlus);
+      renderHeroLabel($("oneHeroLabel"), heroLabelText, cColor(heroObj.score), withPlus);
       // OVATION meta (time + age)
       let ovaTxt = "—";
       try {
@@ -1609,7 +1690,7 @@ function fillCurrentLocation(){
       }
       
       // ----- 观测限制解释（C=1/2/3 时显示；hardBlock 也必须给出原因，避免空白）-----
-      let blockerHTML = "";
+      let blockerText = "";
       try{
         if(heroScore <= 3 && heroGate){
           let primary = "";
@@ -1647,16 +1728,12 @@ function fillCurrentLocation(){
             if(!primary.trim()) primary = "天色偏亮，微弱极光难以分辨";
           }
 
-          blockerHTML = `
-            <div class="blockerExplain s${heroScore}">
-              <div>${escapeHTML(primaryPrefixIfEN() + (translateReasonIfEN(primary) || "—"))}</div>
-            </div>
-          `;
+          blockerText = primaryPrefixIfEN() + (translateReasonIfEN(primary) || "—");
         }
-      }catch(e){ blockerHTML = ""; }
+      }catch(e){ blockerText = ""; }
 
       safeText($("oneHeroMeta"), actionNote1h(heroScore, heroGate));
-      safeHTML($("oneBlockers"), blockerHTML || "");
+      renderBlockerExplain($("oneBlockers"), heroScore, blockerText || "");
 
       renderChart(labels, vals, cols);
 
@@ -1905,19 +1982,13 @@ function fillCurrentLocation(){
         const trigLine = `触发模型：高速风${p1a}/1 · 能量输入${p1b}/1`;
         const nightLine = `夜晚占比：${Math.round(nightRatio * 100)}%`;
 
-        const basisHTML = [
-          `<div class="basisItem">${escapeHTML(kpLine)}</div>`,
-          `<div class="basisItem">${escapeHTML(delLine)}</div>`,
-          `<div class="basisItem">${escapeHTML(trigLine)}</div>`,
-          `<div class="basisItem">${escapeHTML(nightLine)}</div>`,
-          `<div class="basisItem">${escapeHTML(cloudDetail)}</div>`,
-        ].join("");
+        const basisLines = [kpLine, delLine, trigLine, nightLine, cloudDetail];
 
         // 写入到三列卡片
         safeText($("day"+i+"Date"), key);
         safeText($("day"+i+"Conclusion"), translateConclusionTextIfEN(lab.t));
         safeText($("day"+i+"Note"), actionNote72h(score5));
-        safeHTML($("day"+i+"Basis"), basisHTML);
+        renderDayBasis($("day"+i+"Basis"), basisLines);
 
         const card = $("day"+i);
         if(card) card.className = `dayCard ${lab.cls}`;
@@ -1939,7 +2010,7 @@ function fillCurrentLocation(){
     if($("lon") && !$("lon").value) $("lon").value = "122.35";
 
     // Ensure placeholder layout is consistent before any run()
-    safeHTML($("swLine"), SW_PLACEHOLDER_HTML);
+    renderSwPlaceholder();
     safeText($("swMeta"), "—");
 
 

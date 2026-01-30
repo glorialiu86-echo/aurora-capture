@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Aurora Capture 极光捕手</title>
+  <title data-i18n="META_TITLE"></title>
   <!-- Favicon -->
   <link rel="icon" href="./assets/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="./assets/favicon.png">
   <!-- Description for link preview -->
-  <meta name="description" content="现在要不要出门追光？一键给出观测窗口">
-  <meta property="og:description" content="现在要不要出门追光？一键给出观测窗口">
+  <meta name="description" content="" data-i18n="META_DESC" data-i18n-attr="content">
+  <meta property="og:description" content="" data-i18n="META_OG_DESC" data-i18n-attr="content">
   <link rel="stylesheet" href="./style.css?v=0319" />
   <!-- SunCalc: 太阳/月亮高度（仅后台计算，不在前台露出） -->
   <script src="https://unpkg.com/suncalc@1.9.0/suncalc.js"></script>
@@ -22,22 +22,22 @@
       <div class="brandRow">
         <div class="brand">
         <div class="logo logoPlain">
-          <img class="logoImg" src="./assets/logo-v2.png" alt="Aurora Capture logo">
+          <img class="logoImg" src="./assets/logo-v2.png" alt="" data-i18n="HDR_LOGO_ALT" data-i18n-attr="alt">
         </div>
           <div class="titleBlock">
             <div class="titleRow">
-              <h1 class="brandTitle"><span class="brandEn">Aurora Capture</span> <span class="brandCn">极光捕手</span></h1>
+              <h1 class="brandTitle"><span class="brandEn" data-i18n="HDR_TITLE_BRAND"></span> <span class="brandCn" data-i18n="HDR_TITLE_BRAND"></span></h1>
             </div>
           </div>
         </div>
       </div>
 
       <div class="headRight">
-        <button id="btnAbout" type="button" class="topLink" aria-label="工具介绍">📖 工具介绍</button>
-        <div class="langToggle" id="langToggle" aria-label="Language">
-          <button type="button" class="langOpt" data-lang="cn">CN</button>
+        <button id="btnAbout" type="button" class="topLink" aria-label="" data-i18n="HDR_BTN_ABOUT" data-i18n-attr="aria-label" data-i18n-attr-key="HDR_BTN_ABOUT_ARIA"></button>
+        <div class="langToggle" id="langToggle" aria-label="" data-i18n="HDR_LANG_TOGGLE_ARIA" data-i18n-attr="aria-label" data-i18n-attr-key="HDR_LANG_TOGGLE_ARIA">
+          <button type="button" class="langOpt" data-lang="cn" data-i18n="HDR_LANG_CN_LABEL"></button>
           <span class="langSep">|</span>
-          <button type="button" class="langOpt" data-lang="en">EN</button>
+          <button type="button" class="langOpt" data-lang="en" data-i18n="HDR_LANG_EN_LABEL"></button>
         </div>
       </div>
     </header>
@@ -45,38 +45,36 @@
     <section class="card topCard">
       <div class="grid2">
         <label class="field fieldInline">
-          <span class="label">纬度 Latitude</span>
-          <input id="lat" type="number" step="0.0001" placeholder="例如 53.47" />
+          <span class="label" data-i18n="FORM_LABEL_LAT"></span>
+          <input id="lat" type="number" step="0.0001" placeholder="" data-i18n="FORM_PLACEHOLDER_LAT" data-i18n-attr="placeholder" />
         </label>
         <label class="field fieldInline">
-          <span class="label">经度 Longitude</span>
-          <input id="lon" type="number" step="0.0001" placeholder="例如 122.35" />
+          <span class="label" data-i18n="FORM_LABEL_LON"></span>
+          <input id="lon" type="number" step="0.0001" placeholder="" data-i18n="FORM_PLACEHOLDER_LON" data-i18n-attr="placeholder" />
         </label>
       </div>
 
       <div class="row actions">
-        <button id="btnGeo" type="button" class="btn secondary">📍 获取当前位置</button>
-        <button id="btnRun" type="button" class="btn primary">✍️ 生成即时预测</button>
+        <button id="btnGeo" type="button" class="btn secondary" data-i18n="FORM_BTN_GEO"></button>
+        <button id="btnRun" type="button" class="btn primary" data-i18n="FORM_BTN_RUN"></button>
       </div>
 
       <details class="faq">
-        <summary id="geoHintSummary">推荐直接“获取当前位置”，也可手动输入经纬度</summary>
-        <div class="faqBody" id="geoHintBody">
-          目的地经纬度：可通过奥维地图长按获取，或使用腾讯地图坐标拾取器：https://lbs.qq.com/getPoint/。
-        </div>
+        <summary id="geoHintSummary" data-i18n="FORM_GEO_HINT_SUMMARY"></summary>
+        <div class="faqBody" id="geoHintBody" data-i18n="FORM_GEO_HINT_BODY_MAIN"></div>
       </details>
 
-      <div class="row statusRow" aria-label="数据状态">
+      <div class="row statusRow" aria-label="" data-i18n="STATUS_ROW_ARIA" data-i18n-attr="aria-label" data-i18n-attr-key="STATUS_ROW_ARIA">
         <div class="statusPills" id="statusDots"></div>
-        <div class="statusText" id="statusText" aria-live="polite">等待生成。</div>
+        <div class="statusText" id="statusText" aria-live="polite" data-i18n="STATUS_TEXT_WAITING"></div>
       </div>
     </section>
 
     <section class="tabs">
       <div class="tabsLeft">
-        <button class="tab active" data-tab="t1">1小时精准</button>
-        <button class="tab" data-tab="t3">3小时预测</button>
-        <button class="tab" data-tab="t72">72小时范围</button>
+        <button class="tab active" data-tab="t1" data-i18n="TAB_T1_LABEL"></button>
+        <button class="tab" data-tab="t3" data-i18n="TAB_T3_LABEL"></button>
+        <button class="tab" data-tab="t72" data-i18n="TAB_T72_LABEL"></button>
       </div>
     </section>
 
@@ -85,11 +83,11 @@
       <div class="oneHourStack">
       <!-- 上：结论条 -->
       <div class="card hero">
-        <div class="k">当前建议（1小时内，10分钟粒度）</div>
+        <div class="k" data-i18n="T1_HERO_TITLE"></div>
 
         <!-- 保留原来的数据锚点，JS 才能填进去 -->
-        <div class="big" id="oneHeroLabel">—</div>
-        <div class="small" id="oneHeroMeta">—</div>
+        <div class="big" id="oneHeroLabel" data-i18n="UI_PLACEHOLDER_DASH"></div>
+        <div class="small" id="oneHeroMeta" data-i18n="UI_PLACEHOLDER_DASH"></div>
 
         <!-- 右侧解释预留区（可选） -->
         <div class="heroTopRow">
@@ -100,26 +98,26 @@
 
       <!-- 下：上游实况条 -->
       <div class="card hero swHeroWide">
-        <div class="k">上游实况（近实时）</div>
+        <div class="k" data-i18n="T1_UPSTREAM_TITLE"></div>
 
         <!-- 保留原来的数据锚点 -->
         <div class="mono big2" id="swLine">
           <div class="swMain">
-            <span><span class="swK">V</span> <span class="swV">—</span></span>
+            <span><span class="swK" data-i18n="T1_SW_LABEL_V"></span> <span class="swV" data-i18n="UI_PLACEHOLDER_DASH"></span></span>
             <span class="swSep">｜</span>
-            <span><span class="swK">Bt</span> <span class="swV">—</span></span>
+            <span><span class="swK" data-i18n="T1_SW_LABEL_BT"></span> <span class="swV" data-i18n="UI_PLACEHOLDER_DASH"></span></span>
             <span class="swSep">｜</span>
-            <span><span class="swK">Bz</span> <span class="swV">—</span></span>
+            <span><span class="swK" data-i18n="T1_SW_LABEL_BZ"></span> <span class="swV" data-i18n="UI_PLACEHOLDER_DASH"></span></span>
             <span class="swSep">｜</span>
-            <span><span class="swK">N</span> <span class="swV">—</span></span>
+            <span><span class="swK" data-i18n="T1_SW_LABEL_N"></span> <span class="swV" data-i18n="UI_PLACEHOLDER_DASH"></span></span>
           </div>
 
           <div class="swAux">
-            <span class="swAuxItem">云 L/M/H —/—/—%</span>
-            <span class="swAuxItem">月角 —°</span>
+            <span class="swAuxItem" data-i18n="T1_SW_CLOUD_LINE"></span>
+            <span class="swAuxItem" data-i18n="T1_SW_MOON_LINE"></span>
           </div>
         </div>
-        <div class="small" id="swMeta">—</div>
+        <div class="small" id="swMeta" data-i18n="UI_PLACEHOLDER_DASH"></div>
       </div>
 
       <!-- 中：C值柱状图 + 说明（与上方同宽） -->
@@ -127,10 +125,10 @@
         <div class="card chartCard">
           <div class="chartHead">
             <div>
-              <div class="k">1小时 C值（Capture）柱状图</div>
-              <div class="small">C值越高，越建议投入。</div>
+              <div class="k" data-i18n="T1_CHART_TITLE"></div>
+              <div class="small" data-i18n="T1_CHART_SUB"></div>
             </div>
-            <div class="pill" id="unit10m">单位：10分钟</div>
+            <div class="pill" id="unit10m" data-i18n="T1_UNIT_10M"></div>
           </div>
           <div class="chartWrap">
             <canvas id="cChart"></canvas>
@@ -138,24 +136,24 @@
         </div>
 
         <div class="card explain">
-          <div class="k">1小时预测结论分级（C值）</div>
+          <div class="k" data-i18n="T1_LEVEL_TITLE"></div>
           <ul class="bullets">
-            <li><b>【C值5】强烈推荐</b>：投入回报高，建议立即行动。</li>
-            <li><b>【C值4】值得出门</b>：条件不错，建议准备与试拍。</li>
-            <li><b>【C值3】可蹲守</b>：存在机会，建议架机等待触发。</li>
-            <li><b>【C值2】低概率</b>：机会小，可低成本尝试。</li>
-            <li><b>【C值1】不可观测</b>：当前时段不建议投入。</li>
+            <li data-i18n="T1_LEVEL_C5"><b></b></li>
+            <li data-i18n="T1_LEVEL_C4"><b></b></li>
+            <li data-i18n="T1_LEVEL_C3"><b></b></li>
+            <li data-i18n="T1_LEVEL_C2"><b></b></li>
+            <li data-i18n="T1_LEVEL_C1"><b></b></li>
           </ul>
         </div>
 
         <div class="card explain hidden" id="oneExplainEN">
-          <div class="k">1H Conclusion Levels (C-Index)</div>
+          <div class="k" data-i18n="T1_LEVEL_TITLE"></div>
           <ul class="bullets">
-            <li><b>C5 Strongly Recommended</b>: High payoff. Go now.</li>
-            <li><b>C4 Worth Going Out</b>: Solid conditions. Prepare and test shots.</li>
-            <li><b>C3 Worth Waiting</b>: There is a chance. Set up and watch for triggers.</li>
-            <li><b>C2 Low Chance</b>: Small opportunity. Try only at low cost.</li>
-            <li><b>C1 Not Observable</b>: Not worth investing time right now.</li>
+            <li data-i18n="T1_LEVEL_C5"><b></b></li>
+            <li data-i18n="T1_LEVEL_C4"><b></b></li>
+            <li data-i18n="T1_LEVEL_C3"><b></b></li>
+            <li data-i18n="T1_LEVEL_C2"><b></b></li>
+            <li data-i18n="T1_LEVEL_C1"><b></b></li>
           </ul>
         </div>
       </div>
@@ -171,68 +169,68 @@
 
         <div class="dayCard c1" id="threeSlot0">
           <div class="dayHead">
-            <div class="dayLabel" id="threeSlot0Time">—</div>
+            <div class="dayLabel" id="threeSlot0Time" data-i18n="UI_PLACEHOLDER_DASH"></div>
           </div>
-          <div class="dayConclusion" id="threeSlot0Conclusion">不可观测</div>
-          <div class="dayNote" id="threeSlot0Note">当前时段不建议投入。</div>
-          <div class="dayBasis" id="threeSlot0Reason">—</div>
+          <div class="dayConclusion" id="threeSlot0Conclusion" data-i18n="UI_PLACEHOLDER_DASH"></div>
+          <div class="dayNote" id="threeSlot0Note" data-i18n="UI_PLACEHOLDER_DASH"></div>
+          <div class="dayBasis" id="threeSlot0Reason" data-i18n="UI_PLACEHOLDER_DASH"></div>
         </div>
 
         <div class="dayCard c1" id="threeSlot1">
           <div class="dayHead">
-            <div class="dayLabel" id="threeSlot1Time">—</div>
+            <div class="dayLabel" id="threeSlot1Time" data-i18n="UI_PLACEHOLDER_DASH"></div>
           </div>
-          <div class="dayConclusion" id="threeSlot1Conclusion">—</div>
-          <div class="dayNote" id="threeSlot1Note">—</div>
-          <div class="dayBasis" id="threeSlot1Reason">—</div>
+          <div class="dayConclusion" id="threeSlot1Conclusion" data-i18n="UI_PLACEHOLDER_DASH"></div>
+          <div class="dayNote" id="threeSlot1Note" data-i18n="UI_PLACEHOLDER_DASH"></div>
+          <div class="dayBasis" id="threeSlot1Reason" data-i18n="UI_PLACEHOLDER_DASH"></div>
         </div>
 
         <div class="dayCard c1" id="threeSlot2">
           <div class="dayHead">
-            <div class="dayLabel" id="threeSlot2Time">—</div>
+            <div class="dayLabel" id="threeSlot2Time" data-i18n="UI_PLACEHOLDER_DASH"></div>
           </div>
-          <div class="dayConclusion" id="threeSlot2Conclusion">—</div>
-          <div class="dayNote" id="threeSlot2Note">—</div>
-          <div class="dayBasis" id="threeSlot2Reason">—</div>
+          <div class="dayConclusion" id="threeSlot2Conclusion" data-i18n="UI_PLACEHOLDER_DASH"></div>
+          <div class="dayNote" id="threeSlot2Note" data-i18n="UI_PLACEHOLDER_DASH"></div>
+          <div class="dayBasis" id="threeSlot2Reason" data-i18n="UI_PLACEHOLDER_DASH"></div>
         </div>
 
       </div>
 
       <!-- 观测窗口机会评估（下移到小时卡之后） -->
       <div class="card hero">
-        <div class="burstModelHead">近期极光状态</div>
-        <div class="burstState" id="threeState">—</div>
-        <div class="burstHint" id="threeBurst">—</div>
-        <div class="burstNote">备注：爆发 ≠ 可观测，仍受云量与天光影响。</div>
+        <div class="burstModelHead" data-i18n="T3_STATE_TITLE"></div>
+        <div class="burstState" id="threeState" data-i18n="UI_PLACEHOLDER_DASH"></div>
+        <div class="burstHint" id="threeBurst" data-i18n="UI_PLACEHOLDER_DASH"></div>
+        <div class="burstNote" data-i18n="T3_STATE_NOTE"></div>
       </div>
 
       <!-- 送达能力模型（下移为整行） -->
       <div class="card hero fullWidth">
-        <div class="k">太阳风送达能力综合模型</div>
-        <div class="big2" id="threeDeliver">—</div>
-        <div class="small" id="threeDeliverMeta">—</div>
+        <div class="k" data-i18n="T3_DELIVER_TITLE"></div>
+        <div class="big2" id="threeDeliver" data-i18n="UI_PLACEHOLDER_DASH"></div>
+        <div class="small" id="threeDeliverMeta" data-i18n="UI_PLACEHOLDER_DASH"></div>
       </div>
 
       <!-- 分级说明保持不变 -->
       <div class="card explain">
-        <div class="k">3小时结论分级（C值）</div>
+        <div class="k" data-i18n="T3_LEVEL_TITLE"></div>
         <ul class="bullets">
-          <li><b>【C值5】强烈推荐</b>：投入回报高，建议立即行动。</li>
-          <li><b>【C值4】值得出门</b>：条件不错，建议准备与试拍。</li>
-          <li><b>【C值3】可蹲守</b>：存在机会，建议架机等待触发。</li>
-          <li><b>【C值2】低概率</b>：机会小，可低成本尝试。</li>
-          <li><b>【C值1】不可观测</b>：当前时段不建议投入。</li>
+          <li data-i18n="T3_LEVEL_C5"><b></b></li>
+          <li data-i18n="T3_LEVEL_C4"><b></b></li>
+          <li data-i18n="T3_LEVEL_C3"><b></b></li>
+          <li data-i18n="T3_LEVEL_C2"><b></b></li>
+          <li data-i18n="T3_LEVEL_C1"><b></b></li>
         </ul>
       </div>
 
       <div class="card explain hidden" id="threeExplainEN">
-        <div class="k">3H Conclusion Levels (C-Index)</div>
+        <div class="k" data-i18n="T3_LEVEL_TITLE"></div>
         <ul class="bullets">
-          <li><b>C5 Strongly Recommended</b>: High payoff. Go now.</li>
-          <li><b>C4 Worth Going Out</b>: Solid conditions. Prepare and test shots.</li>
-          <li><b>C3 Worth Waiting</b>: There is a chance. Set up and watch for triggers.</li>
-          <li><b>C2 Low Chance</b>: Small opportunity. Try only at low cost.</li>
-          <li><b>C1 Not Observable</b>: Not worth investing time right now.</li>
+          <li data-i18n="T3_LEVEL_C5"><b></b></li>
+          <li data-i18n="T3_LEVEL_C4"><b></b></li>
+          <li data-i18n="T3_LEVEL_C3"><b></b></li>
+          <li data-i18n="T3_LEVEL_C2"><b></b></li>
+          <li data-i18n="T3_LEVEL_C1"><b></b></li>
         </ul>
       </div>
 
@@ -241,70 +239,67 @@
     <!-- 72小时 -->
     <section id="t72" class="pane">
       <div class="card hero">
-        <div class="k">72小时范围预测</div>
-        <div class="small heroSub" id="outlookSub">按天评估极光出现的可能性，用于行程与时间规划。</div>
+        <div class="k" data-i18n="T72_TITLE"></div>
+        <div class="small heroSub" id="outlookSub" data-i18n="T72_SUBTITLE"></div>
 
         <!-- 72h 三列日卡：今天 / 明天 / 后天（由 app.js 动态填充） -->
         <div class="daysTri" id="daysTri">
           <div class="dayCard" id="day0">
             <div class="dayHead">
-              <div class="dayLabel">今天</div>
-              <div class="dayDate" id="day0Date">—</div>
+              <div class="dayLabel" data-i18n="T72_DAY_TODAY"></div>
+              <div class="dayDate" id="day0Date" data-i18n="UI_PLACEHOLDER_DASH"></div>
             </div>
-            <div class="dayConclusion" id="day0Conclusion">—</div>
-            <div class="dayNote" id="day0Note">—</div>
-            <div class="dayBasis" id="day0Basis">等待生成。</div>
+            <div class="dayConclusion" id="day0Conclusion" data-i18n="UI_PLACEHOLDER_DASH"></div>
+            <div class="dayNote" id="day0Note" data-i18n="UI_PLACEHOLDER_DASH"></div>
+            <div class="dayBasis" id="day0Basis" data-i18n="UI_PLACEHOLDER_DASH"></div>
           </div>
 
           <div class="dayCard" id="day1">
             <div class="dayHead">
-              <div class="dayLabel">明天</div>
-              <div class="dayDate" id="day1Date">—</div>
+              <div class="dayLabel" data-i18n="T72_DAY_TOMORROW"></div>
+              <div class="dayDate" id="day1Date" data-i18n="UI_PLACEHOLDER_DASH"></div>
             </div>
-            <div class="dayConclusion" id="day1Conclusion">—</div>
-            <div class="dayNote" id="day1Note">—</div>
-            <div class="dayBasis" id="day1Basis">等待生成。</div>
+            <div class="dayConclusion" id="day1Conclusion" data-i18n="UI_PLACEHOLDER_DASH"></div>
+            <div class="dayNote" id="day1Note" data-i18n="UI_PLACEHOLDER_DASH"></div>
+            <div class="dayBasis" id="day1Basis" data-i18n="UI_PLACEHOLDER_DASH"></div>
           </div>
 
           <div class="dayCard" id="day2">
             <div class="dayHead">
-              <div class="dayLabel">后天</div>
-              <div class="dayDate" id="day2Date">—</div>
+              <div class="dayLabel" data-i18n="T72_DAY_AFTER_TOMORROW"></div>
+              <div class="dayDate" id="day2Date" data-i18n="UI_PLACEHOLDER_DASH"></div>
             </div>
-            <div class="dayConclusion" id="day2Conclusion">—</div>
-            <div class="dayNote" id="day2Note">—</div>
-            <div class="dayBasis" id="day2Basis">等待生成。</div>
+            <div class="dayConclusion" id="day2Conclusion" data-i18n="UI_PLACEHOLDER_DASH"></div>
+            <div class="dayNote" id="day2Note" data-i18n="UI_PLACEHOLDER_DASH"></div>
+            <div class="dayBasis" id="day2Basis" data-i18n="UI_PLACEHOLDER_DASH"></div>
           </div>
         </div>
       </div>
 
       <div class="card explain">
-        <div class="k">72小时结论分级（C值）</div>
+        <div class="k" data-i18n="T72_LEVEL_TITLE"></div>
         <ul class="bullets">
-          <li><b>【C值5】强烈推荐</b>：能量背景+送达能力更强，值得提前规划。</li>
-          <li><b>【C值4】值得出门</b>：存在机会，重点看云与当晚即时模块。</li>
-          <li><b>【C值3】可蹲守</b>：机会少，除非位置/条件极佳。</li>
-          <li><b>【C值2】低概率</b>：综合偏弱，提前投入意义不大。</li>
-          <li><b>【C值1】不可观测</b>：不建议投入。</li>
+          <li data-i18n="T72_LEVEL_C5"><b></b></li>
+          <li data-i18n="T72_LEVEL_C4"><b></b></li>
+          <li data-i18n="T72_LEVEL_C3"><b></b></li>
+          <li data-i18n="T72_LEVEL_C2"><b></b></li>
+          <li data-i18n="T72_LEVEL_C1"><b></b></li>
         </ul>
       </div>
 
       <div class="card explain hidden" id="outlookExplainEN">
-        <div class="k">72H Conclusion Levels (C-Index)</div>
+        <div class="k" data-i18n="T72_LEVEL_TITLE"></div>
         <ul class="bullets">
-          <li><b>C5 Strongly Recommended</b>: Stronger background + better delivery. Plan ahead.</li>
-          <li><b>C4 Worth Going Out</b>: A real chance. Check clouds and the 1H module tonight.</li>
-          <li><b>C3 Worth Waiting</b>: Limited opportunity unless your location/sky is excellent.</li>
-          <li><b>C2 Low Chance</b>: Overall weak. Early investment is not worth it.</li>
-          <li><b>C1 Not Observable</b>: Not recommended to invest effort.</li>
+          <li data-i18n="T72_LEVEL_C5"><b></b></li>
+          <li data-i18n="T72_LEVEL_C4"><b></b></li>
+          <li data-i18n="T72_LEVEL_C3"><b></b></li>
+          <li data-i18n="T72_LEVEL_C2"><b></b></li>
+          <li data-i18n="T72_LEVEL_C1"><b></b></li>
         </ul>
       </div>
     </section>
 
-    <footer class="foot">
-      佑酱已吐血更新到版本号：v3.0.0319
-      <br>数据源：NOAA SWPC（实时太阳风、OVATION nowcast、Kp 预报）与 Open-Meteo 云量预报。磁纬（MLAT）当前为估算（偶极近似）；若接入 AACGMv2 换算服务，将自动切换为真实 AACGMv2。
-    </footer>
+    <footer class="foot" id="footerBlock"></footer>
   </div>
 
   <!-- 背景介绍 Modal -->
@@ -312,168 +307,12 @@
     <div class="modalMask" data-close="1"></div>
     <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
       <div class="modalHead">
-        <div id="aboutTitle" class="modalTitle" data-cn="📖 工具介绍" data-en="📖 User Guide">📖 工具介绍</div>
-        <button id="btnAboutClose" class="btn icon" type="button" aria-label="关闭">✕</button>
+        <div id="aboutTitle" class="modalTitle" data-i18n="ABOUT_MODAL_TITLE"></div>
+        <button id="btnAboutClose" class="btn icon" type="button" aria-label="" data-i18n-attr="aria-label" data-i18n-attr-key="ABOUT_CLOSE_ARIA">✕</button>
       </div>
       <div class="modalBody">
-        <div id="aboutBodyCN">
-        <p class="aboutSectionTitle">
-          工具应该怎么使用？
-        </p>
-
-        <p>
-          输入经纬度，系统会自动读取你当前所在的时间与时区，生成极光观测预告。
-        </p>
-
-        <p>
-          <b>【1 小时精准】</b><br>
-          以 10 分钟为粒度，即时回答：<br>
-          「我现在要不要出门？要不要架机？」
-        </p>
-
-        <p>
-          <b>【3 小时预测】</b><br>
-          呈现逐小时状态，选出最适合观测极光的一个小时。<br>
-          同时告诉你当前极光是处在爆发中还是已衰落，并回答：<br>
-          「接下来 3 小时值不值得守？」
-        </p>
-
-        <p>
-          <b>【72 小时范围】</b><br>
-          引入更多 CH 与 CME 日冕物质抛射的信息，以天为单位，预测极光爆发的可能性。<br>
-          从更宏观的数据视角，回答：<br>
-          「未来三天，哪一天最值得安排时间？」
-        </p>
-
-        <p class="aboutSectionTitle">
-          极光预测，为什么不能只是 KP？
-        </p>
-
-        <p>
-          KP 是为全球空间天气监测而设计的宏观指标。<br>
-          它在航天器运行、电力系统防护、长期磁扰评估中非常有效，<br>
-          但它的设计目标，从来不是服务于具体地点、具体时段的地面观测者。
-        </p>
-
-        <p>
-          对于普通极光观测与拍摄来说，KP 的粒度过于粗糙。<br>
-          它不区分 IMF 的瞬时方向变化，也难以反映短时稳定性与局地响应。<br>
-          这也是为什么在真实体验中，常常会出现：<br>
-          KP 看似“非常合适”，却完全无法观测或拍摄的情况。
-        </p>
-        <p>
-          于是，在漠河零下40度的寒夜中，Aurora Capture 诞生了。
-        </p>
-        <p>
-          C 值（Capture指数）并不是用来替代 KP 的。<br>
-          它更像是一个面向摄影师与追光者的【可拍可观指数】。
-        </p>
-
-        <p>
-          作为一名理工科出身的风光摄影爱好者，<br>
-          我尝试从更接近观测者的角度出发，直接调用太阳风与磁场的原始参数建模，<br>
-          在更短的时间尺度上，评估它们是否正在形成一个对拍摄友好的窗口。
-        </p>
-
-        <p>
-          让我们一起看看：<br>
-          此刻，地球手里握着的，究竟是一副什么样的牌？
-        </p>
-
-        <p class="aboutSectionTitle" style="margin-top:18px;">
-          反馈与建议
-        </p>
-        <p>
-          报错 / 建议 / 数据异常 请发送邮件至：<br>
-          <a href="mailto:auroracapture.feedback@gmail.com" style="color:rgba(255,255,255,.85); text-decoration:underline;">auroracapture.feedback@gmail.com</a><br>
-          <span style="display:inline-block; margin-top:6px; color:rgba(255,255,255,.55); font-size:12px;">个人维护，可能延迟回复。</span>
-        </p>
-
-        <p style="margin-top:18px; text-align:right; color:rgba(255,255,255,.55); font-size:12px;">
-          —— @小狮子佑酱
-        </p>
-        </div>
-
-        <div id="aboutBodyEN" class="hidden">
-          <p class="aboutSectionTitle">
-            How to Use This Tool
-          </p>
-
-          <p>
-            Enter latitude and longitude. The tool automatically detects your local time and time zone, then generates an aurora viewing forecast for your location.
-          </p>
-
-          <p>
-            <b>【1-Hour Precision】</b><br>
-            Updated at 10-minute resolution to answer one question:<br>
-            “Should I go out right now? Should I set up the camera?”
-          </p>
-
-          <p>
-            <b>【3-Hour Forecast】</b><br>
-            Shows hour-by-hour conditions and highlights the best hour within the next 3 hours.<br>
-            It also indicates whether activity is intensifying or fading, and answers:<br>
-            “Is it worth waiting in the next 3 hours?”
-          </p>
-
-          <p>
-            <b>【72-Hour Outlook】</b><br>
-            Incorporates broader solar drivers such as coronal holes (CH) and CME context.<br>
-            Provides a day-level probability range to answer:<br>
-            “Which day in the next 3 days is most worth planning for?”
-          </p>
-
-          <p class="aboutSectionTitle">
-            Why KP Alone Is Not Enough
-          </p>
-
-          <p>
-            Kp is a global geomagnetic index designed for space-weather monitoring.<br>
-            It works well for spacecraft operations, power-grid protection, and long-term geomagnetic disturbance assessment.<br>
-            But it was never designed for ground observers making location- and time-specific decisions.
-          </p>
-
-          <p>
-            For aurora chasing and photography, Kp is often too coarse.<br>
-            It does not reflect rapid changes in IMF orientation, and it struggles to represent short-term stability and local response.<br>
-            That’s why real-world outcomes can look like this:<br>
-            Kp seems “perfect”, yet nothing is visible.
-          </p>
-
-          <p>
-            Aurora Capture was born from nights spent waiting in the cold—trying to turn uncertainty into a usable decision.<br>
-            <span style="display:inline-block; margin-top:6px; color:rgba(255,255,255,.55); font-size:12px;">
-              Note: MLAT shown on this page may be an approximation by default; if an AACGMv2 conversion endpoint is available, the tool can switch to true AACGMv2 MLAT automatically.
-            </span>
-          </p>
-
-          <p>
-            The C-Index (Capture Index) is not meant to replace Kp.<br>
-            It is a photographer-oriented “shootability” indicator.
-          </p>
-
-          <p>
-            Instead of relying on a single global index, Aurora Capture models directly from upstream solar-wind and magnetic-field parameters.<br>
-            On shorter time scales, it evaluates whether conditions are forming a window that is realistically worth your time and effort.
-          </p>
-
-          <p>
-            Let’s see what kind of hand Earth is holding—right now.
-          </p>
-
-          <p class="aboutSectionTitle" style="margin-top:18px;">
-            Feedback & Suggestions
-          </p>
-          <p>
-            Bug reports / suggestions / suspicious data can be sent to:<br>
-            <a href="mailto:auroracapture.feedback@gmail.com" style="color:rgba(255,255,255,.85); text-decoration:underline;">auroracapture.feedback@gmail.com</a><br>
-            <span style="display:inline-block; margin-top:6px; color:rgba(255,255,255,.55); font-size:12px;">Independently maintained. Replies may be delayed.</span>
-          </p>
-
-          <p style="margin-top:18px; text-align:right; color:rgba(255,255,255,.55); font-size:12px;">
-            —— @小狮子佑酱
-          </p>
-        </div>
+        <div id="aboutBodyCN"></div>
+        <div id="aboutBodyEN" class="hidden"></div>
 
       </div>
     </div>
@@ -483,13 +322,13 @@
   <div class="alertOverlay" id="alertOverlay" aria-hidden="true">
     <div class="alertCard" role="dialog" aria-modal="true" aria-labelledby="alertTitle">
       <div class="alertHead">
-        <div class="alertTitle" id="alertTitle">⚠️ 数据可信度提醒</div>
-        <button class="modalX" id="alertClose" aria-label="关闭">✕</button>
+        <div class="alertTitle" id="alertTitle" data-i18n="ALERT_TITLE_DATA_CONF"></div>
+        <button class="modalX" id="alertClose" aria-label="" data-i18n-attr="aria-label" data-i18n-attr-key="ALERT_CLOSE_ARIA">✕</button>
       </div>
-      <div class="alertBody" id="alertBody">—</div>
-      <div class="alertNote" id="alertNote">不代表无法观测，仅表示模型输入存在不确定性。</div>
+      <div class="alertBody" id="alertBody" data-i18n="UI_PLACEHOLDER_DASH"></div>
+      <div class="alertNote" id="alertNote" data-i18n="ALERT_NOTE_DATA_CONF"></div>
       <div class="alertFoot">
-        <button class="btn primary" id="alertOk" type="button">知道了</button>
+        <button class="btn primary" id="alertOk" type="button" data-i18n="ALERT_OK_BTN"></button>
       </div>
     </div>
   </div>
@@ -505,6 +344,7 @@
   </script>
   <!-- your modules -->
   <script defer src="./adapter.js?v=0319"></script>
+  <script defer src="./i18n.js?v=0319"></script>
   <script defer src="./ui.js?v=0319"></script>
   <script defer src="./model.js?v=0319"></script>
   <script defer src="./app.js?v=0319"></script>

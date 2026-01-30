@@ -1,28 +1,182 @@
 # Project Agent Rules (Aurora Capture)
 
 This project is actively maintained by a human owner.
-The agent must follow these rules strictly.
+All agents (including Codex) must follow these rules strictly.
 
-## General Principles
-- Do not modify any files without explicit user confirmation
-- Prefer minimal, controlled changes over large refactors
-- This is not a refactoring task unless explicitly stated
+---
 
-## Before Coding
-- Always summarize your understanding of the task
-- List all files you plan to modify or create
-- Wait for user confirmation before writing any code
+## 0. Absolute Priority (Hard Rules)
+- ❌ Do NOT modify `main` branch unless the user explicitly says so
+- ❌ Do NOT `commit` or `push` unless the user explicitly confirms
+- ❌ Do NOT modify files outside the approved list
+- ❌ Do NOT perform refactors unless explicitly requested
 
-## Code Modification Rules
-- Use full function or full block replacement
-- Do NOT insert scattered lines into existing code
-- Do NOT perform "incidental improvements"
-- Do NOT rename variables, functions, or files unless asked
+Violation of any hard rule = immediate rejection.
 
-## Scope Control
+---
+
+## 1. Branch & Deployment Rules (Very Important)
+- `main` branch = production (www)
+- `staging` branch = testing / preview
+- **All changes must land in `staging` first**
+- `staging` auto-deploys to aurora-capture-staging (GitHub Pages)
+- `staging` must NOT introduce business-logic divergence from `main`
+  - Only UI / testing / instrumentation differences are allowed
+
+---
+
+## 2. Mandatory REVIEW.md (Write Every Time)
+For **every non-trivial change** (any code, logic, infra, or behavior change),
+the agent **MUST generate a `REVIEW.md` file** in the repo root.
+
+### 2.1 REVIEW.md is required BEFORE commit / push
+- Changes are **NOT considered reviewable** without `REVIEW.md`
+- The user will review `REVIEW.md` first, not raw diffs
+- No `REVIEW.md` → no approval
+
+### 2.1.1 REVIEW.md Rewrite Rule (Mandatory)
+- REVIEW.md 只保留“当前这一轮（下一次 commit+push）”的变更摘要，不做历史累积。
+- 在一次 commit+push 发生之前：所有细碎需求/补丁/修正都必须叠加进同一个 REVIEW.md（仍需遵守固定模板）。
+- 一旦该轮 commit+push 完成：下一轮改动必须**重新改写/覆盖** REVIEW.md（仍使用同一固定模板），不允许把上一次的 `Planned` / `Open questions` / 旧变更继续保留或追加。
+- 例外：如果 REVIEW.md 中存在“长期规范/词典/约束”（例如 FIXED_I18N_MAP canonical terms 这类不随版本变化的规范段落），允许保留，但必须明确标注为 `## Reference (Long-lived)` 并与本次变更摘要区块分隔。
+
+### 2.2 REVIEW.md Fixed Template (Do NOT alter)
+```md
+# Review Summary
+
+## What changed
+- Bullet list of concrete changes (3–7 lines max)
+
+## Files touched
+- Modified:
+- Added:
+- Deleted:
+
+## Behavior impact
+- What user-visible behavior changed
+- What explicitly did NOT change
+
+## Risk assessment
+- Possible failure modes
+- Performance / cost / quota impact
+- Deployment or environment risks
+
+## How to test
+1. Step-by-step manual test instructions
+2. Expected results
+
+## Rollback plan
+- How to revert safely (e.g. revert commit / switch branch)
+
+## Open questions / follow-ups
+- Anything uncertain, deferred, or intentionally skipped
+```
+
+---
+
+## 3. Before Coding (Mandatory)
+Before writing **any code**, the agent must:
+1. Summarize understanding of the task
+2. List **exact files** to be modified or created
+3. Explicitly state whether business logic is affected
+4. Wait for explicit user confirmation
+
+---
+
+## 4. Code Modification Rules
+- Use **full function** or **full block replacement**
+- ❌ Do NOT insert scattered lines
+- ❌ Do NOT do “cleanup”, “formatting”, or “small improvements” unless asked
+- ❌ Do NOT rename files / variables / functions unless requested
+
+---
+
+## 5. Scope Control
 - Only modify files explicitly approved by the user
-- If you think a better solution exists, explain it first and wait
+- If a better solution exists:
+  - Explain it
+  - Wait for user decision
+  - Do NOT auto-implement
 
-## Language
-- User instructions may be written in Chinese
-- Keep code, APIs, and technical terms in English
+---
+
+## 6. Language & Style
+- User instructions may be in Chinese
+- Code, APIs, comments, and identifiers must be in English
+- Markdown documentation must be clear, concise, and factual
+- 语言规则：默认简体中文；仅在用户明确要求时使用英文！
+
+## 6.1 Versioning Rule (Mandatory)
+- 每次 **commit + push**（无论是否部署到 production），都必须同步更新项目版本号。
+- 当前版本号仅存在于 **index.html** 中，用于：
+  - 静态资源缓存控制（如 `?v=0319`）
+  - 页面底部展示用版本号文本（如 `v3.0.0319`）
+- 当前版本号格式为 **MMDD**（例如 0319）。
+
+### 升级规则
+- 每次 push 时，将 **index.html 中现有的版本号 `0319` 全部统一 +1**（例如 `0319 → 0320`）。
+- 仅允许修改 **index.html 内已存在的版本号位置**（预计约 8 处）。
+- ❌ 不得在其他文件中新建版本号字段
+- ❌ 不得修改文件名、变量名、配置结构或引入新的版本机制
+- ❌ 不得推断、搜索或修改“可能是版本号”的其他数字
+
+### 约束
+- 若发生 push 但未更新上述版本号，视为 **流程不合规**
+- 若越权修改 index.html 以外的文件中的“版本号”，同样视为 **违规**
+
+---
+
+## 7. Workflow Summary (TL;DR)
+1. Explain plan → wait
+2. Implement in `staging`
+3. Generate `REVIEW.md`
+4. User reviews `REVIEW.md`
+5. Only then: commit / push (if approved)
+
+## Review Output Contract（强制）
+
+本仓库的所有代码修改，必须产出**人类可读、可决策**的 REVIEW.md。
+REVIEW.md 的目标读者是「项目 Owner（人类）」，不是工具或代理。
+
+任何未按以下结构更新 REVIEW.md 的提交，视为 **未完成任务**，不得合并或部署。
+
+---
+
+### REVIEW.md 强制结构（顺序不可变）
+
+#### 0. 本次变更一句话
+- 用一句话说明“你改了什么”
+- ≤ 25 字，禁止技术流水账
+
+#### 1. 改动范围（Scope）
+**1.1 改了什么**
+- 文件列表
+- 每个文件一句话说明改动点
+
+**1.2 明确没改什么（Hard No）**
+- 明确列出本次未触碰的模块 / 流程
+- 例如：预测流程、Auth 状态机、翻译规则、Modal 结构等
+
+#### 2. 行为变化（Behavior Change）
+用 Before / After 描述用户可感知变化（3–8 条）：
+- Before：……
+  After：……
+
+禁止只写实现细节。
+
+#### 3. 风险与护栏（Risk & Guardrails）
+最多 5 条，每条必须包含：
+- 风险是什么
+- 在什么条件下触发
+- 已采取的护栏 / 降级策略
+
+不确定的地方必须标注 **Unverified**。
+
+#### 4. 验收清单（Acceptance Checklist）
+- 必须是人类可以逐条操作的 Pass / Fail 清单
+- 与本次改动无关的项必须标注 Not in scope
+
+#### 5. 回滚方案（Rollback）
+- 一句话说明如何回滚（revert 哪个 commit / tag）
+
+Anything outside this flow is invalid.
