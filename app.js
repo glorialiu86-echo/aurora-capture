@@ -179,6 +179,28 @@ const tKey = (key, params) => {
   return String(key || "");
 };
 
+const thKey = (key) => {
+  const k = String(key || "");
+  if(k !== "UI_ABOUT_BODY" && k !== "UI_FOOTER_BLOCK"){
+    console.error("[thKey] forbidden html key:", k);
+    return "";
+  }
+  try{
+    const i18n = window.I18N;
+    if(i18n && typeof i18n.th === "function") return i18n.th(k);
+  }catch(_){ /* ignore */ }
+  return "";
+};
+
+const textFromKey = (key) => tKey(key);
+
+const isKeyLike = (s) => /^([A-Z0-9]+_)+[A-Z0-9]+$/.test(String(s || ""));
+
+const maybeText = (v) => {
+  if(isKeyLike(v)) return tKey(v);
+  return String(v == null ? "" : v);
+};
+
 const clearEl = (el) => {
   if(!el) return;
   while(el.firstChild) el.removeChild(el.firstChild);
@@ -1702,7 +1724,7 @@ function fillCurrentLocation(){
       const heroObj = window.Model.labelByScore5(heroScore);
       // 1小时标题：整句跟随 C 值颜色（用 inline + !important 防止被 CSS 覆盖）
       const heroAllowPlus = (heroScore >= 2 && heroScore <= 4);
-      const heroLabelText = translateConclusionTextIfEN(conclusionTextFromLabelObj(heroObj));
+      const heroLabelText = heroObj?.statusKey ? tKey(heroObj.statusKey) : maybeText(heroObj?.t);
       const withPlus = !!(trendPlus?.on && heroAllowPlus);
       renderHeroLabel($("oneHeroLabel"), heroLabelText, cColor(heroObj.score), withPlus);
       // OVATION meta (time + age)
@@ -1732,11 +1754,13 @@ function fillCurrentLocation(){
       try{
         if(heroScore <= 3 && heroGate){
           let primary = "";
+          let reasonKey = "";
 
           // hardBlock：统一口径（不再区分太阳/月亮）
           if(heroGate.hardBlock){
             primary = "天色偏亮，微弱极光难以分辨";
-            reasonKeyDebug = "REASON_SKY_TOO_BRIGHT_WEAK_AURORA_HARD_TO_SEE";
+            reasonKey = "REASON_SKY_TOO_BRIGHT_WEAK_AURORA_HARD_TO_SEE";
+            reasonKeyDebug = reasonKey;
           }else if(typeof window.Model?.explainUnobservable === "function"){
             // 云量：三层云取最大值（不向用户区分高/中/低云）
             let cloudMax = null;
@@ -1761,12 +1785,15 @@ function fillCurrentLocation(){
             }catch(_){ moonFrac = null; }
 
             const ex = window.Model.explainUnobservable({ cloudMax, moonAltDeg, moonFrac, sunAltDeg });
-            const reasonKey = ex?.primary ? String(ex.primary) : "";
-            primary = reasonTextFromKey(reasonKey) || "天色偏亮，微弱极光难以分辨";
+            reasonKey = ex?.primary ? String(ex.primary) : "";
+            primary = reasonKey || "天色偏亮，微弱极光难以分辨";
             reasonKeyDebug = reasonKey || "REASON_SKY_TOO_BRIGHT_WEAK_AURORA_HARD_TO_SEE";
           }
 
-          blockerText = primaryPrefixIfEN() + (translateReasonIfEN(primary) || "—");
+          const reasonText = isKeyLike(heroObj?.reasonKey)
+            ? tKey(heroObj.reasonKey)
+            : (isKeyLike(reasonKey) ? tKey(reasonKey) : maybeText(primary || heroObj?.reason || heroObj?.reasonText || heroObj?.blocker || heroObj?.primaryReason || ""));
+          blockerText = primaryPrefixIfEN() + (reasonText || "—");
         }
       }catch(e){
         blockerText = "";
@@ -1923,8 +1950,14 @@ function fillCurrentLocation(){
       const best = slots.filter(s => s.score5 === maxScore);
 
       // 3h burst model: show only the state (big) + one-line hint (small)
-      const burstStateCN = burstStateTextFromKey(s3Burst?.state);
-      const burstHintCN  = burstHintTextFromKey(s3Burst?.hint);
+      const burstStateKey = s3Burst?.state;
+      const burstHintKey  = s3Burst?.hint;
+      const burstStateCN = (burstStateKey && isKeyLike(burstStateKey))
+        ? tKey(burstStateKey)
+        : maybeText(burstStateKey || "—");
+      const burstHintCN = (burstHintKey && isKeyLike(burstHintKey))
+        ? tKey(burstHintKey)
+        : maybeText(burstHintKey || "—");
 
       // big word (静默/爆发)
       safeText($("threeState"), burstStateCN);

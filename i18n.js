@@ -41,6 +41,27 @@
     STATUS_ROW_ARIA: { type: "text", zh: "数据状态", en: "Data status" },
     STATUS_TEXT_WAITING: { type: "text", zh: "等待生成。", en: "Ready." },
 
+    // --- status / reason keys (model outputs) ---
+    STATUS_C5: { type: "text", zh: "强烈推荐", en: "Highly Recommended" },
+    STATUS_C4: { type: "text", zh: "值得出门", en: "Worth Going Out" },
+    STATUS_C3: { type: "text", zh: "可蹲守", en: "Worth Waiting" },
+    STATUS_C2: { type: "text", zh: "低概率", en: "Low Probability" },
+    STATUS_C1: { type: "text", zh: "不可观测", en: "Not Observable" },
+
+    REASON_CLOUD_COVER_BLOCKS: { type: "text", zh: "天空被云层遮挡，不利于观测", en: "Cloud cover blocks the sky." },
+    REASON_SKY_TOO_BRIGHT_WEAK_AURORA_HARD_TO_SEE: { type: "text", zh: "天色偏亮，微弱极光难以分辨", en: "Bright sky. Faint aurora is hard to discern." },
+    REASON_ENERGY_INPUT_TOO_WEAK: { type: "text", zh: "能量注入弱，难以形成有效极光", en: "Weak energy coupling. Effective aurora is unlikely." },
+    REASON_MLAT_TOO_LOW_STOP: { type: "text", zh: "磁纬过低，已停止生成", en: "MLAT too low. Generation stopped." },
+
+    T3_BURST_STATE_ACTIVE: { type: "text", zh: "爆发进行中", en: "Burst in progress" },
+    T3_BURST_STATE_RISING: { type: "text", zh: "爆发概率上升", en: "Burst likelihood rising" },
+    T3_BURST_STATE_DECAY: { type: "text", zh: "爆发后衰落期", en: "Post-burst decay" },
+    T3_BURST_STATE_QUIET: { type: "text", zh: "静默", en: "Quiet" },
+    T3_BURST_HINT_ACTIVE: { type: "text", zh: "离子触发更明确。", en: "Ion triggering is clearer." },
+    T3_BURST_HINT_RISING: { type: "text", zh: "系统更容易发生，但未到持续触发。", en: "More likely, but not in sustained triggering yet." },
+    T3_BURST_HINT_DECAY: { type: "text", zh: "刚有过波动，仍可能余震一会儿。", en: "Recent fluctuation; aftershocks still possible." },
+    T3_BURST_HINT_QUIET: { type: "text", zh: "背景不足或触发不清晰。", en: "Background insufficient or triggers unclear." },
+
     // --- placeholders / symbols ---
     UI_PLACEHOLDER_DASH: { type: "symbol", value: "—" },
     UI_PLACEHOLDER_ELLIPSIS: { type: "symbol", value: "…" },
