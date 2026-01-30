@@ -1,0 +1,1661 @@
+{
+  "meta": {
+    "first_total": 207,
+    "final_total": 198,
+    "generated_at": "2026-01-27T15:47:17.338309Z",
+    "rules_version": "G3_no_guide_v1_manual_allow_multi_final",
+    "inputs": {
+      "first": "trans-zh-en-firstedition2-dedup.md",
+      "final": "trans-zh-en2.md",
+      "forbidden_inputs": [
+        "trans-zh-en.md"
+      ]
+    }
+  },
+  "pairs": [
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "Aurora Capture 极光捕手",
+      "first_en": "MISSING",
+      "final_en": "Aurora Capture",
+      "first_line": 3,
+      "final_line": 3
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "现在要不要出门追光？一键给出观测窗口",
+      "first_en": "MISSING",
+      "final_en": "Should you head out now? Get an instant observing window.",
+      "first_line": 6,
+      "final_line": 6
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "极光捕手",
+      "first_en": "MISSING",
+      "final_en": "Aurora Capture",
+      "first_line": 12,
+      "final_line": 9
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "🌟 收藏夹",
+      "first_en": "🌟 Favorites",
+      "final_en": "🌟 Saved Locations",
+      "first_line": 15,
+      "final_line": 12
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "收藏夹",
+      "first_en": "MISSING",
+      "final_en": "Saved Locations",
+      "first_line": 18,
+      "final_line": 15
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "📖 工具介绍",
+      "first_en": "MISSING",
+      "final_en": "Guide",
+      "first_line": 21,
+      "final_line": 18
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "工具介绍",
+      "first_en": "MISSING",
+      "final_en": "How It Works",
+      "first_line": 24,
+      "final_line": 21
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "翻译开关",
+      "first_en": "MISSING",
+      "final_en": "Trans ON / Trans OFF",
+      "first_line": 27,
+      "final_line": 24
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "纬度 Latitude",
+      "first_en": "MISSING",
+      "final_en": "Latitude",
+      "first_line": 30,
+      "final_line": 27
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "例如 53.47",
+      "first_en": "MISSING",
+      "final_en": "e.g., 53.47",
+      "first_line": 33,
+      "final_line": 30
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "经度 Longitude",
+      "first_en": "MISSING",
+      "final_en": "Longitude",
+      "first_line": 36,
+      "final_line": 33
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "例如 122.35",
+      "first_en": "MISSING",
+      "final_en": "e.g., 122.35",
+      "first_line": 39,
+      "final_line": 36
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "📍 获取当前位置",
+      "first_en": "📍 Get current location",
+      "final_en": "📍 Get current location",
+      "first_line": 42,
+      "final_line": 39
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⭐ 收藏",
+      "first_en": "⭐ Save",
+      "final_en": "⭐ Save",
+      "first_line": 45,
+      "final_line": 42
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "✍️ 生成即时预测",
+      "first_en": "MISSING",
+      "final_en": "✍️ Run forecast now",
+      "first_line": 48,
+      "final_line": 45
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "推荐直接“获取当前位置”，也可手动输入经纬度",
+      "first_en": "MISSING",
+      "final_en": "Notice: We recommend using “Get current location”. You can also enter coordinates manually.",
+      "first_line": 51,
+      "final_line": 48
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "目的地经纬度：可通过奥维地图长按获取，或使用腾讯地图坐标拾取器：https://lbs.qq.com/getPoint/。",
+      "first_en": "MISSING",
+      "final_en": "Notice: To get destination coordinates, right-click a point in Google Maps to copy the latitude and longitude. You can also use any online coordinate picker.",
+      "first_line": 54,
+      "final_line": 51
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "数据状态",
+      "first_en": "MISSING",
+      "final_en": "Data Status",
+      "first_line": 57,
+      "final_line": 54
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "等待生成。",
+      "first_en": "Waiting…",
+      "final_en": "Waiting…",
+      "first_line": 60,
+      "final_line": 57
+    },
+    {
+      "match_type": "manual",
+      "zh": "现在",
+      "first_en": "MISSING",
+      "final_en": "Now",
+      "first_line": 63,
+      "final_line": 60
+    },
+    {
+      "match_type": "manual",
+      "zh": "未来 3 小时",
+      "first_en": "MISSING",
+      "final_en": "Next 3 Hours",
+      "first_line": 66,
+      "final_line": 63
+    },
+    {
+      "match_type": "manual",
+      "zh": "未来 3 天",
+      "first_en": "MISSING",
+      "final_en": "Next 3 Days",
+      "first_line": 69,
+      "final_line": 66
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "当前建议（1小时内，10分钟粒度）",
+      "first_en": "MISSING",
+      "final_en": "Current Recommendation (updated every 10 minutes)",
+      "first_line": 72,
+      "final_line": 69
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "上游实况（近实时）",
+      "first_en": "MISSING",
+      "final_en": "Solar Wind Conditions (Near Real-Time)",
+      "first_line": 75,
+      "final_line": 72
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "云量",
+      "first_en": "Cloud cover",
+      "final_en": "Cloud cover",
+      "first_line": 78,
+      "final_line": 75
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "月角",
+      "first_en": "Moon altitude",
+      "final_en": "Moon elevation",
+      "first_line": 81,
+      "final_line": 78
+    },
+    {
+      "match_type": "manual",
+      "zh": "1小时 C值柱状图",
+      "first_en": "MISSING",
+      "final_en": "1-hour Forecast (C) Bar Chart",
+      "first_line": 84,
+      "final_line": 81
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "C值越高，越建议投入。",
+      "first_en": "MISSING",
+      "final_en": "Higher C values indicate stronger justification for committing time and effort.",
+      "first_line": 87,
+      "final_line": 84
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "单位：10分钟",
+      "first_en": "MISSING",
+      "final_en": "Unit: 10 minutes",
+      "first_line": 90,
+      "final_line": 87
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "1小时预测结论分级（C值）",
+      "first_en": "MISSING",
+      "final_en": "1-hour Forecast Classification (C Value)",
+      "first_line": 93,
+      "final_line": 90
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "【C值5】强烈推荐",
+      "first_en": "strongly recommended",
+      "final_en": "Strongly Recommended",
+      "first_line": 96,
+      "final_line": 93
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：投入回报高，建议立即行动。",
+      "first_en": "MISSING",
+      "final_en": "High expected return; immediate action is recommended.",
+      "first_line": 99,
+      "final_line": 96
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "【C值4】值得出门",
+      "first_en": "worth going out",
+      "final_en": "Worth Going Out",
+      "first_line": 102,
+      "final_line": 99
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：条件不错，建议准备与试拍。",
+      "first_en": "MISSING",
+      "final_en": "Conditions are favorable; preparation and test shots are recommended.",
+      "first_line": 105,
+      "final_line": 102
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "【C值3】可蹲守",
+      "first_en": "wait-and-observe",
+      "final_en": "Standby",
+      "first_line": 108,
+      "final_line": 105
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：存在机会，建议架机等待触发。",
+      "first_en": "MISSING",
+      "final_en": "A possible window exists; set up and wait for triggering conditions.",
+      "first_line": 111,
+      "final_line": 108
+    },
+    {
+      "match_type": "manual",
+      "zh": "【C值2】希望不大",
+      "first_en": "low probability",
+      "final_en": "Unlikely to See",
+      "first_line": 114,
+      "final_line": 111
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：机会小，可低成本尝试。",
+      "first_en": "MISSING",
+      "final_en": "Unlikely to See. Try only at low cost.",
+      "first_line": 117,
+      "final_line": 114
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "【C值1】不可观测",
+      "first_en": "unobservable",
+      "final_en": "Unobservable",
+      "first_line": 120,
+      "final_line": 117
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：当前时段不建议投入。",
+      "first_en": "MISSING",
+      "final_en": "Not observable under current conditions.",
+      "first_line": 123,
+      "final_line": 120
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "不可观测",
+      "first_en": "unobservable",
+      "final_en": "Unobservable",
+      "first_line": 126,
+      "final_line": 123
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "当前时段不建议投入。",
+      "first_en": "MISSING",
+      "final_en": "Not recommended to commit resources during this time window.",
+      "first_line": 129,
+      "final_line": 126
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "近期极光状态",
+      "first_en": "MISSING",
+      "final_en": "Recent Auroral Activity",
+      "first_line": 132,
+      "final_line": 129
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "备注：爆发 ≠ 可观测，仍受云量与天光影响。",
+      "first_en": "MISSING",
+      "final_en": "Note: A surge does not guarantee observability; cloud cover and sky brightness still apply.",
+      "first_line": 135,
+      "final_line": 132
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "太阳风送达能力综合模型",
+      "first_en": "MISSING",
+      "final_en": "Solar Wind Coupling & Propagation Model",
+      "first_line": 138,
+      "final_line": 135
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "3小时结论分级（C值）",
+      "first_en": "MISSING",
+      "final_en": "3-hour Forecast Classification (C Value)",
+      "first_line": 141,
+      "final_line": 138
+    },
+    {
+      "match_type": "manual",
+      "zh": "未来 3 天范围预测",
+      "first_en": "MISSING",
+      "final_en": "Next 3 Days Outlook",
+      "first_line": 144,
+      "final_line": 141
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "按天评估极光出现的可能性，用于行程与时间规划。",
+      "first_en": "MISSING",
+      "final_en": "A day-by-day outlook for the next three days, designed to help with trip planning and time allocation.",
+      "first_line": 147,
+      "final_line": 144
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "今天",
+      "first_en": "MISSING",
+      "final_en": "Today",
+      "first_line": 150,
+      "final_line": 147
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "明天",
+      "first_en": "MISSING",
+      "final_en": "Tomorrow",
+      "first_line": 153,
+      "final_line": 150
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "后天",
+      "first_en": "MISSING",
+      "final_en": "Day After Tomorrow",
+      "first_line": 156,
+      "final_line": 153
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "等待生成。",
+      "first_en": "Waiting…",
+      "final_en": "Waiting…",
+      "first_line": 60,
+      "final_line": 156
+    },
+    {
+      "match_type": "manual",
+      "zh": "未来 3 天结论分级（C值）",
+      "first_en": "MISSING",
+      "final_en": "3-Day Outlook (C Value)",
+      "first_line": 159,
+      "final_line": 159
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：能量背景+送达能力更强，值得提前规划。",
+      "first_en": "MISSING",
+      "final_en": "Strong background energy and favorable delivery conditions. Suitable for advance planning.",
+      "first_line": 162,
+      "final_line": 162
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：存在机会，重点看云与当晚即时模块。",
+      "first_en": "MISSING",
+      "final_en": "Moderate-to-good conditions. Planning may be worthwhile, depending on location and clouds.",
+      "first_line": 165,
+      "final_line": 165
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：机会少，除非位置/条件极佳。",
+      "first_en": "MISSING",
+      "final_en": "Weak overall conditions. Advance planning is generally not justified.",
+      "first_line": 168,
+      "final_line": 168
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：综合偏弱，提前投入意义不大。",
+      "first_en": "MISSING",
+      "final_en": "Overall conditions are weak. Advance planning is not worthwhile.",
+      "first_line": 171,
+      "final_line": 171
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "：不建议投入。",
+      "first_en": "MISSING",
+      "final_en": "Very weak background and delivery conditions. Planning is not recommended.",
+      "first_line": 174,
+      "final_line": 174
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "佑酱已吐血更新到版本号：v3.0.0344 ； 备案许可证编号：沪ICP备2026001760号",
+      "first_en": "MISSING",
+      "final_en": "Version: v3.0.0344 · ICP filing: 沪ICP备2026001760号",
+      "first_line": 177,
+      "final_line": 177
+    },
+    {
+      "match_type": "manual",
+      "zh": "数据源：NOAA SWPC（实时太阳风、OVATION nowcast、Kp 预报）与 Open-Meteo 云量预报。磁纬（MLAT）当前为估算（偶极近似）。",
+      "first_en": "MISSING",
+      "final_en": "Data sources: NOAA SWPC (real-time solar wind, OVATION nowcast, Kp forecast) and Open-Meteo cloud forecast. MLAT is currently estimated (dipole approximation).",
+      "first_line": 180,
+      "final_line": 180
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "关闭",
+      "first_en": "MISSING",
+      "final_en": "Close",
+      "first_line": 183,
+      "final_line": 183
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "需要登录",
+      "first_en": "Login required",
+      "final_en": "Login required",
+      "first_line": 186,
+      "final_line": 186
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "为了跨设备保存收藏位置，需要登录一次。",
+      "first_en": "To save favorites across devices, please log in once.",
+      "final_en": "To save locations across devices, please log in once.",
+      "first_line": 189,
+      "final_line": 189
+    },
+    {
+      "match_type": "manual",
+      "zh": "登录后，你收藏的地点就可以在不同设备上使用啦！",
+      "first_en": "After logging in, your saved locations will be available across devices 🌟",
+      "final_en": "After logging in, your saved locations will be available across devices.",
+      "first_line": 192,
+      "final_line": 192
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "邮箱",
+      "first_en": "MISSING",
+      "final_en": "Email",
+      "first_line": 195,
+      "final_line": 195
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "发送登录链接",
+      "first_en": "MISSING",
+      "final_en": "Send login link",
+      "first_line": 198,
+      "final_line": 198
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "取消",
+      "first_en": "Cancel",
+      "final_en": "Cancel",
+      "first_line": 201,
+      "final_line": 201
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "还没有收藏的地点。先生成或输入一个地点，再点击 ⭐ 收藏",
+      "first_en": "No saved locations yet. Generate or enter a location, then tap ⭐ Save.",
+      "final_en": "No saved locations yet. Generate or enter a location, then tap ⭐ Save.",
+      "first_line": 204,
+      "final_line": 204
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "退出登录",
+      "first_en": "MISSING",
+      "final_en": "Log out",
+      "first_line": 207,
+      "final_line": 207
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "收藏地点",
+      "first_en": "Save location",
+      "final_en": "Save location",
+      "first_line": 210,
+      "final_line": 210
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "当前坐标",
+      "first_en": "Current coordinates",
+      "final_en": "Current coordinates",
+      "first_line": 213,
+      "final_line": 213
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "地点名称",
+      "first_en": "Location name",
+      "final_en": "Location name",
+      "first_line": 216,
+      "final_line": 216
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "保存",
+      "first_en": "Save",
+      "final_en": "Save",
+      "first_line": 219,
+      "final_line": 219
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "知道了",
+      "first_en": "MISSING",
+      "final_en": "Got it",
+      "first_line": 228,
+      "final_line": 222
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "不代表无法观测，仅表示模型输入存在不确定性。",
+      "first_en": "MISSING",
+      "final_en": "This does not mean it is unobservable; it only indicates uncertainty in the model inputs.",
+      "first_line": 225,
+      "final_line": 225
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "静默",
+      "first_en": "stand in silence",
+      "final_en": "Silent",
+      "first_line": 231,
+      "final_line": 228
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "爆发进行中",
+      "first_en": "in outburst",
+      "final_en": "Surge in Progress",
+      "first_line": 234,
+      "final_line": 231
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "爆发中",
+      "first_en": "in outburst",
+      "final_en": "Surge in Progress",
+      "first_line": 597,
+      "final_line": 234
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "爆发概率上升",
+      "first_en": "outburst building",
+      "final_en": "Surge Building",
+      "first_line": 237,
+      "final_line": 237
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "爆发后衰落期",
+      "first_en": "fading after outburst",
+      "final_en": "Fading After Surge",
+      "first_line": 240,
+      "final_line": 240
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "值得出门",
+      "first_en": "worth going out",
+      "final_en": "Worth Going Out",
+      "first_line": 243,
+      "final_line": 243
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "可蹲守",
+      "first_en": "wait-and-observe",
+      "final_en": "Standby",
+      "first_line": 246,
+      "final_line": 246
+    },
+    {
+      "match_type": "manual",
+      "zh": "希望不大",
+      "first_en": "low probability",
+      "final_en": "Unlikely to See",
+      "first_line": 249,
+      "final_line": 249
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "强烈推荐",
+      "first_en": "strongly recommended",
+      "final_en": "Strongly Recommended",
+      "first_line": 252,
+      "final_line": 252
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "拉取数据中…",
+      "first_en": "Fetching data…",
+      "final_en": "Notice: Fetching data…",
+      "first_line": 276,
+      "final_line": 255
+    },
+    {
+      "match_type": "manual",
+      "zh": "正在获取当前位置…",
+      "first_en": "Getting current location…",
+      "final_en": "Notice: Getting current location…",
+      "first_line": 255,
+      "final_line": 258
+    },
+    {
+      "match_type": "manual",
+      "zh": "正在获取当前位置…",
+      "first_en": "📍 Getting current location…",
+      "final_en": "Notice: Getting current location…",
+      "first_line": 600,
+      "final_line": 258
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⚠️ 无法获取定位",
+      "first_en": "⚠️ Unable to get location",
+      "final_en": "⚠️ Error: Location acquisition failed.",
+      "first_line": 264,
+      "final_line": 261
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 无法获取定位",
+      "first_en": "📍 Unable to get location",
+      "final_en": "⚠️ Error: Location acquisition failed.",
+      "first_line": 357,
+      "final_line": 261
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 数据可信度警告",
+      "first_en": "⚠️ Data reliability notice",
+      "final_en": "⚠️ Data Reliability Warning",
+      "first_line": 222,
+      "final_line": 264
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 数据可信度警告",
+      "first_en": "⚠️ Data reliability notice",
+      "final_en": "⚠️ Data Reliability Warning",
+      "first_line": 606,
+      "final_line": 264
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⚠️ 磁纬过低：已停止生成",
+      "first_en": "⚠️ MLAT too low: generation stopped",
+      "final_en": "⚠️ Warning: MLAT is too low. Forecast generation has been stopped.",
+      "first_line": 279,
+      "final_line": 267
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 磁纬过低：已停止生成",
+      "first_en": "MLAT too low. Generation stopped",
+      "final_en": "⚠️ Warning: MLAT is too low. Forecast generation has been stopped.",
+      "first_line": 453,
+      "final_line": 267
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⚠️ 磁纬限制：不可观测",
+      "first_en": "⚠️ MLAT limit: unobservable",
+      "final_en": "⚠️ Warning: This is a hard geographic limit. Unobservable.",
+      "first_line": 321,
+      "final_line": 270
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⚠️ 磁纬较低：仅极端事件才可能",
+      "first_en": "⚠️ Low MLAT: only extreme events may work",
+      "final_en": "⚠️ Warning: MLAT is low. Only extreme events may work.",
+      "first_line": 327,
+      "final_line": 273
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⚠️ 经纬度输入无效",
+      "first_en": "⚠️ Invalid coordinates",
+      "final_en": "⚠️ Error: Invalid coordinates.",
+      "first_line": 396,
+      "final_line": 276
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⚠️ 经纬度超出范围",
+      "first_en": "⚠️ Coordinates out of range",
+      "final_en": "⚠️ Error: Coordinates out of range.",
+      "first_line": 270,
+      "final_line": 279
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⚠️ 定位处理异常",
+      "first_en": "⚠️ Location error",
+      "final_en": "⚠️ Error: Location processing failed.",
+      "first_line": 261,
+      "final_line": 282
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⚠️ 定位返回无效坐标",
+      "first_en": "⚠️ Invalid location returned",
+      "final_en": "⚠️ Error: Invalid coordinates returned from location services.",
+      "first_line": 258,
+      "final_line": 285
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⭐ 收藏地址",
+      "first_en": "⭐ Save address",
+      "final_en": "⭐ Save location",
+      "first_line": 309,
+      "final_line": 288
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "📍 获取",
+      "first_en": "📍 Get",
+      "final_en": "📍 Get",
+      "first_line": 609,
+      "final_line": 291
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "📍 刷新定位",
+      "first_en": "📍 Refresh location",
+      "final_en": "📍 Re-acquire location",
+      "first_line": 306,
+      "final_line": 294
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "✍️ 生成预测",
+      "first_en": "✍️ Generate prediction",
+      "final_en": "✍️ Run forecast",
+      "first_line": 312,
+      "final_line": 297
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "登录 / 注册",
+      "first_en": "Login / Sign up",
+      "final_en": "Login / Sign up",
+      "first_line": 612,
+      "final_line": 300
+    },
+    {
+      "match_type": "manual",
+      "zh": "已生成",
+      "first_en": "Generated.",
+      "final_en": "Forecast Ready",
+      "first_line": 291,
+      "final_line": 303
+    },
+    {
+      "match_type": "manual",
+      "zh": "已获取",
+      "first_en": "Acquired ✓",
+      "final_en": "Acquired",
+      "first_line": 318,
+      "final_line": 306
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "已获取",
+      "first_en": "Acquired",
+      "final_en": "Acquired",
+      "first_line": 591,
+      "final_line": 306
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "已获取位置",
+      "first_en": "Location acquired",
+      "final_en": "Location Acquired",
+      "first_line": 594,
+      "final_line": 309
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "已获取当前位置",
+      "first_en": "Location acquired",
+      "final_en": "Location Acquired",
+      "first_line": 288,
+      "final_line": 312
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "请先输入有效经纬度。",
+      "first_en": "Please enter valid coordinates.",
+      "final_en": "Please enter valid coordinates.",
+      "first_line": 267,
+      "final_line": 315
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "关键计算模块未加载（SunCalc）。",
+      "first_en": "Core calculation module not loaded (SunCalc).",
+      "final_en": "Core calculation module not loaded (SunCalc).",
+      "first_line": 273,
+      "final_line": 318
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）",
+      "first_en": "⚠️ Solar wind source unavailable: entered weak mode (conservative)",
+      "final_en": "⚠️ Warning: Solar wind data source unavailable. Entered conservative mode.",
+      "first_line": 282,
+      "final_line": 321
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 定位失败",
+      "first_en": "📍 Location failed",
+      "final_en": "⚠️ Error: Location acquisition failed.",
+      "first_line": 285,
+      "final_line": 324
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 定位失败",
+      "first_en": "📍 Unable to get location",
+      "final_en": "⚠️ Error: Location acquisition failed.",
+      "first_line": 603,
+      "final_line": 324
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "生成失败：请打开控制台查看错误。",
+      "first_en": "Generation failed: check console for details.",
+      "final_en": "⚠️ Error: Forecast failed. Check console for details.",
+      "first_line": 294,
+      "final_line": 327
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "太阳风 ✅",
+      "first_en": "MISSING",
+      "final_en": "Solar wind ✅",
+      "first_line": 297,
+      "final_line": 330
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "太阳风 ⚠️",
+      "first_en": "MISSING",
+      "final_en": "Solar wind ⚠️",
+      "first_line": 300,
+      "final_line": 333
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "太阳风 ❌",
+      "first_en": "MISSING",
+      "final_en": "Solar wind ❌",
+      "first_line": 303,
+      "final_line": 336
+    },
+    {
+      "match_type": "manual",
+      "zh": "📍 获取位置",
+      "first_en": "MISSING",
+      "final_en": "📍 Get location",
+      "first_line": 315,
+      "final_line": 339
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "这是硬性地理限制，不是数据缺失或模型不确定性。",
+      "first_en": "MISSING",
+      "final_en": "This is a hard geographic limit, not missing data or model uncertainty.",
+      "first_line": 324,
+      "final_line": 342
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "提示：你仍可继续生成，但请把它当作“极端磁暴边缘赌局”。",
+      "first_en": "MISSING",
+      "final_en": "Notice: You can still run the forecast, but treat it as an extreme-storm edge gamble.",
+      "first_line": 330,
+      "final_line": 345
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "可尝试短时观测。",
+      "first_en": "MISSING",
+      "final_en": "Worth a short observation window.",
+      "first_line": 333,
+      "final_line": 348
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "值得出门尝试。",
+      "first_en": "MISSING",
+      "final_en": "Worth heading out to try.",
+      "first_line": 336,
+      "final_line": 351
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "暂不建议为此规划行程。",
+      "first_en": "MISSING",
+      "final_en": "Not worth planning a trip around this.",
+      "first_line": 339,
+      "final_line": 354
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "可提前关注，临近再决定。",
+      "first_en": "MISSING",
+      "final_en": "Keep an eye on it now; decide closer to the time.",
+      "first_line": 342,
+      "final_line": 357
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "值得提前规划行程。",
+      "first_en": "MISSING",
+      "final_en": "Worth planning a trip in advance.",
+      "first_line": 345,
+      "final_line": 360
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "优",
+      "first_en": "MISSING",
+      "final_en": "Good",
+      "first_line": 348,
+      "final_line": 363
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "中",
+      "first_en": "MISSING",
+      "final_en": "Fair",
+      "first_line": 351,
+      "final_line": 366
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "差",
+      "first_en": "MISSING",
+      "final_en": "Poor",
+      "first_line": 354,
+      "final_line": 369
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "当前浏览器不支持定位功能。",
+      "first_en": "MISSING",
+      "final_en": "⚠️ Error: Your browser does not support location services.",
+      "first_line": 360,
+      "final_line": 372
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "你可以手动输入经纬度。",
+      "first_en": "MISSING",
+      "final_en": "Notice: You can enter coordinates manually.",
+      "first_line": 363,
+      "final_line": 375
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。",
+      "first_en": "MISSING",
+      "final_en": "Notice: Options: manual entry / online coordinate lookup tools.",
+      "first_line": 366,
+      "final_line": 378
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 定位返回的经纬度无效，请重试或手动输入。",
+      "first_en": "MISSING",
+      "final_en": "⚠️ Error: Invalid coordinates returned from location services. Please re-acquire or enter coordinates manually.",
+      "first_line": 369,
+      "final_line": 381
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "（精度约 ${m}m）",
+      "first_en": "MISSING",
+      "final_en": "(accuracy ~ ${m} m)",
+      "first_line": 372,
+      "final_line": 384
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "已获取当前位置 ${accTxt}",
+      "first_en": "Location acquired (accuracy ~ ${m}m)",
+      "final_en": "Location Acquired ${accTxt}",
+      "first_line": 375,
+      "final_line": 387
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 定位成功返回，但处理坐标时发生异常。请重试或手动输入。",
+      "first_en": "MISSING",
+      "final_en": "⚠️ Error: Location succeeded, but processing the coordinates failed. Please re-acquire or enter coordinates manually.",
+      "first_line": 378,
+      "final_line": 390
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 定位失败，请重试或手动输入。",
+      "first_en": "MISSING",
+      "final_en": "⚠️ Error: Location acquisition failed. Please re-acquire or enter coordinates manually.",
+      "first_line": 381,
+      "final_line": 393
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 你拒绝了定位授权。请在浏览器设置中允许定位后重试。",
+      "first_en": "MISSING",
+      "final_en": "⚠️ Error: Location permission was denied. Please enable location access in your browser settings, then re-acquire.",
+      "first_line": 384,
+      "final_line": 396
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 暂时无法获取定位（信号弱/系统未开启定位服务）。",
+      "first_en": "MISSING",
+      "final_en": "⚠️ Error: Unable to acquire location (weak signal or location services are disabled).",
+      "first_line": 387,
+      "final_line": 399
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 获取定位超时，请稍后重试。",
+      "first_en": "MISSING",
+      "final_en": "⚠️ Error: Location acquisition timed out. Please re-acquire later, or enter coordinates manually.",
+      "first_line": 390,
+      "final_line": 402
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 获取定位时发生异常，请重试或手动输入。",
+      "first_en": "MISSING",
+      "final_en": "⚠️ Error: An error occurred while acquiring location. Please re-acquire or enter coordinates manually.",
+      "first_line": 393,
+      "final_line": 405
+    },
+    {
+      "match_type": "manual",
+      "zh": "⚠️ 请输入数字格式的纬度/经度。",
+      "first_en": "MISSING",
+      "final_en": "⚠️ Error: Please enter numeric values for latitude and longitude.",
+      "first_line": 399,
+      "final_line": 408
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "纬度范围：",
+      "first_en": "MISSING",
+      "final_en": "Latitude range:",
+      "first_line": 402,
+      "final_line": 411
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "；经度范围：",
+      "first_en": "MISSING",
+      "final_en": "; longitude range:",
+      "first_line": 405,
+      "final_line": 414
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "示例：纬度 53.47，经度 122.35",
+      "first_en": "MISSING",
+      "final_en": "Example: latitude 53.47, longitude 122.35.",
+      "first_line": 408,
+      "final_line": 417
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "你输入的是：",
+      "first_en": "MISSING",
+      "final_en": "You entered:",
+      "first_line": 411,
+      "final_line": 420
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "允许范围：",
+      "first_en": "MISSING",
+      "final_en": "Allowed range:",
+      "first_line": 414,
+      "final_line": 423
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "纬度（Latitude）：",
+      "first_en": "MISSING",
+      "final_en": "Latitude:",
+      "first_line": 417,
+      "final_line": 426
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "经度（Longitude）：",
+      "first_en": "MISSING",
+      "final_en": "Longitude:",
+      "first_line": 420,
+      "final_line": 429
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "请修正后再点击生成。",
+      "first_en": "MISSING",
+      "final_en": "Please correct the values, then run the forecast.",
+      "first_line": 423,
+      "final_line": 432
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "太阳风 …",
+      "first_en": "MISSING",
+      "final_en": "Solar wind …",
+      "first_line": 426,
+      "final_line": 435
+    },
+    {
+      "match_type": "manual",
+      "zh": "Kp …",
+      "first_en": "MISSING",
+      "final_en": "Kp …",
+      "first_line": 429,
+      "final_line": 438
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "云量 …",
+      "first_en": "MISSING",
+      "final_en": "Cloud cover …",
+      "first_line": 432,
+      "final_line": 441
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "OVATION …",
+      "first_en": "MISSING",
+      "final_en": "OVATION …",
+      "first_line": 435,
+      "final_line": 444
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "太阳风 —",
+      "first_en": "MISSING",
+      "final_en": "Solar wind —",
+      "first_line": 438,
+      "final_line": 447
+    },
+    {
+      "match_type": "manual",
+      "zh": "Kp —",
+      "first_en": "MISSING",
+      "final_en": "Kp —",
+      "first_line": 441,
+      "final_line": 450
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "云量 —",
+      "first_en": "MISSING",
+      "final_en": "Cloud cover —",
+      "first_line": 444,
+      "final_line": 453
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "OVATION —",
+      "first_en": "MISSING",
+      "final_en": "OVATION —",
+      "first_line": 447,
+      "final_line": 456
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "主要影响因素：",
+      "first_en": "MISSING",
+      "final_en": "Key Influencing Factors",
+      "first_line": 450,
+      "final_line": 459
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "趋势：Bz 在过去 30 分钟明显转南（≈${drop30}nT），建议提前准备（30–60min）",
+      "first_en": "MISSING",
+      "final_en": "Trend: Bz has turned strongly south over the past 30 minutes (≈${drop30} nT). Prepare in advance (30–60 min).",
+      "first_line": 456,
+      "final_line": 462
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "趋势：Bz 在过去 15 分钟快速转南（≈${drop15}nT），建议提前准备（30–60min）",
+      "first_en": "MISSING",
+      "final_en": "Trend: Bz has turned south rapidly over the past 15 minutes (≈${drop15} nT). Prepare in advance (30–60 min).",
+      "first_line": 459,
+      "final_line": 465
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "・ V/N回溯：${mins}m",
+      "first_en": "MISSING",
+      "final_en": "・ V/N backfill: ${mins}m",
+      "first_line": 462,
+      "final_line": 468
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "更新时间",
+      "first_en": "Updated",
+      "final_en": "Updated",
+      "first_line": 465,
+      "final_line": 471
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "新鲜度",
+      "first_en": "Data freshness",
+      "final_en": "Data freshness",
+      "first_line": 468,
+      "final_line": 474
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "NOAA 数据口径变动或部分数据缺失：",
+      "first_en": "MISSING",
+      "final_en": "NOAA data definitions have changed, or some fields are missing:",
+      "first_line": 471,
+      "final_line": 477
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "当前预测可信度较低，建议谨慎参考。",
+      "first_en": "MISSING",
+      "final_en": "Forecast reliability is currently low. Please interpret with caution.",
+      "first_line": 474,
+      "final_line": 480
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "点击查看数据可信度说明",
+      "first_en": "MISSING",
+      "final_en": "View data reliability details",
+      "first_line": 477,
+      "final_line": 483
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "失败",
+      "first_en": "MISSING",
+      "final_en": "Failed",
+      "first_line": 480,
+      "final_line": 486
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "天色偏亮，微弱极光难以分辨",
+      "first_en": "MISSING",
+      "final_en": "The sky is bright; faint aurora may be hard to see.",
+      "first_line": 582,
+      "final_line": 489
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "云量更佳点：—",
+      "first_en": "MISSING",
+      "final_en": "Better cloud window: —",
+      "first_line": 489,
+      "final_line": 492
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "云量更佳点：${hh}:00（L/M/H≈${low}/${mid}/${high}%）",
+      "first_en": "MISSING",
+      "final_en": "Better cloud window: ${hh}:00 (Cloud (L/M/H): ${low}/${mid}/${high}%)",
+      "first_line": 492,
+      "final_line": 495
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "能量背景：",
+      "first_en": "MISSING",
+      "final_en": "Background Energy Conditions",
+      "first_line": 495,
+      "final_line": 498
+    },
+    {
+      "match_type": "manual",
+      "zh": "Kp 峰值≈",
+      "first_en": "MISSING",
+      "final_en": "Kp Peak ≈",
+      "first_line": 498,
+      "final_line": 501
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "送达模型：",
+      "first_en": "MISSING",
+      "final_en": "Solar Wind Propagation Assessment",
+      "first_line": 501,
+      "final_line": 504
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "（Bt/速度/密度）",
+      "first_en": "MISSING",
+      "final_en": "(Bt / Speed / Density)",
+      "first_line": 504,
+      "final_line": 507
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "触发模型：",
+      "first_en": "MISSING",
+      "final_en": "Trigger Conditions",
+      "first_line": 507,
+      "final_line": 510
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "高速风",
+      "first_en": "MISSING",
+      "final_en": "High-Speed Solar Wind",
+      "first_line": 510,
+      "final_line": 513
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "· 能量输入",
+      "first_en": "MISSING",
+      "final_en": "Energy Input",
+      "first_line": 513,
+      "final_line": 516
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "夜晚占比：",
+      "first_en": "MISSING",
+      "final_en": "Nighttime Coverage",
+      "first_line": 516,
+      "final_line": 519
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "请输入正确的邮箱。",
+      "first_en": "MISSING",
+      "final_en": "Please enter a valid email address.",
+      "first_line": 519,
+      "final_line": 522
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "登录暂不可用",
+      "first_en": "MISSING",
+      "final_en": "Login temporarily unavailable",
+      "first_line": 522,
+      "final_line": 525
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "已发送，请查收邮件",
+      "first_en": "MISSING",
+      "final_en": "Sent. Please check your email.",
+      "first_line": 525,
+      "final_line": 528
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "请输入地点名称。",
+      "first_en": "Please enter a location name.",
+      "final_en": "Please enter a location name.",
+      "first_line": 528,
+      "final_line": 531
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "经纬度无效，无法收藏。",
+      "first_en": "Invalid coordinates. Unable to save.",
+      "final_en": "Invalid coordinates. Unable to save.",
+      "first_line": 531,
+      "final_line": 534
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "该地点已在收藏中，如需修改请先删除后重建。",
+      "first_en": "This location is already saved. Delete it before saving again.",
+      "final_en": "This location is already saved. Delete it before saving again.",
+      "first_line": 534,
+      "final_line": 537
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "刚刚",
+      "first_en": "MISSING",
+      "final_en": "Just now",
+      "first_line": 537,
+      "final_line": 540
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "${m} 分钟前",
+      "first_en": "MISSING",
+      "final_en": "${m} min ago",
+      "first_line": 540,
+      "final_line": 543
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "${h} 小时前",
+      "first_en": "MISSING",
+      "final_en": "${h} hr ago",
+      "first_line": 543,
+      "final_line": 546
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "${name} ✅",
+      "first_en": "MISSING",
+      "final_en": "${name} ✅",
+      "first_line": 546,
+      "final_line": 549
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "${name} ⚠️",
+      "first_en": "MISSING",
+      "final_en": "${name} ⚠️",
+      "first_line": 549,
+      "final_line": 552
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "${name} ❌",
+      "first_en": "MISSING",
+      "final_en": "${name} ❌",
+      "first_line": 552,
+      "final_line": 555
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "你的位置处于主发生区附近（更容易头顶/高仰角出现）。",
+      "first_en": "MISSING",
+      "final_en": "You are near the primary oval region (higher chance of being overhead / at high elevation).",
+      "first_line": 555,
+      "final_line": 558
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "你的位置更接近主发生区（更容易头顶/高仰角出现）。",
+      "first_en": "MISSING",
+      "final_en": "You are closer to the primary oval region (higher chance of being overhead / at high elevation).",
+      "first_line": 558,
+      "final_line": 561
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "你在椭圆外缘的可视区：更可能是北向低仰角/高空极光，成败更吃云与天色。",
+      "first_en": "MISSING",
+      "final_en": "You are in the outer visibility zone: expect low-elevation northern aurora and higher-altitude glow; outcomes depend heavily on clouds and sky brightness.",
+      "first_line": 561,
+      "final_line": 564
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "你离主发生区较远：更像“赌边缘天边光”，需要更强触发或更长持续。",
+      "first_en": "MISSING",
+      "final_en": "You are far from the primary oval region: it becomes an edge-horizon gamble and requires stronger triggering or longer duration.",
+      "first_line": 564,
+      "final_line": 567
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "离子触发更明确。",
+      "first_en": "MISSING",
+      "final_en": "Triggering is clearer.",
+      "first_line": 567,
+      "final_line": 570
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "系统更容易发生，但未到持续触发。",
+      "first_en": "MISSING",
+      "final_en": "The system is more likely to activate, but not yet in sustained triggering.",
+      "first_line": 570,
+      "final_line": 573
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "刚有过波动，仍可能余震一会儿。",
+      "first_en": "MISSING",
+      "final_en": "There was a recent disturbance; after-effects may persist for a while.",
+      "first_line": 573,
+      "final_line": 576
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "背景不足或触发不清晰。",
+      "first_en": "MISSING",
+      "final_en": "Background is insufficient or triggering is unclear.",
+      "first_line": 576,
+      "final_line": 579
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "天空被云层遮挡，不利于观测",
+      "first_en": "MISSING",
+      "final_en": "Cloud cover is blocking the sky; not favorable for observing.",
+      "first_line": 579,
+      "final_line": 582
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "能量注入弱，难以形成有效极光",
+      "first_en": "MISSING",
+      "final_en": "Energy input is weak; effective aurora is unlikely.",
+      "first_line": 585,
+      "final_line": 585
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "未配置翻译服务",
+      "first_en": "MISSING",
+      "final_en": "Translation service is not configured.",
+      "first_line": 621,
+      "final_line": 588
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "${del.count}/3 成立",
+      "first_en": "MISSING",
+      "final_en": "${del.count}/3 conditions met",
+      "first_line": 483,
+      "final_line": 591
+    },
+    {
+      "match_type": "zh_exact_unique",
+      "zh": "Bt平台${okBt} ・ 速度背景${okV} ・ 密度结构${okN}",
+      "first_en": "MISSING",
+      "final_en": "Bt ${okBt} · V ${okV} · N ${okN}",
+      "first_line": 486,
+      "final_line": 594
+    }
+  ],
+  "ambiguous_zh": [],
+  "ambiguous_en": [],
+  "unmatched_first": [],
+  "unmatched_final": [],
+  "candidates_normalized": [],
+  "manual": {
+    "manual_pair_count": 32,
+    "ignored_count": 3,
+    "deleted_count": 1,
+    "added_translations": 2,
+    "allow_multi_final": true
+  }
+}
