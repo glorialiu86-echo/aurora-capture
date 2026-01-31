@@ -1,6 +1,6 @@
 ## Entries
 - zh: Aurora Capture 极光捕手
-- en: Aurora Capture
+- en: Aurora Capture 极光捕手
 
 - zh: 现在要不要出门追光？一键给出观测窗口
 - en: Should you head out now? Get an instant observing window.
@@ -15,13 +15,10 @@
 - en: Saved Locations
 
 - zh: 📖 工具介绍
-- en: Guide
+- en: 📖 Guide
 
 - zh: 工具介绍
 - en: How It Works
-
-- zh: 翻译开关
-- en: Trans ON / Trans OFF
 
 - zh: 纬度 Latitude
 - en: Latitude
@@ -48,7 +45,7 @@
 - en: Notice: We recommend using “Get current location”. You can also enter coordinates manually.
 
 - zh: 目的地经纬度：可通过奥维地图长按获取，或使用腾讯地图坐标拾取器：https://lbs.qq.com/getPoint/。
-- en: Notice: To get destination coordinates, right-click a point in Google Maps to copy the latitude and longitude. You can also use any online coordinate picker.
+- en: To get destination coordinates, right-click a point in Google Maps to copy the latitude and longitude. You can also use any online coordinate picker.
 
 - zh: 数据状态
 - en: Data Status
@@ -59,10 +56,10 @@
 - zh: 现在
 - en: Now
 
-- zh: 未来 3 小时
+- zh: 未来3小时
 - en: Next 3 Hours
 
-- zh: 未来 3 天
+- zh: 未来3天
 - en: Next 3 Days
 
 - zh: 当前建议（1小时内，10分钟粒度）
@@ -89,34 +86,34 @@
 - zh: 1小时预测结论分级（C值）
 - en: 1-hour Forecast Classification (C Value)
 
-- zh: 【C值5】强烈推荐
-- en: Strongly Recommended
+- zh: 【C值5】强烈推荐：
+- en: Strongly Recommended: 
 
-- zh: ：投入回报高，建议立即行动。
+- zh: 投入回报高，建议立即行动。
 - en: High expected return; immediate action is recommended.
 
-- zh: 【C值4】值得出门
-- en: Worth Going Out
+- zh: 【C值4】值得出门：
+- en: Worth Going Out: 
 
-- zh: ：条件不错，建议准备与试拍。
+- zh: 条件不错，建议准备与试拍。
 - en: Conditions are favorable; preparation and test shots are recommended.
 
-- zh: 【C值3】可蹲守
-- en: Standby
+- zh: 【C值3】可蹲守：
+- en: Standby: 
 
-- zh: ：存在机会，建议架机等待触发。
+- zh: 存在机会，建议架机等待触发。
 - en: A possible window exists; set up and wait for triggering conditions.
 
-- zh: 【C值2】希望不大
-- en: Unlikely to See
+- zh: 【C值2】希望不大：
+- en: Unlikely to See: 
 
-- zh: ：机会小，可低成本尝试。
+- zh: 机会小，可低成本尝试。
 - en: Unlikely to See. Try only at low cost.
 
-- zh: 【C值1】不可观测
-- en: Unobservable
+- zh: 【C值1】不可观测：
+- en: Unobservable: 
 
-- zh: ：当前时段不建议投入。
+- zh: 当前时段不建议投入。
 - en: Not observable under current conditions.
 
 - zh: 不可观测

@@ -23,9 +23,6 @@
 - zh: 工具介绍
 - en: MISSING
 
-- zh: 翻译开关
-- en: MISSING
-
 - zh: 纬度 Latitude
 - en: MISSING
 

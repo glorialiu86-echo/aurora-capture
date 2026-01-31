@@ -158,3 +158,17 @@
 
 ### Known edge-case / TODO（可选）
 - hard-stop 分支仍存在 threeState="静默" 的写死中文（未在本步修复）。
+
+## Round 4 — R4-1 清零旧翻译映射
+
+### 变更摘要
+- 移除 `translateConclusionTextIfEN / translateReasonIfEN / primaryPrefixIfEN / _tIfEN` 等旧映射定义与全部调用。
+- 动态结论/主因/3h/72h 相关文案改为 key 驱动（`tKey(...)`），并新增前缀 key `UI_PREFIX_PRIMARY_FACTOR`。
+- actionNote1h/actionNote72h 改用 `T1_ACTION_* / T72_ACTION_*` 的 key 文案。
+
+### 搜索证据（代码 0 命中）
+- translateConclusionTextIfEN / translateReasonIfEN / primaryPrefixIfEN / _tIfEN / mapCN / mapEN：0 命中（仅 REVIEW.md 记录保留）。
+
+### 验证点
+1) Run Forecast 后：页面无新增 JS 报错（外部链路报错可忽略）。
+2) 切 CN/EN：主结论/主因/3h state-hint 的文本可随语言变化。

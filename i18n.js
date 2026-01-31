@@ -39,6 +39,7 @@
     // --- status row ---
     STATUS_ROW_ARIA: { type: "text", zh: "数据状态", en: "Data status" },
     STATUS_TEXT_WAITING: { type: "text", zh: "等待生成。", en: "Ready." },
+    UI_PREFIX_PRIMARY_FACTOR: { type: "text", zh: "主要影响因素：", en: "Primary factor: " },
 
     // --- status / reason keys (model outputs) ---
     STATUS_C5: { type: "text", zh: "强烈推荐", en: "Highly Recommended" },
@@ -99,6 +100,9 @@
     T1_LEVEL_C3: { type: "text", zh: "【C值3】可蹲守：存在机会，建议架机等待触发。", en: "C3 Worth Waiting: There is a chance. Set up and watch for triggers." },
     T1_LEVEL_C2: { type: "text", zh: "【C值2】低概率：机会小，可低成本尝试。", en: "C2 Low Chance: Small opportunity. Try only at low cost." },
     T1_LEVEL_C1: { type: "text", zh: "【C值1】不可观测：当前时段不建议投入。", en: "C1 Not Observable: Not worth investing time right now." },
+    T1_ACTION_LOW: { type: "text", zh: "当前时段不建议投入。", en: "Not recommended to invest effort now." },
+    T1_ACTION_MID: { type: "text", zh: "可尝试短时观测。", en: "Try a short watch." },
+    T1_ACTION_HIGH: { type: "text", zh: "值得出门尝试。", en: "Worth going out to try." },
 
     // --- T3 ---
     T3_STATE_TITLE: { type: "text", zh: "近期极光状态", en: "Recent Aurora State" },
@@ -125,6 +129,9 @@
     T72_LEVEL_C3: { type: "text", zh: "【C值3】可蹲守：机会少，除非位置/条件极佳。", en: "C3 Worth Waiting: Limited opportunity unless your location/sky is excellent." },
     T72_LEVEL_C2: { type: "text", zh: "【C值2】低概率：综合偏弱，提前投入意义不大。", en: "C2 Low Chance: Overall weak. Early investment is not worth it." },
     T72_LEVEL_C1: { type: "text", zh: "【C值1】不可观测：不建议投入。", en: "C1 Not Observable: Not recommended to invest effort." },
+    T72_ACTION_LOW: { type: "text", zh: "暂不建议为此规划行程。", en: "Not recommended to plan a trip for this yet." },
+    T72_ACTION_MID: { type: "text", zh: "可提前关注，临近再决定。", en: "Keep an eye on it; decide closer to the date." },
+    T72_ACTION_HIGH: { type: "text", zh: "值得提前规划行程。", en: "Worth planning ahead." },
 
     // --- alert ---
     ALERT_TITLE_DATA_CONF: { type: "text", zh: "⚠️ 数据可信度提醒", en: "⚠️ Data Confidence Notice" },

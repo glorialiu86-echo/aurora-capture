@@ -471,156 +471,20 @@ function cColor(c){
   }
 }
 
-// ===============================
-// Language: conclusion translation (EN only; CN remains unchanged)
-// ===============================
-function getLangSafe(){
-  try{
-    const g = window.UI?.getLang;
-    if(typeof g === "function"){
-      const v = g();
-      return (v === "en") ? "en" : "cn";
-    }
-  }catch(_){ /* ignore */ }
-  return "cn";
-}
-
-function translateConclusionTextIfEN(cnPhrase){
-  const cn = String(cnPhrase || "").trim() || "不可观测";
-  if(getLangSafe() !== "en") return cn;
-
-  const map = {
-    "强烈推荐": "Highly Recommended",
-    "值得出门": "Worth Going Out",
-    "可蹲守": "Worth Waiting",
-    "低概率": "Low Probability",
-    "不可观测": "Not Observable",
-  };
-
-  return map[cn] || cn || "Not Observable";
-}
-
-function conclusionTextFromLabelObj(obj){
-  const t = String(obj?.t || "");
-  if(t === "STATUS_C5") return "强烈推荐";
-  if(t === "STATUS_C4") return "值得出门";
-  if(t === "STATUS_C3") return "可蹲守";
-  if(t === "STATUS_C2") return "低概率";
-  if(t === "STATUS_C1") return "不可观测";
-  return t || "不可观测";
-}
-
-// ===============================
-// Language: dynamic text translation (EN only; CN remains unchanged)
-// ===============================
-function _tIfEN(cnText, enText){
-  return (getLangSafe() === "en") ? (enText || cnText) : cnText;
-}
-
-function translateReasonIfEN(cnText){
-  const cnRaw = String(cnText || "");
-  const cn = cnRaw.trim();
-  if(getLangSafe() !== "en") return cn;
-
-  // Exact/near-exact mappings first (stable, no surprises)
-  const map = {
-    // energy / coupling
-    "能量注入弱，难以形成有效极光": "Weak energy coupling. Effective aurora is unlikely.",
-    "能量注入偏弱，难以形成有效极光": "Weak energy coupling. Effective aurora is unlikely.",
-    "能量输入偏弱，难以形成有效极光": "Weak energy coupling. Effective aurora is unlikely.",
-    "能量注入弱": "Weak energy coupling.",
-
-    // bright sky (sun/moon merged)
-    "天色偏亮，微弱极光难以分辨": "Bright sky. Faint aurora is hard to discern.",
-    "天空偏亮，微弱极光难以分辨": "Bright sky. Faint aurora is hard to discern.",
-    "天色偏亮": "Bright sky.",
-
-    // clouds
-    "天空被云层遮挡，不利于观测": "Cloud cover blocks the sky.",
-    "天空被云层遮挡": "Cloud cover blocks the sky.",
-    "云层遮挡，不利于观测": "Cloud cover blocks the sky.",
-    "云层遮挡": "Cloud cover blocks the sky.",
-    "云量过高，不利于观测": "Too cloudy for reliable viewing.",
-    "云量过高": "Too cloudy for reliable viewing.",
-
-    // generic / fallback strings sometimes produced by future edits
-    "不可观测": "Not observable.",
-    "—": "—",
-  };
-
-  if(map[cn]) return map[cn];
-
-  // Keyword-based fallbacks (cover future phrasing changes without touching CN path)
-  const s = cn;
-
-  // Clouds
-  if(s.includes("云")){
-    // If wording hints at heavy cloud / blocking
-    if(s.includes("遮挡") || s.includes("过高") || s.includes("很厚") || s.includes("覆盖")){
-      return "Cloud cover blocks the sky.";
-    }
-    return "Cloud conditions are unfavorable.";
-  }
-
-  // Bright sky (sun/moon/twilight)
-  if(s.includes("天色") || s.includes("天空") || s.includes("偏亮") || s.includes("月") || s.includes("太阳") || s.includes("晨") || s.includes("暮")){
-    return "Bright sky. Faint aurora is hard to discern.";
-  }
-
-  // Energy / coupling / geomagnetic drive
-  if(s.includes("能量") || s.includes("注入") || s.includes("输入") || s.includes("耦合") || s.includes("Bz") || s.includes("BT") || s.includes("Bt") || s.includes("南") || s.includes("北")){
-    return "Weak geomagnetic driving. Effective aurora is unlikely.";
-  }
-
-  // Default: keep CN (better than wrong EN)
-  return cn;
-}
-
-function reasonTextFromKey(key){
-  const k = String(key || "");
-  if(k === "REASON_CLOUD_COVER_BLOCKS") return "天空被云层遮挡，不利于观测";
-  if(k === "REASON_SKY_TOO_BRIGHT_WEAK_AURORA_HARD_TO_SEE") return "天色偏亮，微弱极光难以分辨";
-  if(k === "REASON_ENERGY_INPUT_TOO_WEAK") return "能量注入弱，难以形成有效极光";
-  if(k === "REASON_MLAT_TOO_LOW_STOP") return "磁纬过低，已停止生成";
-  return "";
-}
-
-function burstStateTextFromKey(key){
-  const k = String(key || "");
-  if(k === "T3_BURST_STATE_ACTIVE") return "爆发进行中";
-  if(k === "T3_BURST_STATE_RISING") return "爆发概率上升";
-  if(k === "T3_BURST_STATE_DECAY") return "爆发后衰落期";
-  if(k === "T3_BURST_STATE_QUIET") return "静默";
-  return "—";
-}
-
-function burstHintTextFromKey(key){
-  const k = String(key || "");
-  if(k === "T3_BURST_HINT_ACTIVE") return "离子触发更明确。";
-  if(k === "T3_BURST_HINT_RISING") return "系统更容易发生，但未到持续触发。";
-  if(k === "T3_BURST_HINT_DECAY") return "刚有过波动，仍可能余震一会儿。";
-  if(k === "T3_BURST_HINT_QUIET") return "背景不足或触发不清晰。";
-  return "—";
-}
-
-function primaryPrefixIfEN(){
-  return (getLangSafe() === "en") ? "Primary factor: " : "主要影响因素：";
-}
-
 function actionNote1h(score5, gate){
   const s = Math.max(1, Math.min(5, Math.round(Number(score5) || 1)));
   // hardBlock also means not worth investing now
-  if(gate && gate.hardBlock) return _tIfEN("当前时段不建议投入。", "Not recommended to invest effort now.");
-  if(s <= 2) return _tIfEN("当前时段不建议投入。", "Not recommended to invest effort now.");
-  if(s === 3) return _tIfEN("可尝试短时观测。", "Try a short watch.");
-  return _tIfEN("值得出门尝试。", "Worth going out to try.");
+  if(gate && gate.hardBlock) return tKey("T1_ACTION_LOW");
+  if(s <= 2) return tKey("T1_ACTION_LOW");
+  if(s === 3) return tKey("T1_ACTION_MID");
+  return tKey("T1_ACTION_HIGH");
 }
 
 function actionNote72h(score5){
   const s = Math.max(1, Math.min(5, Math.round(Number(score5) || 1)));
-  if(s <= 2) return _tIfEN("暂不建议为此规划行程。", "Not recommended to plan a trip for this yet.");
-  if(s === 3) return _tIfEN("可提前关注，临近再决定。", "Keep an eye on it; decide closer to the date.");
-  return _tIfEN("值得提前规划行程。", "Worth planning ahead.");
+  if(s <= 2) return tKey("T72_ACTION_LOW");
+  if(s === 3) return tKey("T72_ACTION_MID");
+  return tKey("T72_ACTION_HIGH");
 }
 
 // ===============================
@@ -1385,12 +1249,12 @@ function fillCurrentLocation(){
       if(Number.isFinite(absMlat) && absMlat < MLAT_HARD_STOP){
         showMlatHardStop(mlat);
 
-        renderHeroLabel($("oneHeroLabel"), translateConclusionTextIfEN("不可观测"), cColor(1), false);
+        renderHeroLabel($("oneHeroLabel"), tKey("STATUS_C1"), cColor(1), false);
         safeText($("oneHeroMeta"), actionNote1h(1, { hardBlock:true }));
         renderBlockerExplain(
           $("oneBlockers"),
           1,
-          primaryPrefixIfEN() + translateReasonIfEN("磁纬过低，已停止生成")
+          tKey("UI_PREFIX_PRIMARY_FACTOR") + tKey("REASON_MLAT_TOO_LOW_STOP")
         );
         renderSwPlaceholder();
         safeText($("swMeta"), "—");
@@ -1401,17 +1265,17 @@ function fillCurrentLocation(){
         renderChart(labels, vals, cols);
 
         // For 3-hour burst model: only state (big word) and one-line hint
-        safeText($("threeState"), "静默");
-        safeText($("threeBurst"), _tIfEN("磁纬过低，已停止生成", "MLAT too low. Generation stopped."));
+        safeText($("threeState"), tKey("T3_BURST_STATE_QUIET"));
+        safeText($("threeBurst"), tKey("REASON_MLAT_TOO_LOW_STOP"));
         safeText($("threeDeliver"), "—");
         safeText($("threeDeliverMeta"), "—");
 
         // 3小时（三卡，与 72h 同模板）
         [0,1,2].forEach(i => {
           safeText($("threeSlot"+i+"Time"), "—");
-          safeText($("threeSlot"+i+"Conclusion"), translateConclusionTextIfEN("不可观测"));
+          safeText($("threeSlot"+i+"Conclusion"), tKey("STATUS_C1"));
           safeText($("threeSlot"+i+"Note"), actionNote1h(1, { hardBlock:true }));
-          safeText($("threeSlot"+i+"Reason"), "不可观测。");
+          safeText($("threeSlot"+i+"Reason"), tKey("REASON_MLAT_TOO_LOW_STOP"));
           const card = $("threeSlot"+i);
           if(card) card.className = "dayCard c1";
         });
@@ -1419,9 +1283,9 @@ function fillCurrentLocation(){
         // 72h（三列日卡）
         [0,1,2].forEach(i => {
           safeText($("day"+i+"Date"), "—");
-          safeText($("day"+i+"Conclusion"), translateConclusionTextIfEN("不可观测"));
+          safeText($("day"+i+"Conclusion"), tKey("STATUS_C1"));
           safeText($("day"+i+"Note"), actionNote72h(1));
-          safeText($("day"+i+"Basis"), "不可观测。");
+          safeText($("day"+i+"Basis"), tKey("REASON_MLAT_TOO_LOW_STOP"));
           const card = $("day"+i);
           if(card) card.className = "dayCard c1";
         });
@@ -1793,7 +1657,7 @@ function fillCurrentLocation(){
           const reasonText = isKeyLike(heroObj?.reasonKey)
             ? tKey(heroObj.reasonKey)
             : (isKeyLike(reasonKey) ? tKey(reasonKey) : maybeText(primary || heroObj?.reason || heroObj?.reasonText || heroObj?.blocker || heroObj?.primaryReason || ""));
-          blockerText = primaryPrefixIfEN() + (reasonText || "—");
+          blockerText = tKey("UI_PREFIX_PRIMARY_FACTOR") + (reasonText || "—");
         }
       }catch(e){
         blockerText = "";
@@ -1975,12 +1839,13 @@ function fillCurrentLocation(){
 
         const timeText = `${fmtHM(s.start)}–${fmtHM(s.end)}`;
         safeText($("threeSlot" + i + "Time"), timeText);
-        safeText($("threeSlot" + i + "Conclusion"), translateConclusionTextIfEN(conclusionTextFromLabelObj(lab)));
+        safeText($("threeSlot" + i + "Conclusion"), tKey(lab?.statusKey || lab?.t));
         safeText($("threeSlot" + i + "Note"), actionNote1h(s.score5, s.gate));
 
         // reason line: show a single primary factor when we have it; otherwise keep it minimal
-        const reason = (s.factorText && String(s.factorText).trim())
-          ? (primaryPrefixIfEN() + translateReasonIfEN(reasonTextFromKey(String(s.factorText))))
+        const reasonKey = (s.factorText && String(s.factorText).trim()) ? String(s.factorText) : "";
+        const reason = reasonKey
+          ? (tKey("UI_PREFIX_PRIMARY_FACTOR") + (isKeyLike(reasonKey) ? tKey(reasonKey) : maybeText(reasonKey)))
           : "";
         safeText($("threeSlot" + i + "Reason"), reason);
 
@@ -2067,7 +1932,7 @@ function fillCurrentLocation(){
 
         // 写入到三列卡片
         safeText($("day"+i+"Date"), key);
-        safeText($("day"+i+"Conclusion"), translateConclusionTextIfEN(conclusionTextFromLabelObj(lab)));
+        safeText($("day"+i+"Conclusion"), tKey(lab?.statusKey || lab?.t));
         safeText($("day"+i+"Note"), actionNote72h(score5));
         renderDayBasis($("day"+i+"Basis"), basisLines);
 
