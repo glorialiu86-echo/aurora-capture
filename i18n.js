@@ -5,20 +5,20 @@
 
   const resources = {
     // --- meta / header ---
-    META_TITLE: { type: "text", zh: "Aurora Capture 极光捕手", en: "Aurora Capture" },
-    META_DESC: { type: "text", zh: "现在要不要出门追光？一键给出观测窗口", en: "Should you go out for aurora tonight? One-click viewing guidance." },
-    META_OG_DESC: { type: "text", zh: "现在要不要出门追光？一键给出观测窗口", en: "Should you go out for aurora tonight? One-click viewing guidance." },
+    META_TITLE: { type: "text", zh: "Aurora Capture 极光捕手", en: "Aurora Capture 极光捕手" },
+    META_DESC: { type: "text", zh: "现在要不要出门追光？一键给出观测窗口", en: "Should you head out now? Get an instant observing window." },
+    META_OG_DESC: { type: "text", zh: "现在要不要出门追光？一键给出观测窗口", en: "Should you head out now? Get an instant observing window." },
 
     HDR_TITLE_BRAND: { type: "text", zh: "极光捕手", en: "Aurora Capture" },
     HDR_LOGO_ALT: { type: "text", zh: "Aurora Capture logo", en: "Aurora Capture logo" },
-    HDR_BTN_ABOUT: { type: "text", zh: "📖 工具介绍", en: "📖 User Guide" },
-    HDR_BTN_ABOUT_ARIA: { type: "text", zh: "工具介绍", en: "User Guide" },
+    HDR_BTN_ABOUT: { type: "text", zh: "📖 工具介绍", en: "📖 Guide" },
+    HDR_BTN_ABOUT_ARIA: { type: "text", zh: "工具介绍", en: "How It Works" },
     HDR_LANG_TOGGLE_ARIA: { type: "text", zh: "语言", en: "Language" },
     HDR_LANG_CN_LABEL: { type: "text", zh: "CN", en: "CN" },
     HDR_LANG_EN_LABEL: { type: "text", zh: "EN", en: "EN" },
 
     // --- about modal ---
-    ABOUT_MODAL_TITLE: { type: "text", zh: "📖 工具介绍", en: "📖 User Guide" },
+    ABOUT_MODAL_TITLE: { type: "text", zh: "📖 工具介绍", en: "📖 Guide" },
     ABOUT_CLOSE_ARIA: { type: "text", zh: "关闭", en: "Close" },
 
     // --- form ---
@@ -26,11 +26,10 @@
     FORM_LABEL_LON: { type: "text", zh: "经度 Longitude", en: "Longitude" },
     FORM_PLACEHOLDER_LAT: { type: "text", zh: "例如 53.47", en: "e.g. 53.47" },
     FORM_PLACEHOLDER_LON: { type: "text", zh: "例如 122.35", en: "e.g. 122.35" },
-    FORM_BTN_GEO: { type: "text", zh: "📍 获取当前位置", en: "📍 Get Location" },
-    FORM_BTN_GEO_SUCCESS: { type: "text", zh: "已获取 ✓", en: "Got it ✓" },
-    FORM_BTN_RUN: { type: "text", zh: "✍️ 生成即时预测", en: "✍️ Run Forecast" },
-    FORM_BTN_PREDICT: { type: "text", zh: "✍️ Run Forecast", en: "✍️ Run Forecast" },
-    FORM_GEO_HINT_SUMMARY: { type: "text", zh: "推荐直接“获取当前位置”，也可手动输入经纬度", en: "We recommend using \"Get Location\". You can also enter coordinates manually." },
+    FORM_BTN_GEO: { type: "text", zh: "📍 获取当前位置", en: "📍 Get current location" },
+    FORM_BTN_GEO_SUCCESS: { type: "text", zh: "已获取", en: "Acquired" },
+    FORM_BTN_RUN: { type: "text", zh: "✍️ 生成即时预测", en: "✍️ Run forecast now" },
+    FORM_GEO_HINT_SUMMARY: { type: "text", zh: "推荐直接“获取当前位置”，也可手动输入经纬度", en: "Notice: We recommend using “Get current location”. You can also enter coordinates manually." },
     FORM_GEO_HINT_BODY_MAIN: {
       type: "text",
       zh: "目的地经纬度：可通过奥维地图长按获取，或使用腾讯地图坐标拾取器（网页端）：https://lbs.qq.com/getPoint/。",
@@ -39,48 +38,48 @@
 
     // --- status row ---
     STATUS_ROW_ARIA: { type: "text", zh: "数据状态", en: "Data status" },
-    STATUS_TEXT_WAITING: { type: "text", zh: "等待生成。", en: "Ready." },
-    STATUS_TEXT_FETCHING: { type: "text", zh: "拉取数据中…", en: "Fetching data..." },
-    STATUS_TEXT_DONE: { type: "text", zh: "已生成。", en: "Done." },
-    STATUS_TEXT_DATA_CONFIDENCE: { type: "text", zh: "⚠️ 数据可信度提醒", en: "⚠️ Data confidence notice" },
-    STATUS_TEXT_SW_OUTAGE: { type: "text", zh: "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）", en: "⚠️ Solar wind data source long outage: weak mode (conservative)" },
-    STATUS_TEXT_MLAT_STOP: { type: "text", zh: "⚠️ 磁纬过低：已停止生成。", en: "⚠️ MLAT too low: generation stopped." },
-    STATUS_TEXT_SUNCALC_MISSING: { type: "text", zh: "关键计算模块未加载（SunCalc）。", en: "Required module missing (SunCalc)." },
-    STATUS_TEXT_DATA_CONF_TITLE: { type: "text", zh: "点击查看数据可信度说明", en: "Click to view data confidence details" },
+    STATUS_TEXT_WAITING: { type: "text", zh: "等待生成…", en: "Waiting…" },
+    STATUS_TEXT_FETCHING: { type: "text", zh: "拉取数据中…", en: "Fetching data…" },
+    STATUS_TEXT_DONE: { type: "text", zh: "已生成", en: "Forecast Ready" },
+    STATUS_TEXT_DATA_CONFIDENCE: { type: "text", zh: "⚠️ 数据可信度警告", en: "⚠️ Data Reliability Warning" },
+    STATUS_TEXT_SW_OUTAGE: { type: "text", zh: "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）", en: "⚠️ Warning: Solar wind data source unavailable. Entered conservative mode." },
+    STATUS_TEXT_MLAT_STOP: { type: "text", zh: "⚠️ 磁纬过低：已停止生成", en: "⚠️ Warning: MLAT is too low. Forecast generation has been stopped." },
+    STATUS_TEXT_SUNCALC_MISSING: { type: "text", zh: "关键计算模块未加载（SunCalc）。", en: "Core calculation module not loaded (SunCalc)." },
+    STATUS_TEXT_DATA_CONF_TITLE: { type: "text", zh: "点击查看数据可信度说明", en: "View data reliability details" },
     STATUS_TEXT_INPUT_INVALID: { type: "text", zh: "请先输入有效经纬度。", en: "Please enter valid latitude/longitude." },
-    STATUS_TEXT_RANGE_INVALID: { type: "text", zh: "⚠️ 经纬度超出范围", en: "⚠️ Coordinates out of range" },
-    STATUS_TEXT_GEO_FETCHING: { type: "text", zh: "📍 正在获取当前位置…", en: "📍 Getting current location..." },
-    STATUS_TEXT_GEO_INVALID: { type: "text", zh: "⚠️ 定位返回无效坐标", en: "⚠️ Invalid coordinates returned" },
-    STATUS_TEXT_GEO_SUCCESS: { type: "template", params: ["acc"], zh: "已获取当前位置 {acc}", en: "Location acquired {acc}" },
+    STATUS_TEXT_RANGE_INVALID: { type: "text", zh: "⚠️ 经纬度超出范围", en: "⚠️ Error: Coordinates out of range." },
+    STATUS_TEXT_GEO_FETCHING: { type: "text", zh: "正在获取当前位置…", en: "Getting current location…" },
+    STATUS_TEXT_GEO_INVALID: { type: "text", zh: "⚠️ 定位返回无效坐标", en: "⚠️ Error: Invalid coordinates returned from location services." },
+    STATUS_TEXT_GEO_SUCCESS: { type: "template", params: ["acc"], zh: "已获取当前位置 {acc}", en: "Location Acquired {acc}" },
     STATUS_TEXT_GEO_ACCURACY_SUFFIX: { type: "template", params: ["m"], zh: "（精度约 {m}m）", en: "(accuracy ≈ {m}m)" },
     UI_TIMEAGO_JUST_NOW: { type: "text", zh: "刚刚", en: "Just now" },
     UI_TIMEAGO_MINUTES: { type: "template", params: ["m"], zh: "{m} 分钟前", en: "{m} min ago" },
     UI_TIMEAGO_HOURS: { type: "template", params: ["h"], zh: "{h} 小时前", en: "{h} hr ago" },
-    STATUS_TEXT_GEO_PROCESS_ERR: { type: "text", zh: "⚠️ 定位处理异常", en: "⚠️ Location processing error" },
-    STATUS_TEXT_GEO_UNAVAILABLE: { type: "text", zh: "⚠️ 无法获取定位", en: "⚠️ Unable to get location" },
-    STATUS_TEXT_RUN_ERROR: { type: "text", zh: "生成失败：请打开控制台查看错误。", en: "Generation failed. Please check console." },
-    UI_PREFIX_PRIMARY_FACTOR: { type: "text", zh: "主要影响因素：", en: "Primary factor: " },
+    STATUS_TEXT_GEO_PROCESS_ERR: { type: "text", zh: "⚠️ 定位处理异常", en: "⚠️ Error: Positioning processing exception." },
+    STATUS_TEXT_GEO_UNAVAILABLE: { type: "text", zh: "⚠️ 无法获取定位", en: "⚠️ Error: Location acquisition failed." },
+    STATUS_TEXT_RUN_ERROR: { type: "text", zh: "⚠️ 生成失败：请打开控制台查看错误。", en: "⚠️ Error: Forecast failed. Check console for details." },
+    UI_PREFIX_PRIMARY_FACTOR: { type: "text", zh: "主要影响因素：", en: "Key Influencing Factors:  " },
 
     // --- status / reason keys (model outputs) ---
-    STATUS_C5: { type: "text", zh: "强烈推荐", en: "Highly Recommended" },
+    STATUS_C5: { type: "text", zh: "强烈推荐", en: "Strongly Recommended" },
     STATUS_C4: { type: "text", zh: "值得出门", en: "Worth Going Out" },
-    STATUS_C3: { type: "text", zh: "可蹲守", en: "Worth Waiting" },
-    STATUS_C2: { type: "text", zh: "低概率", en: "Low Probability" },
-    STATUS_C1: { type: "text", zh: "不可观测", en: "Not Observable" },
+    STATUS_C3: { type: "text", zh: "可蹲守", en: "Standby" },
+    STATUS_C2: { type: "text", zh: "希望不大", en: "Unlikely to See" },
+    STATUS_C1: { type: "text", zh: "不可观测", en: "Unobservable" },
 
-    REASON_CLOUD_COVER_BLOCKS: { type: "text", zh: "天空被云层遮挡，不利于观测", en: "Cloud cover blocks the sky." },
-    REASON_SKY_TOO_BRIGHT_WEAK_AURORA_HARD_TO_SEE: { type: "text", zh: "天色偏亮，微弱极光难以分辨", en: "Bright sky. Faint aurora is hard to discern." },
-    REASON_ENERGY_INPUT_TOO_WEAK: { type: "text", zh: "能量注入弱，难以形成有效极光", en: "Weak energy coupling. Effective aurora is unlikely." },
+    REASON_CLOUD_COVER_BLOCKS: { type: "text", zh: "天空被云层遮挡，不利于观测", en: "Cloud cover is blocking the sky; not favorable for observing." },
+    REASON_SKY_TOO_BRIGHT_WEAK_AURORA_HARD_TO_SEE: { type: "text", zh: "天色偏亮，微弱极光难以分辨", en: "The sky is bright; faint aurora may be hard to see." },
+    REASON_ENERGY_INPUT_TOO_WEAK: { type: "text", zh: "能量注入弱，难以形成有效极光", en: "Energy input is weak; effective aurora is unlikely." },
     REASON_MLAT_TOO_LOW_STOP: { type: "text", zh: "磁纬过低，已停止生成", en: "MLAT too low. Generation stopped." },
 
-    T3_BURST_STATE_ACTIVE: { type: "text", zh: "爆发进行中", en: "Burst in progress" },
-    T3_BURST_STATE_RISING: { type: "text", zh: "爆发概率上升", en: "Burst likelihood rising" },
-    T3_BURST_STATE_DECAY: { type: "text", zh: "爆发后衰落期", en: "Post-burst decay" },
-    T3_BURST_STATE_QUIET: { type: "text", zh: "静默", en: "Quiet" },
-    T3_BURST_HINT_ACTIVE: { type: "text", zh: "离子触发更明确。", en: "Ion triggering is clearer." },
-    T3_BURST_HINT_RISING: { type: "text", zh: "系统更容易发生，但未到持续触发。", en: "More likely, but not in sustained triggering yet." },
-    T3_BURST_HINT_DECAY: { type: "text", zh: "刚有过波动，仍可能余震一会儿。", en: "Recent fluctuation; aftershocks still possible." },
-    T3_BURST_HINT_QUIET: { type: "text", zh: "背景不足或触发不清晰。", en: "Background insufficient or triggers unclear." },
+    T3_BURST_STATE_ACTIVE: { type: "text", zh: "爆发进行中", en: "Surge in Progress" },
+    T3_BURST_STATE_RISING: { type: "text", zh: "爆发概率上升", en: "Surge Building" },
+    T3_BURST_STATE_DECAY: { type: "text", zh: "爆发后衰落期", en: "Fading After Surge" },
+    T3_BURST_STATE_QUIET: { type: "text", zh: "静默", en: "Silent" },
+    T3_BURST_HINT_ACTIVE: { type: "text", zh: "离子触发更明确。", en: "Triggering is clearer." },
+    T3_BURST_HINT_RISING: { type: "text", zh: "系统更容易发生，但未到持续触发。", en: "The system is more likely to activate, but not yet in sustained triggering." },
+    T3_BURST_HINT_DECAY: { type: "text", zh: "刚有过波动，仍可能余震一会儿。", en: "There was a recent disturbance; after-effects may persist for a while." },
+    T3_BURST_HINT_QUIET: { type: "text", zh: "背景不足或触发不清晰。", en: "Background is insufficient or triggering is unclear." },
 
     // --- placeholders / symbols ---
     UI_PLACEHOLDER_DASH: { type: "symbol", value: "—" },
@@ -92,134 +91,134 @@
     // --- dot labels ---
     DOT_LABEL_SW: { type: "text", zh: "太阳风", en: "Solar wind" },
     DOT_LABEL_KP: { type: "text", zh: "KP", en: "KP" },
-    DOT_LABEL_CLOUDS: { type: "text", zh: "云量", en: "Clouds" },
+    DOT_LABEL_CLOUDS: { type: "text", zh: "云量", en: "Cloud cover" },
     DOT_LABEL_OVATION: { type: "text", zh: "OVATION", en: "OVATION" },
 
     // --- tabs ---
-    TAB_T1_LABEL: { type: "text", zh: "1小时精准", en: "1H Precision" },
-    TAB_T3_LABEL: { type: "text", zh: "3小时预测", en: "3H Window" },
-    TAB_T72_LABEL: { type: "text", zh: "72小时范围", en: "72H Outlook" },
+    TAB_T1_LABEL: { type: "text", zh: "现在", en: "Now" },
+    TAB_T3_LABEL: { type: "text", zh: "未来3小时", en: "Next 3 Hours" },
+    TAB_T72_LABEL: { type: "text", zh: "未来3天", en: "Next 3 Days" },
 
     // --- T1 ---
-    T1_HERO_TITLE: { type: "text", zh: "当前建议（1小时内，10分钟粒度）", en: "Current Recommendation (1H, 10-min resolution)" },
-    T1_UPSTREAM_TITLE: { type: "text", zh: "上游实况（近实时）", en: "Upstream Status (Near Real-Time)" },
+    T1_HERO_TITLE: { type: "text", zh: "当前建议（1小时内，10分钟粒度）", en: "Current Recommendation (updated every 10 minutes)" },
+    T1_UPSTREAM_TITLE: { type: "text", zh: "上游实况（近实时）", en: "Solar Wind Conditions (Near Real-Time)" },
     T1_SW_LABEL_V: { type: "text", zh: "V", en: "V" },
     T1_SW_LABEL_BT: { type: "text", zh: "Bt", en: "Bt" },
     T1_SW_LABEL_BZ: { type: "text", zh: "Bz", en: "Bz" },
     T1_SW_LABEL_N: { type: "text", zh: "N", en: "N" },
     T1_SW_CLOUD_LINE: { type: "template", params: ["l", "m", "h"], zh: "云 L/M/H {l}/{m}/{h}%", en: "Clouds L/M/H {l}/{m}/{h}%" },
-    T1_SW_MOON_LINE: { type: "template", params: ["deg"], zh: "月角 {deg}°", en: "Moon Alt {deg}°" },
-    T1_SW_META_TEMPLATE: { type: "template", params: ["tsText", "magAgeMin", "plasmaAgeMin", "backfillAgeMin"], zh: "更新时间：{tsText} ・ 新鲜度：mag {magAgeMin}m / plasma {plasmaAgeMin}m{backfillAgeMin}", en: "Updated: {tsText} · Freshness: mag {magAgeMin}m / plasma {plasmaAgeMin}m{backfillAgeMin}" },
+    T1_SW_MOON_LINE: { type: "template", params: ["deg"], zh: "月角 {deg}°", en: "Moon elevation {deg}°" },
+    T1_SW_META_TEMPLATE: { type: "template", params: ["tsText", "magAgeMin", "plasmaAgeMin", "backfillAgeMin"], zh: "更新时间：{tsText} ・ 新鲜度：mag {magAgeMin}m / plasma {plasmaAgeMin}m{backfillAgeMin}", en: "Updated: {tsText} · Data freshness: mag {magAgeMin}m / plasma {plasmaAgeMin}m{backfillAgeMin}" },
     T1_SW_META_BACKFILL: { type: "template", params: ["m"], zh: " ・ V/N回溯：{m}m", en: " · V/N backfill: {m}m" },
-    T1_CHART_TITLE: { type: "text", zh: "1小时 C值（Capture）柱状图", en: "1H C-Index (Capture) Bar Chart" },
-    T1_CHART_SUB: { type: "text", zh: "C值越高，越建议投入。", en: "Higher C-Index means stronger recommendation." },
+    T1_CHART_TITLE: { type: "text", zh: "1小时 C值柱状图", en: "1-hour Forecast (C) Bar Chart" },
+    T1_CHART_SUB: { type: "text", zh: "C值越高，越建议投入。", en: "Higher C values indicate stronger justification for committing time and effort." },
     T1_UNIT_10M: { type: "text", zh: "单位：10分钟", en: "Unit: 10 min" },
 
-    T1_LEVEL_TITLE: { type: "text", zh: "1小时预测结论分级（C值）", en: "1H Conclusion Levels (C-Index)" },
-    T1_LEVEL_C5: { type: "text", zh: "【C值5】强烈推荐：投入回报高，建议立即行动。", en: "C5 Strongly Recommended: High payoff. Go now." },
-    T1_LEVEL_C4: { type: "text", zh: "【C值4】值得出门：条件不错，建议准备与试拍。", en: "C4 Worth Going Out: Solid conditions. Prepare and test shots." },
-    T1_LEVEL_C3: { type: "text", zh: "【C值3】可蹲守：存在机会，建议架机等待触发。", en: "C3 Worth Waiting: There is a chance. Set up and watch for triggers." },
-    T1_LEVEL_C2: { type: "text", zh: "【C值2】低概率：机会小，可低成本尝试。", en: "C2 Low Chance: Small opportunity. Try only at low cost." },
-    T1_LEVEL_C1: { type: "text", zh: "【C值1】不可观测：当前时段不建议投入。", en: "C1 Not Observable: Not worth investing time right now." },
+    T1_LEVEL_TITLE: { type: "text", zh: "1小时预测结论分级（C值）", en: "1-hour Forecast Classification (C Value)" },
+    T1_LEVEL_C5: { type: "text", zh: "C5 强烈推荐：投入回报高，建议立即行动。", en: "C5 Strongly Recommended: Just go now!" },
+    T1_LEVEL_C4: { type: "text", zh: "C4 值得出门：条件不错，建议准备与试拍。", en: "C4 Worth Going Out: Conditions are favorable; preparation and test shots are recommended." },
+    T1_LEVEL_C3: { type: "text", zh: "C3 可蹲守：存在机会，建议架机等待触发。", en: "C3 Standby: A possible window exists; set up and wait for triggering conditions." },
+    T1_LEVEL_C2: { type: "text", zh: "C2 希望不大：机会小，可低成本尝试。", en: "C2 Unlikely to See: Low probability. Try only at low cost." },
+    T1_LEVEL_C1: { type: "text", zh: "C1 不可观测：当前时段不建议投入。", en: "C1 Unobservable: Not observable under current conditions." },
     T1_ACTION_LOW: { type: "text", zh: "当前时段不建议投入。", en: "Not recommended to invest effort now." },
-    T1_ACTION_MID: { type: "text", zh: "可尝试短时观测。", en: "Try a short watch." },
+    T1_ACTION_MID: { type: "text", zh: "可尝试短时观测。", en: "Worth a short observation window." },
     T1_ACTION_HIGH: { type: "text", zh: "值得出门尝试。", en: "Worth going out to try." },
     T1_OVATION_STATUS_FAIL: { type: "text", zh: "失败", en: "Failed" },
-    T1_TREND_BZ_DROP_30: { type: "template", params: ["drop"], zh: "趋势：Bz 在过去 30 分钟明显转南（≈{drop}nT），建议提前准备（30–60min）", en: "Trend: Bz turned south over the past 30 min (≈{drop} nT). Consider getting ready (30–60 min)." },
-    T1_TREND_BZ_DROP_15: { type: "template", params: ["drop"], zh: "趋势：Bz 在过去 15 分钟快速转南（≈{drop}nT），建议提前准备（30–60min）", en: "Trend: Bz turned south quickly over the past 15 min (≈{drop} nT). Consider getting ready (30–60 min)." },
+    T1_TREND_BZ_DROP_30: { type: "template", params: ["drop"], zh: "趋势：Bz 在过去 30 分钟明显转南（≈{drop}nT），建议提前准备（30–60min）", en: "Trend: Bz has turned strongly south over the past 30 minutes (≈{drop} nT). Prepare in advance (30–60 min)." },
+    T1_TREND_BZ_DROP_15: { type: "template", params: ["drop"], zh: "趋势：Bz 在过去 15 分钟快速转南（≈{drop}nT），建议提前准备（30–60min）", en: "Trend: Bz has turned south rapidly over the past 15 minutes (≈{drop} nT). Prepare in advance (30–60 min)." },
 
     // --- T3 ---
-    T3_STATE_TITLE: { type: "text", zh: "近期极光状态", en: "Recent Aurora State" },
-    T3_STATE_NOTE: { type: "text", zh: "备注：爆发 ≠ 可观测，仍受云量与天光影响。", en: "Note: Burst ≠ Observable. Still affected by clouds and sky brightness." },
-    T3_DELIVER_TITLE: { type: "text", zh: "太阳风送达能力综合模型", en: "Solar Wind Delivery Model" },
+    T3_STATE_TITLE: { type: "text", zh: "近期极光状态", en: "Recent Auroral Activity" },
+    T3_STATE_NOTE: { type: "text", zh: "备注：爆发 ≠ 可观测，仍受云量与天光影响。", en: "Note: A surge does not guarantee observability; cloud cover and sky brightness still apply." },
+    T3_DELIVER_TITLE: { type: "text", zh: "太阳风送达能力综合模型", en: "Solar Wind Coupling & Propagation Model" },
     T3_DELIVER_BT_PLATEAU: { type: "text", zh: "Bt平台", en: "Bt plateau" },
-    T3_DELIVER_SPEED_BG: { type: "text", zh: "速度背景", en: "Speed background" },
-    T3_DELIVER_DENSITY_STRUCT: { type: "text", zh: "密度结构", en: "Density structure" },
+    T3_DELIVER_SPEED_BG: { type: "text", zh: "速度背景", en: "V background" },
+    T3_DELIVER_DENSITY_STRUCT: { type: "text", zh: "密度结构", en: "N structure" },
 
-    T3_LEVEL_TITLE: { type: "text", zh: "3小时结论分级（C值）", en: "3H Conclusion Levels (C-Index)" },
-    T3_LEVEL_C5: { type: "text", zh: "【C值5】强烈推荐：投入回报高，建议立即行动。", en: "C5 Strongly Recommended: High payoff. Go now." },
-    T3_LEVEL_C4: { type: "text", zh: "【C值4】值得出门：条件不错，建议准备与试拍。", en: "C4 Worth Going Out: Solid conditions. Prepare and test shots." },
-    T3_LEVEL_C3: { type: "text", zh: "【C值3】可蹲守：存在机会，建议架机等待触发。", en: "C3 Worth Waiting: There is a chance. Set up and watch for triggers." },
-    T3_LEVEL_C2: { type: "text", zh: "【C值2】低概率：机会小，可低成本尝试。", en: "C2 Low Chance: Small opportunity. Try only at low cost." },
-    T3_LEVEL_C1: { type: "text", zh: "【C值1】不可观测：当前时段不建议投入。", en: "C1 Not Observable: Not worth investing time right now." },
+    T3_LEVEL_TITLE: { type: "text", zh: "3小时结论分级（C值）", en: "3-hour Forecast Classification (C Value)" },
+    T3_LEVEL_C5: { type: "text", zh: "C5 强烈推荐：投入回报高，建议立即行动。", en: "C5 Strongly Recommended: Just go now!" },
+    T3_LEVEL_C4: { type: "text", zh: "C4 值得出门：条件不错，建议准备与试拍。", en: "C4 Worth Going Out: Conditions are favorable; preparation and test shots are recommended." },
+    T3_LEVEL_C3: { type: "text", zh: "C3 可蹲守：存在机会，建议架机等待触发。", en: "C3 Standby: A possible window exists; set up and wait for triggering conditions." },
+    T3_LEVEL_C2: { type: "text", zh: "C2 希望不大：机会小，可低成本尝试。", en: "C2 Unlikely to See: Low probability. Try only at low cost." },
+    T3_LEVEL_C1: { type: "text", zh: "C1 不可观测：当前时段不建议投入。", en: "C1 Unobservable: Not observable under current conditions." },
 
     // --- T72 ---
-    T72_TITLE: { type: "text", zh: "72小时范围预测", en: "72H Outlook" },
-    T72_SUBTITLE: { type: "text", zh: "按天评估极光出现的可能性，用于行程与时间规划。", en: "Day-level aurora probability for travel planning." },
+    T72_TITLE: { type: "text", zh: "未来3天范围预测", en: "Next 3 Days Outlook" },
+    T72_SUBTITLE: { type: "text", zh: "按天评估极光出现的可能性，用于行程与时间规划。", en: "A day-by-day outlook for the next three days, designed to help with trip planning and time allocation." },
     T72_DAY_TODAY: { type: "text", zh: "今天", en: "Today" },
     T72_DAY_TOMORROW: { type: "text", zh: "明天", en: "Tomorrow" },
-    T72_DAY_AFTER_TOMORROW: { type: "text", zh: "后天", en: "Day After" },
+    T72_DAY_AFTER_TOMORROW: { type: "text", zh: "后天", en: "Day After Tomorrow" },
 
-    T72_LEVEL_TITLE: { type: "text", zh: "72小时结论分级（C值）", en: "72H Conclusion Levels (C-Index)" },
-    T72_LEVEL_C5: { type: "text", zh: "【C值5】强烈推荐：能量背景+送达能力更强，值得提前规划。", en: "C5 Strongly Recommended: Stronger background + better delivery. Plan ahead." },
-    T72_LEVEL_C4: { type: "text", zh: "【C值4】值得出门：存在机会，重点看云与当晚即时模块。", en: "C4 Worth Going Out: A real chance. Check clouds and the 1H module tonight." },
-    T72_LEVEL_C3: { type: "text", zh: "【C值3】可蹲守：机会少，除非位置/条件极佳。", en: "C3 Worth Waiting: Limited opportunity unless your location/sky is excellent." },
-    T72_LEVEL_C2: { type: "text", zh: "【C值2】低概率：综合偏弱，提前投入意义不大。", en: "C2 Low Chance: Overall weak. Early investment is not worth it." },
-    T72_LEVEL_C1: { type: "text", zh: "【C值1】不可观测：不建议投入。", en: "C1 Not Observable: Not recommended to invest effort." },
-    UI_72H_TITLE_C5: { type: "text", zh: "强烈推荐", en: "Highly Recommended" },
+    T72_LEVEL_TITLE: { type: "text", zh: "未来3天结论分级（C值）", en: "3-Day Outlook (C Value)" },
+    T72_LEVEL_C5: { type: "text", zh: "C5 强烈推荐：能量背景+送达能力更强，值得提前规划。", en: "C5 Strongly Recommended: Strong background energy and favorable delivery conditions. Suitable for advance planning." },
+    T72_LEVEL_C4: { type: "text", zh: "C4 值得出门：存在机会，重点看云与当晚即时模块。", en: "C4 Worth Going Out: Moderate-to-good conditions. Planning may be worthwhile, depending on location and clouds." },
+    T72_LEVEL_C3: { type: "text", zh: "C3 可蹲守：机会少，除非位置/条件极佳。", en: "C3 Standby: Limited opportunity unless your location/sky is excellent." },
+    T72_LEVEL_C2: { type: "text", zh: "C2 希望不大：综合偏弱，提前投入意义不大。", en: "C2 Unlikely to See: Overall conditions are weak. Advance planning is not worthwhile." },
+    T72_LEVEL_C1: { type: "text", zh: "C1 不可观测：不建议投入。", en: "C1 Unobservable: Very weak background and delivery conditions. Planning is not recommended." },
+    UI_72H_TITLE_C5: { type: "text", zh: "强烈推荐", en: "Strongly Recommended" },
     UI_72H_TITLE_C4: { type: "text", zh: "值得出门", en: "Worth Going Out" },
-    UI_72H_TITLE_C3: { type: "text", zh: "可蹲守", en: "Worth Waiting" },
-    UI_72H_TITLE_C2: { type: "text", zh: "低概率", en: "Low Probability" },
-    UI_72H_TITLE_C1: { type: "text", zh: "不可观测", en: "Not Observable" },
-    T72_ACTION_LOW: { type: "text", zh: "暂不建议为此规划行程。", en: "Not recommended to plan a trip for this yet." },
-    T72_ACTION_MID: { type: "text", zh: "可提前关注，临近再决定。", en: "Keep an eye on it; decide closer to the date." },
-    T72_ACTION_HIGH: { type: "text", zh: "值得提前规划行程。", en: "Worth planning ahead." },
+    UI_72H_TITLE_C3: { type: "text", zh: "可蹲守", en: "Standby" },
+    UI_72H_TITLE_C2: { type: "text", zh: "希望不大", en: "Low Probability" },
+    UI_72H_TITLE_C1: { type: "text", zh: "不可观测", en: "Unobservable" },
+    T72_ACTION_LOW: { type: "text", zh: "暂不建议为此规划行程。", en: "Not worth planning a trip around this." },
+    T72_ACTION_MID: { type: "text", zh: "可提前关注，临近再决定。", en: "Keep an eye on it now; decide closer to the time." },
+    T72_ACTION_HIGH: { type: "text", zh: "值得提前规划行程。", en: "Worth planning a trip in advance." },
 
     // --- alert ---
-    ALERT_TITLE_DATA_CONF: { type: "text", zh: "⚠️ 数据可信度提醒", en: "⚠️ Data Confidence Notice" },
-    ALERT_DATA_CONF_BODY: { type: "template", params: ["missText"], zh: "NOAA 数据口径变动或部分数据缺失：{missText}\n当前预测可信度较低，建议谨慎参考。", en: "NOAA data format changes or missing fields: {missText}\nForecast confidence is reduced; use caution." },
-    ALERT_NOTE_DATA_CONF: { type: "text", zh: "不代表无法观测，仅表示模型输入存在不确定性。", en: "Not necessarily unobservable. Inputs may be uncertain." },
+    ALERT_TITLE_DATA_CONF: { type: "text", zh: "⚠️ 数据可信度警告", en: "⚠️ Data Reliability Warning" },
+    ALERT_DATA_CONF_BODY: { type: "template", params: ["missText"], zh: "NOAA 数据口径变动或部分数据缺失：{missText}\n当前预测可信度较低，建议谨慎参考。", en: "NOAA data definitions have changed, or some fields are missing: {missText}\nForecast reliability is currently low. Please interpret with caution." },
+    ALERT_NOTE_DATA_CONF: { type: "text", zh: "不代表无法观测，仅表示模型输入存在不确定性。", en: "This does not mean it is unobservable; it only indicates uncertainty in the model inputs." },
     ALERT_OK_BTN: { type: "text", zh: "知道了", en: "OK" },
     ALERT_CLOSE_ARIA: { type: "text", zh: "关闭", en: "Close" },
-    ALERT_TITLE_INPUT_INVALID: { type: "text", zh: "⚠️ 经纬度输入无效", en: "⚠️ Invalid coordinates" },
-    ALERT_BODY_INPUT_INVALID: { type: "text", zh: "请输入数字格式的纬度/经度。\n纬度范围：-90° ～ +90°；经度范围：-180° ～ +180°。", en: "Please enter numeric latitude/longitude.\nLatitude: -90° to +90°; Longitude: -180° to +180°." },
-    ALERT_FOOTER_INPUT_INVALID: { type: "text", zh: "示例：纬度 53.47，经度 122.35", en: "Example: 53.47, 122.35" },
-    ALERT_TITLE_RANGE_INVALID: { type: "text", zh: "⚠️ 经纬度超出范围", en: "⚠️ Coordinates out of range" },
+    ALERT_TITLE_INPUT_INVALID: { type: "text", zh: "⚠️ 经纬度输入无效", en: "⚠️ Error: Invalid coordinates." },
+    ALERT_BODY_INPUT_INVALID: { type: "text", zh: "⚠️ 请输入数字格式的纬度/经度。\n纬度范围：-90° ～ +90°；经度范围：-180° ～ +180°。", en: "⚠️ Error: Please enter numeric values for latitude and longitude.\nLatitude: -90° to +90°; Longitude: -180° to +180°." },
+    ALERT_FOOTER_INPUT_INVALID: { type: "text", zh: "示例：纬度 53.47，经度 122.35", en: "Example: latitude 53.47, longitude 122.35" },
+    ALERT_TITLE_RANGE_INVALID: { type: "text", zh: "⚠️ 经纬度超出范围", en: "⚠️ Error: Coordinates out of range." },
     ALERT_BODY_RANGE_INVALID: { type: "template", params: ["lat", "lon"], zh: "你输入的是：Latitude {lat}，Longitude {lon}。\n允许范围：\n纬度（Latitude）：-90° ～ +90°\n经度（Longitude）：-180° ～ +180°", en: "You entered: Latitude {lat}, Longitude {lon}.\nAllowed:\nLatitude: -90° to +90°\nLongitude: -180° to +180°" },
-    ALERT_FOOTER_RANGE_INVALID: { type: "text", zh: "请修正后再点击生成。", en: "Please correct and try again." },
-    ALERT_MLAT_HARD_TITLE: { type: "text", zh: "⚠️ 磁纬限制：不可观测", en: "⚠️ MLAT limit: Not observable" },
+    ALERT_FOOTER_RANGE_INVALID: { type: "text", zh: "请修正后再点击生成。", en: "Please correct the values, then run the forecast." },
+    ALERT_MLAT_HARD_TITLE: { type: "text", zh: "⚠️ 磁纬限制：不可观测", en: "⚠️ Warning: This is a hard geographic limit. Unobservable." },
     ALERT_MLAT_HARD_BODY: { type: "template", params: ["absM", "threshold"], zh: "当前位置磁纬约 {absM}°（|MLAT|，近似值）。\n当 |MLAT| < {threshold}° 时，极光几乎不可能到达你的可见范围。\n这是硬性地理限制：无论 Kp / Bz / 速度如何，都不建议投入等待与拍摄。", en: "Approx. MLAT is {absM}° (|MLAT|, estimated).\nWhen |MLAT| < {threshold}°, aurora is very unlikely to be visible.\nThis is a hard geographic limit; do not invest time regardless of Kp/Bz/speed." },
-    ALERT_MLAT_HARD_NOTE: { type: "text", zh: "这是硬性地理限制，不是数据缺失或模型不确定性。", en: "This is a hard geographic limit, not data loss or model uncertainty." },
-    ALERT_MLAT_WARN_TITLE: { type: "text", zh: "⚠️ 磁纬较低：仅极端事件才可能", en: "⚠️ Low MLAT: only extreme events" },
+    ALERT_MLAT_HARD_NOTE: { type: "text", zh: "这是硬性地理限制，不是数据缺失或模型不确定性。", en: "This is a hard geographic limit, not missing data or model uncertainty." },
+    ALERT_MLAT_WARN_TITLE: { type: "text", zh: "⚠️ 磁纬较低：仅极端事件才可能", en: "⚠️ Warning: MLAT is low. Only extreme events may work." },
     ALERT_MLAT_WARN_BODY: { type: "template", params: ["absM", "threshold"], zh: "当前位置磁纬约 {absM}°（|MLAT|，近似值）。\n当 |MLAT| < {threshold}° 时，极光可见性高度依赖极端磁暴与北向开阔地平线，不适合“常规出门拍”的决策。\n建议：尽量提高磁纬（靠近/进入极光椭圆边缘）再使用本工具。", en: "Approx. MLAT is {absM}° (|MLAT|, estimated).\nWhen |MLAT| < {threshold}°, visibility depends on extreme storms and a clear northern horizon.\nSuggestion: increase MLAT (closer to auroral oval) before using this tool." },
-    ALERT_MLAT_WARN_NOTE: { type: "text", zh: "提示：你仍可继续生成，但请把它当作“极端磁暴边缘赌局”。", en: "You may continue, but treat it as an edge-case gamble." },
+    ALERT_MLAT_WARN_NOTE: { type: "text", zh: "提示：你仍可继续生成，但请把它当作“极端磁暴边缘赌局”。", en: "Notice: You can still run the forecast, but treat it as an extreme-storm edge gamble." },
     DELIVERY_RATIO_OK: { type: "template", params: ["ok", "total"], zh: "{ok}/{total} 成立", en: "{ok}/{total} Valid" },
     OUTLOOK72_ENERGY_BG: { type: "text", zh: "能量背景", en: "Energy background" },
-    OUTLOOK72_DELIVERY_MODEL: { type: "text", zh: "送达模型", en: "Delivery model" },
-    OUTLOOK72_TRIGGER_MODEL: { type: "text", zh: "触发模型", en: "Trigger model" },
-    OUTLOOK72_NIGHT_SHARE: { type: "text", zh: "夜晚占比", en: "Night share" },
+    OUTLOOK72_DELIVERY_MODEL: { type: "text", zh: "送达模型", en: "Propagation Assessment" },
+    OUTLOOK72_TRIGGER_MODEL: { type: "text", zh: "触发模型", en: "Trigger Conditions" },
+    OUTLOOK72_NIGHT_SHARE: { type: "text", zh: "夜晚占比", en: "Nighttime Proportion" },
     OUTLOOK72_BEST_CLOUD_TIME: { type: "text", zh: "云量更佳点", en: "Best cloud window" },
-    OUTLOOK72_ENERGY_BG_VALUE: { type: "template", params: ["kp"], zh: "Kp峰值≈{kp}", en: "Kp peak≈{kp}" },
-    OUTLOOK72_DELIVERY_MODEL_VALUE: { type: "template", params: ["count"], zh: "{count}/3（Bt/速度/密度）", en: "{count}/3 (Bt/Speed/Density)" },
-    OUTLOOK72_TRIGGER_MODEL_VALUE: { type: "template", params: ["p1a", "p1b"], zh: "高速风{p1a}/1 · 能量输入{p1b}/1", en: "Fast wind {p1a}/1 · Energy input {p1b}/1" },
+    OUTLOOK72_ENERGY_BG_VALUE: { type: "template", params: ["kp"], zh: "Kp峰值≈{kp}", en: "Kp Peak ≈ {kp}" },
+    OUTLOOK72_DELIVERY_MODEL_VALUE: { type: "template", params: ["count"], zh: "{count}/3（Bt/速度/密度）", en: "{count}/3 (Bt / Speed / Density)" },
+    OUTLOOK72_TRIGGER_MODEL_VALUE: { type: "template", params: ["p1a", "p1b"], zh: "高速风{p1a}/1 · 能量输入{p1b}/1", en: "High-Speed Solar Wind {p1a}/1 · Energy Input {p1b}/1" },
     UI_72H_CLOUD_GRADE_GOOD: { type: "text", zh: "优", en: "Good" },
     UI_72H_CLOUD_GRADE_MED: { type: "text", zh: "中", en: "Medium" },
     UI_72H_CLOUD_GRADE_BAD: { type: "text", zh: "差", en: "Poor" },
     OUTLOOK72_NIGHT_SHARE_VALUE: { type: "template", params: ["percent"], zh: "{percent}%", en: "{percent}%" },
-    ALERT_GEO_TITLE_UNAVAILABLE: { type: "text", zh: "📍 无法获取定位", en: "📍 Unable to get location" },
-    ALERT_GEO_BODY_NOT_SUPPORTED: { type: "text", zh: "当前浏览器不支持定位功能。\n\n你可以手动输入经纬度。", en: "Geolocation is not supported in this browser.\n\nYou can enter coordinates manually." },
-    ALERT_GEO_NOTE_NOT_SUPPORTED: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual input / Aowei Maps / online coordinate picker." },
-    ALERT_GEO_TITLE_INVALID: { type: "text", zh: "📍 定位失败", en: "📍 Location failed" },
-    ALERT_GEO_BODY_INVALID_COORDS: { type: "text", zh: "定位返回的经纬度无效，请重试或手动输入。", en: "Returned coordinates are invalid. Please retry or enter manually." },
-    ALERT_GEO_NOTE_INVALID_COORDS: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual input / Aowei Maps / online coordinate picker." },
-    ALERT_GEO_TITLE_PROCESS_ERR: { type: "text", zh: "📍 定位失败", en: "📍 Location failed" },
-    ALERT_GEO_BODY_PROCESS_ERR: { type: "text", zh: "定位成功返回，但处理坐标时发生异常。请重试或手动输入。", en: "Location returned but processing failed. Please retry or enter manually." },
-    ALERT_GEO_NOTE_PROCESS_ERR: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual input / Aowei Maps / online coordinate picker." },
-    ALERT_GEO_TITLE_DENIED: { type: "text", zh: "📍 无法获取定位", en: "📍 Unable to get location" },
-    ALERT_GEO_BODY_DENIED: { type: "text", zh: "你拒绝了定位授权。请在浏览器设置中允许定位后重试。", en: "You denied location permission. Enable it in browser settings and retry." },
-    ALERT_GEO_NOTE_DENIED: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual input / Aowei Maps / online coordinate picker." },
-    ALERT_GEO_TITLE_UNAVAILABLE_CODE: { type: "text", zh: "📍 无法获取定位", en: "📍 Unable to get location" },
-    ALERT_GEO_BODY_UNAVAILABLE_CODE: { type: "text", zh: "暂时无法获取定位（信号弱/系统未开启定位服务）。", en: "Location unavailable (weak signal / service disabled)." },
-    ALERT_GEO_NOTE_UNAVAILABLE_CODE: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual input / Aowei Maps / online coordinate picker." },
-    ALERT_GEO_TITLE_TIMEOUT: { type: "text", zh: "📍 无法获取定位", en: "📍 Unable to get location" },
-    ALERT_GEO_BODY_TIMEOUT: { type: "text", zh: "获取定位超时，请稍后重试。", en: "Location request timed out. Please retry later." },
-    ALERT_GEO_NOTE_TIMEOUT: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual input / Aowei Maps / online coordinate picker." },
-    ALERT_GEO_TITLE_GENERIC_ERR: { type: "text", zh: "📍 无法获取定位", en: "📍 Unable to get location" },
-    ALERT_GEO_BODY_GENERIC_ERR: { type: "text", zh: "定位失败，请重试或手动输入。", en: "Location failed. Please retry or enter manually." },
-    ALERT_GEO_NOTE_GENERIC_ERR: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual input / Aowei Maps / online coordinate picker." },
-    ALERT_GEO_TITLE_EXCEPTION: { type: "text", zh: "📍 无法获取定位", en: "📍 Unable to get location" },
-    ALERT_GEO_BODY_EXCEPTION: { type: "text", zh: "获取定位时发生异常，请重试或手动输入。", en: "An error occurred during location. Please retry or enter manually." },
-    ALERT_GEO_NOTE_EXCEPTION: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual input / Aowei Maps / online coordinate picker." },
+    ALERT_GEO_TITLE_UNAVAILABLE: { type: "text", zh: "⚠️ 无法获取定位", en: "⚠️ Error: Location acquisition failed." },
+    ALERT_GEO_BODY_NOT_SUPPORTED: { type: "text", zh: "当前浏览器不支持定位功能。\n\n你可以手动输入经纬度。", en: "⚠️ Error: Your browser does not support location services.\n\nYou can enter coordinates manually." },
+    ALERT_GEO_NOTE_NOT_SUPPORTED: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual entry / online coordinate lookup tools." },
+    ALERT_GEO_TITLE_INVALID: { type: "text", zh: "⚠️ 定位失败", en: "⚠️ Error: Location acquisition failed." },
+    ALERT_GEO_BODY_INVALID_COORDS: { type: "text", zh: "⚠️ 定位返回的经纬度无效，请重试或手动输入。", en: "⚠️ Error: Invalid coordinates returned from location services. Please re-acquire or enter coordinates manually." },
+    ALERT_GEO_NOTE_INVALID_COORDS: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual entry / online coordinate lookup tools." },
+    ALERT_GEO_TITLE_PROCESS_ERR: { type: "text", zh: "⚠️ 定位失败", en: "⚠️ Error: Location acquisition failed." },
+    ALERT_GEO_BODY_PROCESS_ERR: { type: "text", zh: "⚠️ 定位成功返回，但处理坐标时发生异常。请重试或手动输入。", en: "⚠️ Error: Location succeeded, but processing the coordinates failed. Please re-acquire or enter coordinates manually." },
+    ALERT_GEO_NOTE_PROCESS_ERR: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual entry / online coordinate lookup tools." },
+    ALERT_GEO_TITLE_DENIED: { type: "text", zh: "⚠️ 无法获取定位", en: "⚠️ Error: Location acquisition failed." },
+    ALERT_GEO_BODY_DENIED: { type: "text", zh: "⚠️ 你拒绝了定位授权。请在浏览器设置中允许定位后重试。", en: "⚠️ Error: Location permission was denied. Please enable location access in your browser settings, then re-acquire." },
+    ALERT_GEO_NOTE_DENIED: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual entry / online coordinate lookup tools." },
+    ALERT_GEO_TITLE_UNAVAILABLE_CODE: { type: "text", zh: "⚠️ 无法获取定位", en: "⚠️ Error: Location acquisition failed." },
+    ALERT_GEO_BODY_UNAVAILABLE_CODE: { type: "text", zh: "⚠️ 暂时无法获取定位（信号弱/系统未开启定位服务）。", en: "⚠️ Error: Unable to acquire location (weak signal or location services are disabled)." },
+    ALERT_GEO_NOTE_UNAVAILABLE_CODE: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual entry / online coordinate lookup tools." },
+    ALERT_GEO_TITLE_TIMEOUT: { type: "text", zh: "⚠️ 无法获取定位", en: "⚠️ Error: Location acquisition failed." },
+    ALERT_GEO_BODY_TIMEOUT: { type: "text", zh: "⚠️ 获取定位超时，请稍后重试。", en: "⚠️ Error: Location acquisition timed out. Please re-acquire later, or enter coordinates manually." },
+    ALERT_GEO_NOTE_TIMEOUT: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual entry / online coordinate lookup tools." },
+    ALERT_GEO_TITLE_GENERIC_ERR: { type: "text", zh: "⚠️ 无法获取定位", en: "⚠️ Error: Location acquisition failed." },
+    ALERT_GEO_BODY_GENERIC_ERR: { type: "text", zh: "⚠️ 定位失败，请重试或手动输入。", en: "⚠️ Error: Location acquisition failed. Please re-acquire or enter coordinates manually." },
+    ALERT_GEO_NOTE_GENERIC_ERR: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual entry / online coordinate lookup tools." },
+    ALERT_GEO_TITLE_EXCEPTION: { type: "text", zh: "⚠️ 无法获取定位", en: "⚠️ Error: Location acquisition failed." },
+    ALERT_GEO_BODY_EXCEPTION: { type: "text", zh: "⚠️ 获取定位时发生异常，请重试或手动输入。", en: "⚠️ Error: An error occurred while acquiring location. Please re-acquire or enter coordinates manually." },
+    ALERT_GEO_NOTE_EXCEPTION: { type: "text", zh: "可选方案：手动输入 / 奥维地图 / 在线经纬度查询工具。", en: "Options: manual entry / online coordinate lookup tools." },
 
     // --- frozen html blocks ---
     UI_ABOUT_BODY: {
@@ -293,7 +292,7 @@
         </p>
         <p>
           报错 / 建议 / 数据异常 请发送邮件至：<br>
-          <a href="mailto:auroracapture.feedback@gmail.com" style="color:rgba(255,255,255,.85); text-decoration:underline;">auroracapture.feedback@gmail.com</a><br>
+          <a href="mailto:maintainer@auroracapture.com" style="color:rgba(255,255,255,.85); text-decoration:underline;">maintainer@auroracapture.com</a><br>
           <span style="display:inline-block; margin-top:6px; color:rgba(255,255,255,.55); font-size:12px;">个人维护，可能延迟回复。</span>
         </p>
 
@@ -303,35 +302,35 @@
       `,
       en: `
         <p class="aboutSectionTitle">
-          How to Use This Tool
+          How to Use
         </p>
 
         <p>
-          Enter latitude and longitude. The tool automatically detects your local time and time zone, then generates an aurora viewing forecast for your location.
+              Enter coordinates and Aurora Capture will automatically use your local time and time zone to generate an observing briefing.
         </p>
 
         <p>
-          <b>【1-Hour Precision】</b><br>
-          Updated at 10-minute resolution to answer one question:<br>
-          “Should I go out right now? Should I set up the camera?”
+          <b>【Now】</b><br>
+          Updated every 10 minutes to answer:<br>
+          “Should I head out now? Is it worth setting up?”
         </p>
 
         <p>
-          <b>【3-Hour Forecast】</b><br>
-          Shows hour-by-hour conditions and highlights the best hour within the next 3 hours.<br>
+          <b>【Next 3 Hours】</b><br>
+          Shows hour-by-hour conditions and highlights the best hour to observe.<br>
           It also indicates whether activity is intensifying or fading, and answers:<br>
           “Is it worth waiting in the next 3 hours?”
         </p>
 
         <p>
-          <b>【72-Hour Outlook】</b><br>
-          Incorporates broader solar drivers such as coronal holes (CH) and CME context.<br>
-          Provides a day-level probability range to answer:<br>
+          <b>【Next 3 Days】</b><br>
+          Incorporates additional CH and CME information to assess auroral activity on a day-by-day basis.<br>
+          From a broader data perspective, it answers:<br>
           “Which day in the next 3 days is most worth planning for?”
         </p>
 
         <p class="aboutSectionTitle">
-          Why KP Alone Is Not Enough
+          Why KP Alone Is Not Enough?
         </p>
 
         <p>
@@ -355,7 +354,7 @@
         </p>
 
         <p>
-          The C-Index (Capture Index) is not meant to replace Kp.<br>
+          The C-Value (Capture Value) is not meant to replace Kp.<br>
           It is a photographer-oriented “shootability” indicator.
         </p>
 
@@ -372,9 +371,9 @@
           Feedback & Suggestions
         </p>
         <p>
-          Bug reports / suggestions / suspicious data can be sent to:<br>
-          <a href="mailto:auroracapture.feedback@gmail.com" style="color:rgba(255,255,255,.85); text-decoration:underline;">auroracapture.feedback@gmail.com</a><br>
-          <span style="display:inline-block; margin-top:6px; color:rgba(255,255,255,.55); font-size:12px;">Independently maintained. Replies may be delayed.</span>
+          For errors, suggestions, or data issues, please email:<br>
+          <a href="mailto:maintainer@auroracapture.com" style="color:rgba(255,255,255,.85); text-decoration:underline;">maintainer@auroracapture.com</a><br>
+          <span style="display:inline-block; margin-top:6px; color:rgba(255,255,255,.55); font-size:12px;">Maintained personally; replies may be delayed.</span>
         </p>
 
         <p style="margin-top:18px; text-align:right; color:rgba(255,255,255,.55); font-size:12px;">
@@ -385,8 +384,8 @@
 
     UI_FOOTER_BLOCK: {
       type: "html",
-      zh: "佑酱已吐血更新到版本号：v3.0.0319 ； 备案许可证编号：沪ICP备2026001760号<br>数据源：NOAA SWPC（实时太阳风、OVATION nowcast、Kp 预报）与 Open-Meteo 云量预报。磁纬（MLAT）当前为估算（偶极近似）；若接入 AACGMv2 换算服务，将自动切换为真实 AACGMv2。",
-      en: "Version v3.0.0319 · ICP Filing No. 沪ICP备2026001760号<br>Data sources: NOAA SWPC (solar wind, OVATION nowcast, Kp forecast) and Open-Meteo cloud forecast. MLAT is currently estimated (dipole approximation); if an AACGMv2 endpoint is available, it will switch to true AACGMv2 automatically."
+      zh: "佑酱已吐血更新到版本号：v3.0.0319 ； 备案许可证编号：沪ICP备2026001760号<br>数据源：NOAA SWPC（实时太阳风、OVATION nowcast、Kp 预报）与 Open-Meteo 云量预报。磁纬（MLAT）当前为估算（偶极近似）。",
+      en: "Version v3.0.0319 · ICP Filing No. 沪ICP备2026001760号<br>Data sources: NOAA SWPC (real-time solar wind, OVATION nowcast, Kp forecast) and Open-Meteo cloud forecast. MLAT is currently estimated (dipole approximation)."
     }
   };
 
