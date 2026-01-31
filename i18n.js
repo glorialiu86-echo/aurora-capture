@@ -31,10 +31,9 @@
     FORM_BTN_PREDICT: { type: "text", zh: "✍️ Run Forecast", en: "✍️ Run Forecast" },
     FORM_GEO_HINT_SUMMARY: { type: "text", zh: "推荐直接“获取当前位置”，也可手动输入经纬度", en: "We recommend using \"Get Location\". You can also enter coordinates manually." },
     FORM_GEO_HINT_BODY_MAIN: {
-      type: "template",
-      params: ["link1Text", "link1Url", "link2Text", "link2Url"],
-      zh: "目的地经纬度：可通过 {link1Text} 获取，或使用 {link2Text}。",
-      en: "Not sure about coordinates? Try: {link1Text} (drop a pin and read lat/lon), or {link2Text}."
+      type: "text",
+      zh: "目的地经纬度：可通过奥维地图长按获取，或使用腾讯地图坐标拾取器（网页端）：https://lbs.qq.com/getPoint/。",
+      en: "To get destination coordinates, right-click a point in Google Maps to copy the latitude and longitude. You can also use any online coordinate picker."
     },
 
     // --- status row ---

@@ -200,55 +200,6 @@
       if(right) el.appendChild(document.createTextNode(right));
     };
 
-    const renderGeoHintBody = (el) => {
-      if(!el) return;
-      const langKey = i18n.getLang();
-      const raw = i18n.resources?.FORM_GEO_HINT_BODY_MAIN?.[langKey] ?? "";
-      const links = (langKey === "en") ? {
-        link1Text: "Google Maps",
-        link1Url: "",
-        link2Text: "Tencent Maps picker",
-        link2Url: "https://lbs.qq.com/getPoint/"
-      } : {
-        link1Text: "奥维地图",
-        link1Url: "",
-        link2Text: "腾讯地图坐标拾取器",
-        link2Url: "https://lbs.qq.com/getPoint/"
-      };
-
-      el.textContent = "";
-      const parts = String(raw).split(/(\{link1Text\}|\{link2Text\})/g);
-      parts.forEach((part) => {
-        if(part === "{link1Text}"){
-          if(links.link1Url){
-            const a = document.createElement("a");
-            a.href = links.link1Url;
-            a.textContent = links.link1Text;
-            a.target = "_blank";
-            a.rel = "noopener";
-            el.appendChild(a);
-          }else{
-            el.appendChild(document.createTextNode(links.link1Text));
-          }
-          return;
-        }
-        if(part === "{link2Text}"){
-          if(links.link2Url){
-            const a = document.createElement("a");
-            a.href = links.link2Url;
-            a.textContent = links.link2Text;
-            a.target = "_blank";
-            a.rel = "noopener";
-            el.appendChild(a);
-          }else{
-            el.appendChild(document.createTextNode(links.link2Text));
-          }
-          return;
-        }
-        if(part) el.appendChild(document.createTextNode(part));
-      });
-    };
-
     const renderNode = (el) => {
       const key = el.getAttribute("data-i18n");
       const attr = el.getAttribute("data-i18n-attr");
@@ -263,11 +214,6 @@
       }
       if(!key) return;
       if(key === "HDR_TITLE_BRAND") return;
-
-      if(key === "FORM_GEO_HINT_BODY_MAIN"){
-        renderGeoHintBody(el);
-        return;
-      }
       if(key === "T1_SW_CLOUD_LINE"){
         const dash = i18n.t("UI_PLACEHOLDER_DASH");
         el.textContent = i18n.t(key, { l: dash, m: dash, h: dash });
