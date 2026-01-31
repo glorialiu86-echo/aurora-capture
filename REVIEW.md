@@ -91,3 +91,14 @@
 ### 验证点
 1) 切 EN：不再出现“刚刚/分钟前/小时前/失败/优中差/精度约”等中文。
 2) Run Forecast：72h 云量评分与定位精度后缀显示英文，console 无 missing key。
+
+## R4-2 A-2：数据可信度与回溯文本 key 化
+
+### 变更摘要
+- 数据可信度正文改为 ALERT_DATA_CONF_BODY 模板 key（含 missText）。
+- “点击查看数据可信度说明” title 改为 STATUS_TEXT_DATA_CONF_TITLE。
+- V/N 回溯片段改为 T1_SW_META_BACKFILL 模板 key。
+
+### 验证点
+1) Run Forecast：数据可信度提醒弹出/提示时为英文，title 为英文。
+2) 上游实况 meta 行出现 V/N 回溯时不含中文。

@@ -46,6 +46,7 @@
     STATUS_TEXT_SW_OUTAGE: { type: "text", zh: "⚠️ 太阳风数据源长时间不可用：已进入弱模式（保守估算）", en: "⚠️ Solar wind data source long outage: weak mode (conservative)" },
     STATUS_TEXT_MLAT_STOP: { type: "text", zh: "⚠️ 磁纬过低：已停止生成。", en: "⚠️ MLAT too low: generation stopped." },
     STATUS_TEXT_SUNCALC_MISSING: { type: "text", zh: "关键计算模块未加载（SunCalc）。", en: "Required module missing (SunCalc)." },
+    STATUS_TEXT_DATA_CONF_TITLE: { type: "text", zh: "点击查看数据可信度说明", en: "Click to view data confidence details" },
     STATUS_TEXT_INPUT_INVALID: { type: "text", zh: "请先输入有效经纬度。", en: "Please enter valid latitude/longitude." },
     STATUS_TEXT_RANGE_INVALID: { type: "text", zh: "⚠️ 经纬度超出范围", en: "⚠️ Coordinates out of range" },
     STATUS_TEXT_GEO_FETCHING: { type: "text", zh: "📍 正在获取当前位置…", en: "📍 Getting current location..." },
@@ -109,6 +110,7 @@
     T1_SW_CLOUD_LINE: { type: "template", params: ["l", "m", "h"], zh: "云 L/M/H {l}/{m}/{h}%", en: "Clouds L/M/H {l}/{m}/{h}%" },
     T1_SW_MOON_LINE: { type: "template", params: ["deg"], zh: "月角 {deg}°", en: "Moon Alt {deg}°" },
     T1_SW_META_TEMPLATE: { type: "template", params: ["tsText", "magAgeMin", "plasmaAgeMin", "backfillAgeMin"], zh: "更新时间：{tsText} ・ 新鲜度：mag {magAgeMin}m / plasma {plasmaAgeMin}m{backfillAgeMin}", en: "Updated: {tsText} · Freshness: mag {magAgeMin}m / plasma {plasmaAgeMin}m{backfillAgeMin}" },
+    T1_SW_META_BACKFILL: { type: "template", params: ["m"], zh: " ・ V/N回溯：{m}m", en: " · V/N backfill: {m}m" },
     T1_CHART_TITLE: { type: "text", zh: "1小时 C值（Capture）柱状图", en: "1H C-Index (Capture) Bar Chart" },
     T1_CHART_SUB: { type: "text", zh: "C值越高，越建议投入。", en: "Higher C-Index means stronger recommendation." },
     T1_UNIT_10M: { type: "text", zh: "单位：10分钟", en: "Unit: 10 min" },
@@ -163,6 +165,7 @@
 
     // --- alert ---
     ALERT_TITLE_DATA_CONF: { type: "text", zh: "⚠️ 数据可信度提醒", en: "⚠️ Data Confidence Notice" },
+    ALERT_DATA_CONF_BODY: { type: "template", params: ["missText"], zh: "NOAA 数据口径变动或部分数据缺失：{missText}\n当前预测可信度较低，建议谨慎参考。", en: "NOAA data format changes or missing fields: {missText}\nForecast confidence is reduced; use caution." },
     ALERT_NOTE_DATA_CONF: { type: "text", zh: "不代表无法观测，仅表示模型输入存在不确定性。", en: "Not necessarily unobservable. Inputs may be uncertain." },
     ALERT_OK_BTN: { type: "text", zh: "知道了", en: "OK" },
     ALERT_CLOSE_ARIA: { type: "text", zh: "关闭", en: "Close" },

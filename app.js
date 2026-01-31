@@ -1499,7 +1499,7 @@ function fillCurrentLocation(){
           magAgeMin: Math.round(rt.imf.ageMin),
           plasmaAgeMin: Math.round(rt.solarWind.ageMin),
           backfillAgeMin: Number.isFinite(sw._plasmaBackfillAgeMin)
-            ? ` ・ V/N回溯：${sw._plasmaBackfillAgeMin}m`
+            ? tKey("T1_SW_META_BACKFILL", { m: sw._plasmaBackfillAgeMin })
             : ""
         })
       );
@@ -1517,12 +1517,12 @@ function fillCurrentLocation(){
         // 数据可信度提醒：右侧可点击查看详情（不自动强弹）
         setStatusText(tKey("STATUS_TEXT_DATA_CONFIDENCE"));
 
-        const warnText = `NOAA 数据口径变动或部分数据缺失：${missCN}\n当前预测可信度较低，建议谨慎参考。`;
+        const warnText = tKey("ALERT_DATA_CONF_BODY", { missText: missCN });
 
         const st = document.getElementById("statusText");
         if(st){
           st.classList.add("warn");
-          st.title = "点击查看数据可信度说明";
+          st.title = tKey("STATUS_TEXT_DATA_CONF_TITLE");
           st.onclick = () => openAlertOverlayText(warnText);
         }
       }else{
