@@ -29,6 +29,16 @@
 ## Open questions / follow-ups
 - Unverified：本地未执行运行时 missing key 观测
 
+## R4-2 preflight：delivery/72h 中文行 key 化
+
+### 变更摘要
+- “1/3 成立”改为 `DELIVERY_RATIO_OK` 模板 key。
+- 72h 解释行标签与数值说明改为 `OUTLOOK72_*` key（含模板 value）。
+
+### 验证点
+1) 切 EN：Solar Wind Delivery Model 区域不再出现中文（Unverified）。
+2) 72H Outlook 三张卡片解释行均为英文占位（Unverified）。
+
 ## R4-2 preflight A1 运行时核查
 - 动作序列：CN/EN 切换、打开/关闭工具介绍、Run Forecast、点击获取当前位置、关闭 alert（X/知道了）
 - 结果：A1=0（用户手动核查）

@@ -1700,7 +1700,7 @@ function fillCurrentLocation(){
 
       // 送达模型（保留：作为背景信息）
       const del = window.Model.deliverModel(sw);
-      safeText($("threeDeliver"), `${del.count}/3 成立`);
+      safeText($("threeDeliver"), tKey("DELIVERY_RATIO_OK", { ok: del.count, total: 3 }));
       safeText(
         $("threeDeliverMeta"),
         `Bt平台${del.okBt ? "✅" : "⚠️"} ・ 速度背景${del.okV ? "✅" : "⚠️"} ・ 密度结构${del.okN ? "✅" : "⚠️"}`
@@ -1926,19 +1926,19 @@ function fillCurrentLocation(){
         const lab = map5[score5];
 
         // 云量更佳点（即使云量模块隐藏，这里仍作为依据展示）
-        let cloudDetail = "云量更佳点：—";
+        let cloudDetail = `${tKey("OUTLOOK72_BEST_CLOUD_TIME")}: —`;
         if (clouds.ok && clouds.data) {
           const win = bestCloudHourForDay(clouds.data, d);
           if (win) {
-            cloudDetail = `云量更佳点：${win.hh}:00（L/M/H≈${win.low}/${win.mid}/${win.high}%）`;
+            cloudDetail = `${tKey("OUTLOOK72_BEST_CLOUD_TIME")}: ${win.hh}:00（L/M/H≈${win.low}/${win.mid}/${win.high}%）`;
           }
         }
 
         // 依据（不折叠，允许换行）
-        const kpLine = `能量背景：Kp峰值≈${kpMax == null ? "—" : round0(kpMax)}`;
-        const delLine = `送达模型：${del.count}/3（Bt/速度/密度）`;
-        const trigLine = `触发模型：高速风${p1a}/1 · 能量输入${p1b}/1`;
-        const nightLine = `夜晚占比：${Math.round(nightRatio * 100)}%`;
+        const kpLine = `${tKey("OUTLOOK72_ENERGY_BG")}: ${tKey("OUTLOOK72_ENERGY_BG_VALUE", { kp: (kpMax == null ? "—" : round0(kpMax)) })}`;
+        const delLine = `${tKey("OUTLOOK72_DELIVERY_MODEL")}: ${tKey("OUTLOOK72_DELIVERY_MODEL_VALUE", { count: del.count })}`;
+        const trigLine = `${tKey("OUTLOOK72_TRIGGER_MODEL")}: ${tKey("OUTLOOK72_TRIGGER_MODEL_VALUE", { p1a, p1b })}`;
+        const nightLine = `${tKey("OUTLOOK72_NIGHT_SHARE")}: ${tKey("OUTLOOK72_NIGHT_SHARE_VALUE", { percent: Math.round(nightRatio * 100) })}`;
 
         const basisLines = [kpLine, delLine, trigLine, nightLine, cloudDetail];
 
