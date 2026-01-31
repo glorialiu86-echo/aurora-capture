@@ -4,6 +4,7 @@
 - 72h 卡片标题改为使用 UI_72H_TITLE_C* 独立 key（不再复用 STATUS_C*）
 - i18n.js 补齐 UI_72H_TITLE_C1~C5 的 zh/en 文案
 - 72h 分数映射 map5 标题接线到新 key
+- Geo button success toast（“已获取 ✓”）key 化：FORM_BTN_GEO_SUCCESS + app.js 接线
 
 ## Files touched
 - Modified: app.js, i18n.js, REVIEW.md

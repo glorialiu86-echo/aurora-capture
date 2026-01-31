@@ -698,19 +698,19 @@ function flashGeoButtonSuccess(){
   if(!btn) return;
 
   // remember original label once
-  if(!btn.dataset.labelOriginal){
-    btn.dataset.labelOriginal = btn.textContent || "📍获取位置";
+  if(!btn.dataset.labelKeyOriginal){
+    btn.dataset.labelKeyOriginal = "FORM_BTN_GEO";
   }
 
   // clear pending reset if user clicks again
   if(__geoBtnResetTimer) clearTimeout(__geoBtnResetTimer);
 
   // temporary label (no class change -> no color jump)
-  btn.textContent = "已获取 ✓";
+  btn.textContent = tKey("FORM_BTN_GEO_SUCCESS");
 
   // restore after 1.5s
   __geoBtnResetTimer = setTimeout(() => {
-    btn.textContent = btn.dataset.labelOriginal || "📍获取位置";
+    btn.textContent = tKey(btn.dataset.labelKeyOriginal || "FORM_BTN_GEO");
     __geoBtnResetTimer = null;
   }, 1500);
 }

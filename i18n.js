@@ -27,6 +27,7 @@
     FORM_PLACEHOLDER_LAT: { type: "text", zh: "例如 53.47", en: "e.g. 53.47" },
     FORM_PLACEHOLDER_LON: { type: "text", zh: "例如 122.35", en: "e.g. 122.35" },
     FORM_BTN_GEO: { type: "text", zh: "📍 获取当前位置", en: "📍 Get Location" },
+    FORM_BTN_GEO_SUCCESS: { type: "text", zh: "已获取 ✓", en: "Got it ✓" },
     FORM_BTN_RUN: { type: "text", zh: "✍️ 生成即时预测", en: "✍️ Run Forecast" },
     FORM_BTN_PREDICT: { type: "text", zh: "✍️ Run Forecast", en: "✍️ Run Forecast" },
     FORM_GEO_HINT_SUMMARY: { type: "text", zh: "推荐直接“获取当前位置”，也可手动输入经纬度", en: "We recommend using \"Get Location\". You can also enter coordinates manually." },
