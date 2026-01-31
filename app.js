@@ -1906,7 +1906,7 @@ function fillCurrentLocation(){
           4: { t: "STATUS_C4", cls: "c4" },
           3: { t: "STATUS_C3", cls: "c3" },
           2: { t: "STATUS_C2", cls: "c2" },
-          1: { t: "UI_72H_NOT_OBSERVABLE_TITLE", cls: "c1" },
+          1: { t: "STATUS_C1", cls: "c1" },
         };
         const lab = map5[score5];
 
