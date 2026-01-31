@@ -102,3 +102,40 @@
 ### 验证点
 1) Run Forecast：数据可信度提醒弹出/提示时为英文，title 为英文。
 2) 上游实况 meta 行出现 V/N 回溯时不含中文。
+
+## R4-2 A-3：趋势提示 key 化 + debug 自查闭环
+
+### 变更摘要
+- 趋势提示改为模板 key：T1_TREND_BZ_DROP_30 / T1_TREND_BZ_DROP_15（含 drop 参数）。
+- 新增 debug=1 自查钩子（仅 debug 生效）：强制展示 A-1/A-2/A-3 文案路径并输出 DOM 证据。
+
+### 自查（静态扫描）
+- 命令：`rg -n "[\\u4e00-\\u9fff]" app.js ui.js model.js index.html`
+- 结果：仅命中注释与 model.js 内提示文案（F 类），无新增 UI 硬编码中文。
+
+### 自查（运行自测，debug=1）
+- 启动本地服务：`python3 -m http.server 8000`
+- 触发 URL（EN + 自测注入）：
+  - Trend 30min：
+    `http://localhost:8000/index.html?debug=1&debugLang=en&debugAutoRun=1&debugSelfTest=1&debugAccM=35&debugMissText=v,n,bt,bz&debugBackfillMin=35&debugShowAlert=1&debugAgeMs=60000&debugTrend=30&debugCloudGrade=1&debugOvaFail=1&debugMissingCount=1`
+  - Trend 15min：
+    `http://localhost:8000/index.html?debug=1&debugLang=en&debugAutoRun=1&debugSelfTest=1&debugAccM=35&debugMissText=v,n,bt,bz&debugBackfillMin=35&debugShowAlert=1&debugAgeMs=60000&debugTrend=15&debugCloudGrade=1&debugOvaFail=1&debugMissingCount=1`
+
+### 自查结果（DOM 证据摘录）
+- A-1：`Location acquired (accuracy ≈ 35m)`
+- A-1：`Failed`（OVATION fail）
+- A-1：`5 min ago`（timeago）
+- A-1：`Good`（云量评分）
+- A-2：`Updated: 2026-01-31 00:00 · Freshness: mag 10m / plasma 20m · V/N backfill: 35m`
+- A-2：`NOAA data format changes or missing fields: v,n,bt,bz` / `Forecast confidence is reduced; use caution.`
+- A-3（trend=30）：`Trend: Bz turned south over the past 30 min (≈3.5 nT). Consider getting ready (30–60 min).`
+- A-3（trend=15）：`Trend: Bz turned south quickly over the past 15 min (≈2.5 nT). Consider getting ready (30–60 min).`
+- Missing key/param 计数：`[debug] i18n missing key/param: 0`（已写入 oneHeroMeta）
+
+### 证据文件（本地）
+- DOM dump：
+  - `/tmp/aurora_debug_30.html`
+  - `/tmp/aurora_debug_15.html`
+- 截图：
+  - `/tmp/aurora_debug_30.png`
+  - `/tmp/aurora_debug_15.png`

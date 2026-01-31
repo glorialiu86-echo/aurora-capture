@@ -201,6 +201,185 @@ const maybeText = (v) => {
   return String(v == null ? "" : v);
 };
 
+// DEBUG HOOK (debug=1 only)
+// NOTE: no behavior changes when debug is off.
+const __debugEnabled = (new URLSearchParams(location.search).get("debug") === "1");
+const __debugParams = __debugEnabled ? new URLSearchParams(location.search) : null;
+let __debugI18nMissingCount = 0;
+let __debugWarnPatched = false;
+
+const __debugInit = () => {
+  if(!__debugEnabled || __debugWarnPatched) return;
+  __debugWarnPatched = true;
+  const origWarn = console.warn;
+  console.warn = (...args) => {
+    const msg = String(args[0] || "");
+    if(msg.includes("[i18n] missing")) __debugI18nMissingCount += 1;
+    return origWarn.apply(console, args);
+  };
+};
+
+const __debugApply = (ctx) => {
+  if(!__debugEnabled || !__debugParams) return;
+  __debugInit();
+
+  const debugLang = __debugParams.get("debugLang");
+  if(debugLang === "en" || debugLang === "zh" || debugLang === "cn"){
+    try{
+      if(window.I18N && typeof window.I18N.setLang === "function"){
+        window.I18N.setLang(debugLang === "cn" ? "zh" : debugLang);
+      }
+    }catch(_){ /* debug only */ }
+  }
+
+  if(__debugParams.get("debugMissing") === "1"){
+    ctx.missingKeys.push("v", "n", "bt", "bz");
+  }
+
+  const backfill = Number(__debugParams.get("debugBackfillMin"));
+  if(Number.isFinite(backfill) && ctx.sw){
+    ctx.sw._plasmaBackfillAgeMin = backfill;
+  }
+
+  if(__debugParams.get("debugOvaFail") === "1" && ctx.ova){
+    ctx.ova.note = "fail";
+    console.log("[debug] ovation status:", ctx.tKey("T1_OVATION_STATUS_FAIL"));
+  }
+
+  const acc = Number(__debugParams.get("debugAccM"));
+  if(Number.isFinite(acc)){
+    ctx.setStatusText(ctx.tKey("STATUS_TEXT_GEO_SUCCESS", {
+      acc: ctx.tKey("STATUS_TEXT_GEO_ACCURACY_SUFFIX", { m: Math.round(acc) })
+    }));
+  }
+
+  const ageMs = Number(__debugParams.get("debugAgeMs"));
+  if(Number.isFinite(ageMs) && window.UI && typeof window.UI.fmtAge === "function"){
+    console.log("[debug] fmtAge:", window.UI.fmtAge(ageMs));
+  }
+
+  const trend = __debugParams.get("debugTrend");
+  if(trend === "30"){
+    ctx.trendPlus.on = true;
+    ctx.trendPlus.reason = ctx.tKey("T1_TREND_BZ_DROP_30", { drop: "3.5" });
+    console.log("[debug] trend:", ctx.trendPlus.reason);
+  }else if(trend === "15"){
+    ctx.trendPlus.on = true;
+    ctx.trendPlus.reason = ctx.tKey("T1_TREND_BZ_DROP_15", { drop: "2.5" });
+    console.log("[debug] trend:", ctx.trendPlus.reason);
+  }
+
+  if(__debugParams.get("debugShowAlert") === "1" && typeof ctx.openAlertOverlayText === "function"){
+    const missText = __debugParams.get("debugMissText") || "v,n,bt,bz";
+    const body = ctx.tKey("ALERT_DATA_CONF_BODY", { missText });
+    ctx.openAlertOverlayText(body);
+    console.log("[debug] data confidence body:", body);
+  }
+
+  if(__debugParams.get("debugCloudGrade") === "1"){
+    console.log("[debug] cloud grade:", ctx.tKey("UI_72H_CLOUD_GRADE_GOOD"));
+  }
+};
+
+const __debugAutoRun = (runFn) => {
+  if(!__debugEnabled || !__debugParams) return;
+  if(__debugParams.get("debugAutoRun") !== "1") return;
+  const selfTest = (__debugParams.get("debugSelfTest") === "1");
+  const debugLang = __debugParams.get("debugLang");
+  if(debugLang === "en" || debugLang === "zh" || debugLang === "cn"){
+    try{
+      if(window.I18N && typeof window.I18N.setLang === "function"){
+        window.I18N.setLang(debugLang === "cn" ? "zh" : debugLang);
+      }
+    }catch(_){ /* debug only */ }
+  }
+  const lat = __debugParams.get("debugLat") || "53.47";
+  const lon = __debugParams.get("debugLon") || "122.35";
+  if($("lat")) $("lat").value = lat;
+  if($("lon")) $("lon").value = lon;
+  setTimeout(() => {
+    try{
+      if(selfTest){
+        const acc = Number(__debugParams.get("debugAccM"));
+        if(Number.isFinite(acc)){
+          setStatusText(tKey("STATUS_TEXT_GEO_SUCCESS", {
+            acc: tKey("STATUS_TEXT_GEO_ACCURACY_SUFFIX", { m: Math.round(acc) })
+          }));
+        }
+
+        const missText = __debugParams.get("debugMissText") || "v,n,bt,bz";
+        const backfill = Number(__debugParams.get("debugBackfillMin"));
+        const tsText = "2026-01-31 00:00";
+        const backfillText = Number.isFinite(backfill)
+          ? tKey("T1_SW_META_BACKFILL", { m: backfill })
+          : "";
+        safeText(
+          $("swMeta"),
+          tKey("T1_SW_META_TEMPLATE", {
+            tsText,
+            magAgeMin: 10,
+            plasmaAgeMin: 20,
+            backfillAgeMin: backfillText
+          })
+        );
+
+        if(__debugParams.get("debugShowAlert") === "1"){
+          const body = tKey("ALERT_DATA_CONF_BODY", { missText });
+          openAlertOverlayText(body);
+        }
+
+        const trend = __debugParams.get("debugTrend");
+        let trendText = "";
+        if(trend === "30"){
+          trendText = tKey("T1_TREND_BZ_DROP_30", { drop: "3.5" });
+        }else if(trend === "15"){
+          trendText = tKey("T1_TREND_BZ_DROP_15", { drop: "2.5" });
+        }
+        if(trendText){
+          if(__debugParams.get("debugMissingCount") === "1"){
+            trendText += ` | [debug] i18n missing key/param: ${__debugI18nMissingCount}`;
+          }
+          safeText($("oneHeroMeta"), trendText);
+        }
+
+        if($("threeSlot0Note")){
+          safeText($("threeSlot0Note"), tKey("T1_OVATION_STATUS_FAIL"));
+        }
+        if($("threeSlot0Reason")){
+          safeText($("threeSlot0Reason"), tKey("UI_TIMEAGO_MINUTES", { m: 5 }));
+        }
+        if($("day0Note")){
+          safeText($("day0Note"), tKey("UI_72H_CLOUD_GRADE_GOOD"));
+        }
+
+        if(window.UI && typeof window.UI.fmtAge === "function"){
+          const ageMs = Number(__debugParams.get("debugAgeMs"));
+          if(Number.isFinite(ageMs)){
+            console.log("[debug] fmtAge:", window.UI.fmtAge(ageMs));
+          }
+        }
+        if(__debugParams.get("debugCloudGrade") === "1"){
+          console.log("[debug] cloud grade:", tKey("UI_72H_CLOUD_GRADE_GOOD"));
+        }
+        if(__debugParams.get("debugOvaFail") === "1"){
+          console.log("[debug] ovation status:", tKey("T1_OVATION_STATUS_FAIL"));
+        }
+        // missing count is appended to trend text for DOM evidence
+        return;
+      }
+
+      const p = runFn();
+      if(__debugParams.get("debugMissingCount") === "1" && p && typeof p.then === "function"){
+        p.then(() => {
+          console.log("[debug] i18n missing key/param:", __debugI18nMissingCount);
+        }).catch(() => {
+          console.log("[debug] i18n missing key/param:", __debugI18nMissingCount);
+        });
+      }
+    }catch(_){ /* debug only */ }
+  }, 0);
+};
+
 const clearEl = (el) => {
   if(!el) return;
   while(el.firstChild) el.removeChild(el.firstChild);
@@ -1353,7 +1532,7 @@ function fillCurrentLocation(){
       // ===============================
       // 人话：分数代表“现在”，加号代表“正在变好”。
       // 只在 2/3/4 分上允许出现“+”，并且不做一票否决。
-      const trendPlus = (() => {
+      let trendPlus = (() => {
         try{
           const bt = Number(sw.bt);
           const bzNow = Number(sw.bz);
@@ -1377,14 +1556,16 @@ function fillCurrentLocation(){
 
           // copywriting: keep it short + actionable
           const desc = ok30
-            ? `趋势：Bz 在过去 30 分钟明显转南（≈${drop30.toFixed(1)}nT），建议提前准备（30–60min）`
-            : `趋势：Bz 在过去 15 分钟快速转南（≈${drop15.toFixed(1)}nT），建议提前准备（30–60min）`;
+            ? tKey("T1_TREND_BZ_DROP_30", { drop: drop30.toFixed(1) })
+            : tKey("T1_TREND_BZ_DROP_15", { drop: drop15.toFixed(1) });
 
           return { on:true, level:1, reason: desc };
         }catch(_){
           return { on:false, level:0, reason:"" };
         }
       })();
+
+      __debugApply({ missingKeys, sw, rt, ova, setStatusText, tKey, trendPlus, openAlertOverlayText });
 
       // Inline "+" badge HTML (no extra CSS dependency)
       const plusBadgeInline = () => (
@@ -1982,6 +2163,8 @@ function fillCurrentLocation(){
     // Alert modal close buttons
     document.getElementById("alertClose")?.addEventListener("click", closeAlertOverlay);
     document.getElementById("alertOk")?.addEventListener("click", closeAlertOverlay);
+
+    __debugAutoRun(run);
 
   }
   document.addEventListener("DOMContentLoaded", bootstrap);

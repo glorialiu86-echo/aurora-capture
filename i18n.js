@@ -125,6 +125,8 @@
     T1_ACTION_MID: { type: "text", zh: "可尝试短时观测。", en: "Try a short watch." },
     T1_ACTION_HIGH: { type: "text", zh: "值得出门尝试。", en: "Worth going out to try." },
     T1_OVATION_STATUS_FAIL: { type: "text", zh: "失败", en: "Failed" },
+    T1_TREND_BZ_DROP_30: { type: "template", params: ["drop"], zh: "趋势：Bz 在过去 30 分钟明显转南（≈{drop}nT），建议提前准备（30–60min）", en: "Trend: Bz turned south over the past 30 min (≈{drop} nT). Consider getting ready (30–60 min)." },
+    T1_TREND_BZ_DROP_15: { type: "template", params: ["drop"], zh: "趋势：Bz 在过去 15 分钟快速转南（≈{drop}nT），建议提前准备（30–60min）", en: "Trend: Bz turned south quickly over the past 15 min (≈{drop} nT). Consider getting ready (30–60 min)." },
 
     // --- T3 ---
     T3_STATE_TITLE: { type: "text", zh: "近期极光状态", en: "Recent Aurora State" },
